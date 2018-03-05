@@ -1,0 +1,159 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage{CJK}
+\usepackage{graphicx}
+\usepackage{amsmath,amssymb,amsopn}
+\usepackage[english]{babel}
+\usepackage[latin1]{inputenc}
+\usepackage{url}
+\usepackage{enumerate}
+\usepackage{color}
+\usepackage{times}
+\usepackage{xcolor}
+\usepackage{listings}
+\lstset{
+language=R,
+keywordstyle=\color{blue!70}\bfseries,
+basicstyle=\ttfamily,
+commentstyle=\ttfamily,
+showspaces=false,
+showtabs=false,
+frame=shadowbox,
+rulesepcolor=\color{red!20!green!20!blue!20},
+breaklines=true
+}
+
+\title{\small{BI476: Biostatistics - Case Studies}\\
+\Large{Assignment 1: Math Fundamentals}
+}
+\author{Maoying,Wu}
+\date{Spring, 2018}
+
+\begin{document}
+\begin{CJK*}{UTF8}{gbsn}
+\maketitle
+
+\section{Calculus}
+\subsection{For $\mathbf{y=x^T A x}; \mathbf{x, y} \in \mathbb{R}^n, \mathbf{A} \in 
+\mathbb{R}^{n \times n}$}
+\begin{enumerate}[(1)]
+    \item Prove that $\frac{\partial \mathbf{y}}{\partial \mathbf{x}} = \mathbf{Ax}$
+    \item Compute $\frac{\partial \mathbf{y}}{\partial \mathbf{x}^T}$
+\end{enumerate}
+
+\subsection{For $\mathbf{z=x^TAy}$, where $\mathbf{x} \in \mathbb{R}^m, \mathbf{y} 
+\in \mathbb{R}^n, \mathbf{A} \in \mathbb{R}^{m \times n}$}
+\begin{enumerate}[(1)]
+    \item Compute $\frac{\partial \mathbf{z}}{\partial \mathbf{x}}$
+    \item Compute $\frac{\partial \mathbf{z}}{\partial \mathbf{y}}$
+\end{enumerate}
+
+\subsection{Linear regression}
+A linear regression problem $\mathbf{y = X\beta}$ can be solved 
+either using least squares or maximum likelihood. Can you write down the two 
+objective functions and reach the normal equations.
+
+
+\section{Linear algebra}
+\subsection{Trace}
+Here is definition of the trace for a square matrix $\mathbf{X}$:
+$$
+\operatorname{tr}(X) = |X| = \sum_{i=1}^n x_{ii}
+$$
+Let $\textbf{A} \in \mathbb{R}^{n \times n}$ and $\textbf{B} \in 
+\mathbb{R}^{n \times n}$ are two square matrices, and $c \in \mathbb{R}$.
+Prove that:
+\begin{enumerate}[(1)]
+    \item $tr(A \pm B) = tr(A) + tr(B)$
+    \item $tr(A^T) = tr(A)$
+    \item $tr(cA) = c \mathrm{tr}(A)$
+    \item $tr(AB) = tr(BA)$
+    \item $tr(AA^T) = tr(A^T A)$
+\end{enumerate}
+
+\subsection{Determinant}
+We know that the determinant of a square matrix $A \in \mathbb{R}^{n \times n}$ 
+is defined by
+$$
+\| A \| = \sum_{i=1}^n (-1)^{i+j} a_{ij} \| M_{ij} \|, M_{ij} = A_{-i, -j}
+$$
+Prove that
+\begin{enumerate}[(1)]
+    \item If $A$ is diagonal or triangular, then $\| A \| = \prod_{i=1}^n a_{ii}$
+\end{enumerate}
+
+\subsection{Spectral Decomposition}
+The spectral decomposition of a square matrix $A \in \mathbb{R}^{n \times n}$ can 
+be defined as
+$$
+\mathbf{A = \Gamma \Lambda \Gamma^T}
+$$
+where $\Gamma$ are orthonormal matrix such that $\Gamma \Gamma^T = I$ and 
+$\mathbf{\Lambda}$ is the diagonal matrix of the eigenvalues of $\mathbf{A}$.
+Write down the form of $\mathbf{A}^{m}$.
+
+\subsection{Eigen-decomposition}
+\begin{enumerate}[(1)]
+    \item What are positive-definite (PD) matrix and positive 
+        semi-definite (PS) matrices?
+    \item Can you use eigen-decomposition to determine if a 
+        square matrix is positive definite or not? 
+\end{enumerate}
+
+\subsection{Other Matrix Decomposition Techniques}
+\begin{enumerate}[(1)]
+    \item What is QR-decomposition and Cholesky-decomposition?
+    \item Write some comments on the applications of the above 
+        matrix decomposition techniques.
+    \item \texttt{base::qr} and \texttt{base::chol} can be used 
+        to conduct the two decompositions. Give an example to 
+        illustrate the usage of the two decompositions?
+\end{enumerate}
+
+\section{Mathematical Optimization}
+
+
+
+\section{Probability}
+
+\subsection{Sufficient statistic}
+\begin{enumerate}[(1)]
+    \item What is sufficient statistic?
+    \item How to prove that a statistic is a sufficient statistic for a 
+        parameter?
+\end{enumerate}
+
+\subsection{Negative binomial distribution}
+\begin{enumerate}[(1)]
+    \item What is negative-binomial distribution?
+    \item Can you write down the expectation and variance of the distribution?
+    \item Both Poisson and negative binomial distributions can be used to fit 
+        the counts. What are the differences between these two distributions?
+\end{enumerate}
+
+\subsection{Beta-Binomial model}
+\begin{lstlisting}
+y <- 13
+N <- 35
+
+a <- 1
+b <- 1
+
+theta <- seq(0, 1, len = 100)
+likelihood <- theta ^ y * (1-theta)^(N-y) #dbinom(y, N, theta)
+prior <- theta ^ (a-1) * (1-theta)^(b-1) #dbeta(theta, a, b)
+posterior1 <- prior * likelihood
+posterior2 <- dbeta(theta, y + a, N - y + b)
+
+plot(theta, likelihood, ty='l')
+abline(v = y/N, col="red")
+
+par(mfrow=c(1,3))
+plot(theta, prior, ty='l')
+plot(theta, posterior1, ty='l')
+plot(theta, posterior2, ty='l', col="blue")
+
+\end{lstlisting}
+
+
+\end{CJK*}
+\end{document}
