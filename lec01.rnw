@@ -1,0 +1,900 @@
+\documentclass[10pt]{beamer}
+
+\mode<presentation>{
+\usetheme{Goettingen}
+%\usetheme{Madrid}
+\usecolortheme{default}
+}
+\usepackage{CJK}
+\usepackage{graphicx}
+\usepackage{amsmath, amsopn}
+\usepackage[english]{babel}
+\usepackage[T1]{fontenc}
+\usepackage[latin1]{inputenc}
+\usepackage{enumerate}
+\usepackage{animate}
+\usepackage{url}
+\ifx\hypersetup\undefined
+	\AtbBeginDocument{%
+		\hypersetup{unicode=true,pdfusetitle,
+bookmarks=true,bookmarksnumbered=false,bookmarksopen=false,
+breaklinks=false,pdfborder={0 0 0},pdfborderstyle={},backref=false,colorlinks=false}
+	}
+\else
+	\hypersetup{unicode=true,pdfusetitle,
+bookmarks=true,bookmarksnumbered=false,bookmarksopen=false,
+breaklinks=false,pdfborder={0 0 0},pdfborderstyle={},backref=false,colorlinks=false}
+\fi
+\usepackage{breakurl}
+\usepackage{color}
+\usepackage{times}
+\usepackage{xcolor}
+\usepackage{listings}
+\lstset{
+language=R,
+keywordstyle=\color{blue!70}\bfseries,
+basicstyle=\ttfamily,
+commentstyle=\ttfamily,
+showspaces=false,
+showtabs=false,
+frame=shadowbox,
+rulesepcolor=\color{red!20!green!20!blue!20},
+breaklines=true}
+
+
+\title[BI476]{BI476: Biostatistics - Case Studies}
+\author[Maoying Wu]{Maoying, Wu\\{\small ricket.woo@gmail.com}}
+\institute[CBB] % (optional, but mostly needed)
+{
+  \inst{}
+  Dept. of Bioinformatics \& Biostatistics\\
+  Shanghai Jiao Tong University
+}
+\date{Spring, 2018}
+
+\AtBeginSection[]
+{
+  \begin{frame}<beamer>{Next Section ...}
+    \tableofcontents[currentsection]
+  \end{frame}
+}
+
+\begin{document}
+\begin{CJK*}{UTF8}{gbsn}
+<<setup, include=FALSE>>=
+library(knitr)
+opts_chunk$set(fig.path='figure/beamer-', fig.align='center',
+fig.show='hold',size='footnotesize', out.width='0.60\\textwidth')
+@
+
+\frame{\titlepage}
+
+\begin{frame}
+	\tableofcontents
+\end{frame}
+
+
+\section{Syllabus}
+
+\begin{frame}
+\frametitle{BI476: Syllabus}
+\begin{itemize}
+	\item This is a one-semester course for undergraduate students majored in biostatistics 
+		or bioinformatics.  
+	\item Topics will cover experiment design, intuitive hypothesis testing, (generalized 
+		linear models (including generalized estimating equations), survival analysis and 
+		multivariate statistics methods. 
+	\item Advanced topics will be included, such as penalized regression or hierarchical 
+		/mixed-effects linear models or Bayesian statistics,  if time permits.
+	\item Estimation, interpretation, and diagnostic approaches will be discussed.  
+	\item Software instruction will be provided in class in R.  
+	\item Performance will be evaluated based on homeworks (35\%), two exams (30\%), 
+		lab assignments (20\%) and projects (15\%).
+	\item This is a two-credit course.
+\end{itemize}
+\end{frame}
+
+
+\begin{frame}
+\frametitle{BI476: Syllabus}
+\begin{itemize}
+	\item Textbooks: No textbook is required. We will provide the readings and 
+		related materials on the website.
+	\item Prerequisites:  Linear algebra, Probability, Biostatistics
+
+	\item Course Objectives:
+	Upon successful completion of the course, the student will be able to
+	\begin{itemize}
+		\item Design the experiment and analyze the experiment data 
+		\item Apply, interpret and diagnose linear regression models
+		\item Apply, interpret and diagnose logistic, poisson and Cox regresssion models
+		\item Apply and interpret the multivariate analysis methods.
+	\end{itemize}
+\end{itemize}
+\end{frame}
+
+
+\begin{frame}[t]
+\frametitle{BI476: Syllabus}
+\begin{figure}[ht]
+\begin{tabular}{ll}
+\textbf{Instructor}:	& Maoying Wu (ricket.woo@gmail.com)\\
+\textbf{Website}:	& \url{http://cbb.sjtu.edu.cn/~mywu/bi476}\\
+\textbf{Github}: & \url{https://github.com/ricket.sjtu/bi476}\\
+\textbf{Office}:	 & Biopharmaceutics Building, Rm 4A-223\\
+\textbf{Time}:	 & Mondays, 14:00-15:40\\
+\textbf{Location}:	& East Lower Hall, Rm 403\\
+\textbf{Office Hours}:	 & Monday-Friday, 8:30 – 17:00\\
+\end{tabular}
+\end{figure}
+\end{frame}
+
+
+\begin{frame}
+\frametitle{BI476: Schedule}
+\begin{itemize}
+	\item Lecture 1: Recaps of Mathematical Knowledge for Biostatistics (1-2)
+	\item Lecture 2: Observational Studies and Analysis (3-4)
+	\item Lecture 3: Randomized Clinical Trials and Analysis (5-6)
+	\item Lecture 4: Linear Regression Models and Extensions (7-8)
+	\item Midterm (9)
+	\item Lecture 5: Panel Data Analysis (10-11)
+	\item Lecture 6: Survival Analysis and Competing Risks (12-13) 
+	\item Lecture 7: Multivariate Statistcal Analysis (14-15)
+	\item Projects (16)
+	\item Final (17-18)
+\end{itemize}
+\end{frame}
+
+
+\begin{frame}
+\frametitle{List of Symbols}
+\begin{itemize}
+	\item $\mathcal{X}$: A set
+	\item $\mathbb{R}$: Real set
+	\item $X$: A random variable
+	\item $\mathbf{X} \in \mathbb{R}^{m \times n}$: A $m$-by-$n$ real matrix
+	\item $\mathbf{x} \in \mathbb{R}^{n}$: A real vector of length $n$
+	\item $x \in \mathbb{R}$: A real number
+	\item $\Phi(x) = P(X \le x)$: Cumulative distribution function
+	\item $f(x) = f(X=x)$： Probability density function  
+\end{itemize}
+\end{frame}
+
+\begin{frame}[t]
+\frametitle{Lecture 1: Mathematics for Biostatistics}
+\begin{itemize}
+	\item Calculus (微积分)
+	\begin{itemize}
+		\item Limits (极限)
+		\item Derivatives (导数): First-order and second-order
+		\item Integration (积分)
+		\item Gradient (梯度)： Jacobian, Hessian
+		\item Convex function (凸函数) and Jensen's inequality (简森不等式)
+		\item Taylor's expansion (泰勒展开)
+	\end{itemize}
+	\item Linear algebra (线性代数)
+	\begin{itemize}
+		\item Vector (向量), matrix (矩阵)
+		\item Norm (范数)
+		\item Rank (秩), determinant (行列式), trace (迹)
+		\item Matrix multiplication (矩阵乘积)
+		\item Eigendecomposition (正交分解)
+		\item Singular value decomposition (SVD，奇异值分解)
+	\end{itemize}
+\end{itemize}
+\end{frame}
+
+\begin{frame}[t]
+\frametitle{Lecture 1: Mathematics for Biostatistics}
+\begin{itemize}
+	\item Probability (概率论)
+	\begin{itemize}
+		\item Probability density function (pdf, 概率密度函数)
+		\item Probability mass function (pmf, 概率质量函数)
+		\item Cumulative distribution function (cdf, 累积分布函数)
+		\item Moment generating function (mgf, 矩母函数) 
+		\item Joint probability distribution (联合概率分布)
+		\item Conditional probability distribution (条件概率分布)
+		\item Marginal distribution (边缘概率分布)
+		\item Bayes' Equation/Theorem (贝叶斯公式/定理)
+		\item Continuous distributions (连续概率分布)
+		\item Discrete distribution (离散概率分布)
+	\end{itemize}
+	\item Numerical Optimization (数值优化方法)
+	\begin{itemize}
+		\item Convex set (凸集)
+		\item Convex function (凸函数), Concave function (凹函数)
+		\item Gradient descent (梯度下降), gradient ascent (梯度上升)
+		\item Newton's method (牛顿法)
+		\item Quasi-Newton's methods (拟牛顿法)
+		\item Method of multiplers (乘子法)
+		\item Laglangian method of multiplier (拉格朗日乘子法)
+	\end{itemize}
+\end{itemize}
+\end{frame}
+
+\section{Calculus}
+
+\begin{frame}[t]
+\frametitle{Limit (极限)}
+Compute the limit
+$$
+\lim_{x \to 0} \frac{3 \sin^2 x}{4 x^2}
+$$
+\end{frame}
+
+
+\begin{frame}[t]
+\frametitle{Derivative (导数)}
+$$
+f^\prime(x)=\frac{d}{dx} f(x)=\lim_{h\rightarrow 0} \frac{f(x+h)-f(x)}{h}
+$$
+The derivative is the slope of the tangent line to the graph of $f(x)$, 
+assuming the tangent line exists.
+\end{frame}
+
+\begin{frame}[t]
+\frametitle{Common Derivatives and Rules}
+\begin{itemize}
+	\item $\frac{d}{dx}x^n = n x^{n-1}$
+	\item $\frac{d}{dx}\ln = \frac{1}{x}$
+	\item $\frac{d}{dx}a^x = a^x \ln a$
+	\item $\frac{d}{dx}e^x = e^x$
+\end{itemize}
+\begin{block}{\center Product rule}
+$$
+[f(x)g(x)]^{\prime} = f^{\prime}(x)g(x) + f(x)g^{\prime}(x)
+$$
+\end{block}
+\begin{block}{\center Quotient rule}
+$$
+\left[ \frac{f(x)}{g(x)}\right]^{\prime} = \frac{g(x)f^{\prime}(x) - f(x)g^{\prime}(x)}{g^2(x)}
+$$
+\end{block}
+\begin{block}{\center Chain rule}
+Let $y = f(g(x))$,
+$$
+y^{\prime} = f^{\prime}(g(x)) g^{\prime}(x)
+$$
+\end{block}
+\end{frame}
+
+
+\begin{frame}[t]
+\frametitle{Integrals (积分)}
+For a function $f(x)$, its indefinite integral is:
+$$
+\int f(x)dx = F(x) + C, \mbox{where } F'(x) = f(x)
+$$
+\end{frame}
+
+
+\begin{frame}[t]
+\frametitle{Common integrals and rules}
+\begin{enumerate}[(a)]
+	\item $\int_a^a f(x)dx = 0$
+	\item $\int_a^b f(x)dx = -\int_b^a f(x)dx$
+	\item $\int x^r dx = \frac{1}{r+1}x^{r+1} + C$
+	\item $\int_a^b f(x)dx = F(b) - F(a)$
+	\item $\int x^n dx = \frac{1}{n+1} x^{n+1} + C, n \neq -1$
+	\item $\int \frac{1}{x} dx = \ln |x| + C$
+	\item $\int e^x dx = e^x + C$
+	\item $\int_a^b f(g(x)) g'(x) = \int_{g(a)}^{g(b)} f(u)du, \mbox{where } u= g(x)$
+	\item Integration by parts (分部积分): $\int_a^b u dv = uv|_a^b - \int_a^b v du$
+\end{enumerate}
+\end{frame}
+
+\begin{frame}
+\frametitle{Integrals: Exercises}
+\begin{itemize}
+	\item $\int_0^5 x^2 e^{-x} dx$
+	\item $\int x \ln x$
+	\item $\int_0^t \frac{2}{1000^2} x e^{-(x/1000)^2}$
+	\item $\int_{-\infty}^{\infty} \frac{1}{2} e^{-|y| + ty}$
+\end{itemize}
+\end{frame}
+
+
+\begin{frame}[t]
+\frametitle{Taylor's Expansion (泰勒展开)}
+$$
+f(x) = f(x_0) + \frac{f'(x_0)}{1!}(x-x_0) + \frac{f''(x_0)}{2!}(x-x_0)^2 + \dots = \sum_{k=0}^{\infty} \frac{f^{(k)}(x_0)}{k!}(x-x_0)^k
+$$
+\begin{block}{Exercise}
+$$
+1 +  \frac{1}{2!} + \frac{1}{3!} + \dots
+$$
+\end{block}
+\end{frame}
+
+
+\begin{frame}
+\frametitle{Multivariate Calculus}
+\begin{itemize}
+	\item $f_x(x, y) = \frac{\partial}{\partial x} f(x, y) = \frac{\partial f}{\partial x}$
+	\item $\int_a^b \left[ \int_c^d f(x, y)dx\right]dy = \int_c^d \left[ \int_a^b f(x, y)dy\right]dx$
+\end{itemize}
+\end{frame}
+
+\section{Linear algebra}
+
+\begin{frame}[t]
+\frametitle{Linear vector space (线性向量空间)}
+A linear vector space $\mathcal{X}$ is a collection of elements 
+satisfying the following properties:
+\begin{itemize} 
+	\item Rule of addition (加法律): $\forall x, y, z \in \mathcal{X}$,
+	\begin{enumerate}
+		\item $x + y \in \mathcal{X}$
+		\item $x + y = y + x$
+		\item $(x + y) + z = x + (y + z)$
+		\item $\exists 0 \in \mathcal{X}$, such that $x + 0 = x$
+		\item $\forall x \in \mathcal{X}$, $\exists -x \in \mathcal{X}$ such that $x + (-x) = 0$
+	\end{enumerate}
+	\item Rule of multiplication (乘法律): $\forall x, y \in \mathcal{X}$ and $a, b \in R$,
+	\begin{enumerate}
+		\item $ax \in \mathcal{X}$
+		\item $a(bx) = (ab) x$
+		\item $1x = x, 0x = 0$
+		\item $a(x + y) = ax + ay$
+	\end{enumerate}
+\end{itemize}
+\begin{block}{Example: $\mathbb{R}^n$}
+The $n$-dimensional Euclidean $\mathbb{R}^n$, is a linear vector space.
+\end{block}
+\end{frame}
+
+\begin{frame}[t]
+\frametitle{Inner product (向量内积)}
+An \textbf{inner product} is a mapping: $\mathcal{X} \times \mathcal{X} \mapsto \mathbb{R}$.
+
+The inner product between any $x, y \in \mathcal{X}$ is denoted by $\langle x, y \rangle$ and it satisfies
+the following properties for all $x, y, z \in \mathcal{X}$:
+\begin{enumerate}[(1)]
+	\item $\langle x, y \rangle = \langle y, x \rangle$
+	\item $\langle ax, y \rangle = a \langle x, y \rangle$ for all scalars $a$
+	\item $\langle x + y, z \rangle = \langle x, z \rangle + \langle y, z \rangle$
+	\item $\langle x, x \rangle \ge 0$ and $\langle x, x \rangle = 0 \Rightarrow x = 0$
+\end{enumerate}
+A space $\mathcal{X}$ equipped with an inner product is called an \textbf{inner product space}.
+\end{frame}
+
+\begin{frame}[t]
+\frametitle{Orthongonal Vectors (正交向量)}
+
+$\mathbf{x}$ and $\mathbf{y}$ are \textbf{orthogonal vectors} if:
+$$
+\langle \mathbf{x}, \mathbf{y} \rangle = 0
+$$
+
+Let $\mathcal{X} = \mathbb{R}^n$, then
+$$
+\langle \mathbf{x}, \mathbf{y} \rangle := \mathbf{x}^T \mathbf{y} = \sum_{i=1}^n x_i y_i
+$$
+\end{frame}
+
+\begin{frame}
+\frametitle{Norms (向量范数)}
+
+The inner product induces the defintion of $\ell_2$-norm:
+$$
+\lVert \mathbf{x} \rVert_2 = \sqrt{\langle \mathbf{x}, \mathbf{x} \rangle}
+$$
+here the norm measure the size (length) of $\mathbf{x}$.
+
+The inner product can be written into the following form with norms:
+$$
+\langle \mathbf{x}, \mathbf{y} \rangle = \Vert \mathbf{x} \Vert \Vert \mathbf{y} \Vert \cos \theta
+$$
+where $\theta$ is the angle between vectors $\mathbf{x}$ and $\mathbf{y}$.
+
+The general $\ell_p$-norm for $\mathbf{x}$ is:
+$$
+\lVert \mathbf{x} \rVert_p = (\sum_i x_i^p)^{1/p}, p=0,1,2,\dots, \infty
+$$
+
+We have $\ell_0$ and $\ell_1$ norms:
+$$
+\lVert \mathbf{x} \rVert_0 = \sum_i I(x_i \neq 0), \lVert \mathbf{x} \rVert_1 = \sum_i |x_i|
+$$
+\end{frame} 
+
+\begin{frame}[t]
+\frametitle{Cauchy-Schwartz inequality (柯西-施瓦茨不等式)}
+$$
+\langle x, y \rangle \le \Vert x \Vert \Vert y \Vert
+$$
+\textcolor{red}{Q: When does the equation hold?}
+\end{frame}
+
+
+\begin{frame}[t]
+\frametitle{Triangle inequality (三角不等式)}
+$$
+\Vert x - y \Vert \le \Vert x \Vert + \Vert y \Vert
+$$
+\textcolor{red}{Q: When does the equation hold?}
+\end{frame}
+
+\begin{frame}[t]
+\frametitle{Linearly independent (线性无关)}
+
+For a set of vectors
+$$
+x_1, x_2, \ldots, x_p \in \mathcal{X},
+$$
+
+if there exists a set of scalars $a_1, a_2, \ldots, a_p \in \mathbb{R}$ such that not all $a_i = 0$ and 
+$$
+\sum_{i=1}^p a_i x_i = 0
+$$
+
+we say that $x_1, x_2, \ldots, x_p$ are \textbf{linearly dependent（线性相关)}.
+
+If equation only holds in the case $a_1=a_2=\ldots=a_p=0$, then we say that the vectors are \textbf{linearly independent (线性无关)}.
+\end{frame}
+
+
+\begin{frame}[t]
+\frametitle{Basis (基)}
+A set of vectors $\{\phi_i\}(i=1, \dots, n)$ is a \textbf{basis (基)} for $\mathcal{X}$ if an 
+arbitrary vector $x \in \mathcal{X}$ can be expressed as the linear combination of 
+$\{\phi_i\}(i=1,\dots,n)$. That is, there exists a set of scalars $\{\theta_i\}(i=1,\dots,n)$, 
+such that
+$$
+x = \sum_{i=1}^n \theta_i \phi_i
+$$
+\begin{block}{Orthonormal basis (正交基)}
+The bases $\{\phi_i\}_{i=1}^n$ are orthonormal if 
+$$
+\phi_i^T \phi_j = \left\{
+\begin{array}{ll}
+0, & i \neq j\\
+1, & i = j
+\end{array}
+\right.
+$$
+\end{block}
+\end{frame}
+
+
+\begin{frame}
+\frametitle{Orthobasis of Hilbert space (希尔伯特空间的正交基)}
+
+Every $x \in \mathcal{H}$ can be represented in terms of an orthonormal basis 
+$\{\phi_i\}_{i \ge 1}$ (or "orthobasis" for short) according to:
+$$
+x = \sum_{i \ge 1} \langle x, \phi_i \rangle \phi_i
+$$
+
+This is easy to see as follows. Suppose x has a representation $\sum_i \theta_i \phi_i$. Then
+$$
+\theta_i = \langle x, \phi_i \rangle
+$$
+\begin{block}{Example: Orthonormal basis for $\mathbb{R}^n$}
+$$
+\phi_k = \left[0, \cdots, 1, \cdots, 0 \right]^{-1}
+$$
+where
+$$
+\phi_{k, i} = \left\{
+\begin{array}{ll}
+0, & i \neq k\\
+1, & i = k
+\end{array}
+\right.
+$$
+\end{block}
+\end{frame}
+
+\begin{frame}
+\frametitle{Subspace (子空间)}
+
+Consider a set of vectors $\{x_i\}_{i=1}^p \in \mathcal{X}$. The \textbf{span} of these vectors 
+is the set of all vectors $x \in \mathcal{X}$ that can be generated from linear combinations of 
+the set
+$$
+\operatorname{span}(\left\{xi\right\}_{i=1}^p) := \left\{ y: y = \sum_{i=1}^p a_i x_i, a_1, \ldots, a_p \in \mathbb{R} \right\}
+$$
+This set is also called a subspace of $\mathcal{X}$.
+
+A subset $\mathcal{M} \subset \mathcal{X}$ is a subspace if $x, y \in \mathcal{M}$, we have
+$$
+ax + by \subset \mathcal{M}
+$$
+
+注：如果$\phi_1, \cdots, \phi_p$是子空间$\mathcal{M} \subset \mathbb{R}^n$的一组正交基，
+则该子空间中的任意向量$x \in \mathcal{M}$可以写成：
+$$
+x = \sum_{i=1}^p \theta_i \phi_i
+$$
+
+这样虽然$x \in \mathbb{R}^n$，但由于其是$\mathcal{M}$中的向量，所以可以写成$p$个自由参数的线性组合，也就是说其自由度为$p$。
+
+\end{frame}
+
+\begin{frame}
+\frametitle{Orthogonal projection (正交投影)}
+
+Let $\mathcal{H}$ be a \textbf{Hilbert space} and let $\mathcal{M} \subset \mathcal{H}$ be a subspace. 
+Every $x \in \mathcal{H}$ can be written as
+$$
+x = y + z
+$$
+where $y \in \mathcal{M}$ and $z \perp \mathcal{M}$, which is shorthand for $z$ orthogonal to 
+$\mathcal{M}$; that is
+$$
+\forall v \in \mathcal{M}, \langle v, z \rangle = 0
+$$
+
+The vector $y$ is the optimal approximation to $x$ in terms of vectors in $M$ in the following sense:
+$$
+y = \operatorname{argmin}_{v \in \mathcal{M}} \| x - v \|
+$$
+The vector $y$ is called the \textbf{orthogonal projection} of $x$ onto $\mathcal{M}$.
+\end{frame}
+
+\begin{frame}
+\frametitle{Orthogonal subspace projection (正交子空间投影)}
+
+Let $\mathcal{M} \subset \mathcal{H}$ and let $\{\phi_i\}_{i=1}^r$ be an orthobasis for $\mathcal{M}$. For any
+$x \in \mathcal{H}$, the projection of $x$ onto $\mathcal{M}$ is given by
+$$
+y = \sum_{i=1}^r \langle \phi_i, x \rangle \phi_i
+$$
+and this projection can be viewed as a sort of filter that \textbf{removes all components of the signal $x$ 
+that are orthogonal to $\mathcal{M}$}.
+
+\begin{block}{Example}
+Let $\mathcal{H} = \mathbb{R}^2$. Consider the canonical coordinate system $\phi_1 = \left[\begin{array}{c}
+1\\
+0
+\end{array}\right]$ and $\phi_2 = \left[\begin{array}{c}
+0\\
+1
+\end{array}\right]$. Let $\mathcal{M}$ be the subspace spanned by $\phi_1$. The projection of any 
+$x = [x_1\; x_2]^T \in \mathbb{R}^2$ onto $\mathcal{M}$ is
+
+$$
+\begin{array}{lcl}
+P_1x &=& \langle x, \phi_1 \rangle \phi_1\\
+& = & \left[ \begin{array}{cc}
+x_1 & x_2
+\end{array}\right] \left[ \begin{array}{c}
+1\\
+0
+\end{array}\right] \left[ \begin{array}{c}
+1\\
+0
+\end{array}\right] \\
+& = & \left[ \begin{array}{c}
+x_1\\
+0
+\end{array}\right]
+\end{array}
+$$
+
+
+The projection operator $P_1$ is just a matrix and it is given by
+$$
+\begin{array}{lcl}
+P_1 &:=& \phi_1 \phi_1^T \\
+& = & \left[ \begin{array}{c}
+1\\
+0
+\end{array}\right] \left[ \begin{array}{cc}
+1 & 0
+\end{array}\right]\\
+& = & \left[ \begin{array}{cc}
+1 & 0\\
+0 & 0
+\end{array}\right]
+\end{array}
+$$
+\end{block}
+\end{frame}
+
+\begin{frame}
+\frametitle{Orthogonal projections in Euclidean subspaces}
+
+More generally suppose we are considering  $\mathbb{R}^n$ and we have a orthonormal 
+basis $\{\phi_i\}_{i=1}^r$ for some $r$-dimensional ($r < n$) subspace $\mathcal{M}$ 
+of $\mathbb{R}^n$. Then the projection matrix is given by
+$$
+P_{\mathcal{M}} = \sum_{i=1}^r \phi_i \phi_i^T
+$$
+
+Moreover, if $\{\phi_i\}_{i=1}^r$ is a basis for $\mathcal{M}$, but not necessarily orthonormal, then
+$$
+P_{\mathcal{M}} = \Phi(\Phi^T \Phi)^{-1}\Phi^T
+$$
+where $\Phi = [\phi_1, \ldots, \phi_r]$, a matrix whose columns are the basis vectors.
+
+注：这被用在线性回归模型$y=X\beta$的求解上，其最小二乘解析解就是$y$到$X$张成的$p$-维子空间的正交投影：
+$$
+\hat{\beta} = (X^T X)^{-1} X^T y
+$$
+\end{frame}
+
+\begin{frame}
+\frametitle{Eigendecomposition of a symmetric matrix (对称阵的特征分解)}
+
+Let $C \in \mathbb{R}^{n \times n}$ is a real, symmetric matrix ($C^T = C$). 
+$v \in \mathbb{R}^n$ is the \textbf{eigenvector (特征向量)} of $C$ such that:
+$$
+C v = \lambda v
+$$
+where $\lambda$ is the eigenvalue (特征值) of $C$ corresponding to $v$.
+
+There are $n$ orthonormal eigenvectors for $C$ such that
+$$
+\langle v_i, v_j \rangle = \delta_{ij}
+$$
+
+Let $V = [v_1, \ldots, v_n]$, then
+$$
+C = V \Lambda V^T
+$$
+where $\Lambda = \operatorname{diag}(\lambda_1, \ldots, \lambda_n)$.
+\end{frame}
+
+
+\begin{frame}
+\frametitle{Singular value decomposition (SVD, 奇异值分解)}
+
+The SVD of an $n \times p$ matrix $H$ is written as
+$$
+H = \underbrace{U}_{n \times p}\quad \underbrace{\Sigma}_{p \times p}\quad \underbrace{V^T}_{p \times p}
+$$
+
+\begin{itemize}
+	\item $U=[u_1, \cdots, u_p]$ where $\{u_i\}_{i=1}^p$ are real $n$-dimensional 
+		vectors, and called the \textbf{left singular vectors} of $H$. $U^TU = I_p$.
+	\item $\Sigma = \operatorname{diag}(\sigma_1, \cdots, \sigma_p), \sigma_1 \ge 
+		\sigma_2 \ge \cdots \ge \sigma_p \ge 0$. And $\{\sigma_i\}_{i=1}^p$ are 
+		called the \textbf{singular values} of $H$.
+	\item $V=[v_1, \cdots, v_p]$ where $\{v_i\}_{i=1}^p$ are $p$-dimensional vectors, 
+		and called the \textbf{right singular vectors} of $H$. $V^T V = I_p$.
+\end{itemize}
+\end{frame}
+
+\begin{frame}[t]
+\frametitle{SVD}
+Also note that:
+$$
+\begin{array}{lcl}
+H^T H & = & (U \Sigma V^T)^T U \Sigma V^T \\
+& = & V \Sigma U^T U \Sigma V^T \\
+& = & V \Sigma^2 V^T\\
+HH^T & = & U \Sigma^2 U^T
+\end{array}
+$$
+
+Therefore, 
+\begin{itemize}
+	\item $\{\sigma_1^2, \cdots, \sigma_p^2\}$ are the eigenvalues of $H^TH$ and 
+		$\{v_1, \cdots, v_p\}$ are the corresponding eigenvectors.
+	\item $\{\sigma_1^2, \cdots, \sigma_p^2\}$ are the $p$-first eigenvalues of 
+		$HH^T$ (the remaining $n-p$ eigenvalues are all zeros) and $\{u_1, \cdots, u_p\}$ 
+		are the associated eigenvectors.
+\end{itemize}
+\end{frame}
+
+
+\begin{frame}
+\frametitle{Application of SVD}
+
+Say we want to solve an \textbf{over-determined} linear equations:
+$$
+\underbrace{y}_{n \times 1} = \underbrace{X}_{n \times p}\; \underbrace{\beta}_{p \times 1}
+$$
+
+\begin{itemize}
+	\item If $n=p$ and $X=U \Sigma V^T$ with $\sigma_1 \ge \cdots \ge \sigma_p > 0$, 
+		we say $X$ is \textbf{square and non-singular}, $\beta = X^{-1}y$
+	\item If $n>p$ and $X=U \Sigma V^T$ with $\sigma_1 \ge \cdots \ge \sigma_p > 0$, 
+		we say $X$ is \textbf{non-square and non-singular}, $\beta = (X^TX)^{-1}X^Ty$. 
+		This is called the least squares solution to the over-determined linear equations.
+	\item When $n<p$, this is an \textbf{under-determined} linear equations, and can be 
+		solved using \textbf{penalized regression}.
+\end{itemize}
+\end{frame}
+
+\begin{frame}[t]
+\frametitle{Assignment 1}
+\begin{enumerate}
+	\item Can you extend the derivatives to vector/matrix form, say, $\frac{d x^T y}{dx}$, 
+		$\frac{d x^T y}{d x^T}$, $\frac{d x^T A y}{dx}$?
+	\item What is least squares fitting of $\mathbf{X\beta = y}$? Can you use the above matrix 
+		derivatives to reach the normal equation?
+	\item What is QR-decomposition and Cholesky decomposition? Can you give some comments 
+		on the application of the two decomposition techniques?
+	\item \texttt{base::qr()} and \texttt{chol()} can be used to compute the two kinds of 
+		decompositions. Give an example to illustrate the usage of the decompositions. 
+	\item What kinds of matrices are positive-definite? positive semi-definite?
+\end{enumerate}
+\end{frame}
+
+\section{Optimization}
+
+\begin{frame}[t]
+\frametitle{Mathematical Optimization}
+\begin{itemize}
+  \item Optimization uses a rigorous mathematical model to determine the 
+      most efficient solution to a described problem.
+  \item You should identify an objective function
+  \begin{itemize}
+    \item Objective is a quantitative measure of the performance
+    \item Objective is usually a single number
+  \end{itemize}
+\end{itemize}
+\end{frame}
+
+
+\begin{frame}[t]
+\frametitle{Classification of optimization problems}
+Optimization problem can be constrained or unconstrained.
+\begin{block}{Common groups}
+\begin{itemize}
+  \item Linear programming (LP)
+  \begin{itemize}
+    \item Objective function and constraints are both linear
+    \item $\min_{\bf x} {\bf c^T x}$ s.t. ${\bf Ax \le b}$ and ${\bf x} \ge 0$
+  \end{itemize}
+  \item Quadratic programming (QP)
+  \begin{itemize}
+    \item Objective function is quadratic and constraints are linear
+    \item $\min_{\bf x} {\bf x^TQx + c^T x}$ s.t. ${\bf Ax \le b}$ and ${\bf x} \ge 0$
+  \end{itemize}
+  \item Nonlinear programming (NLP)
+  \begin{itemize}
+    \item Objective function or at least one constraint is nonlinear
+  \end{itemize}
+\end{itemize}
+\end{block}
+\end{frame}
+
+
+\begin{frame}[t]
+\frametitle{Nonlinear optimization}
+\scriptsize
+\begin{figure}[]
+\renewcommand\arraystretch{2.5}
+\begin{tabular}{l|p{1.5cm}|p{1.5cm}p{1.5cm}p{1.5cm}}
+\hline
+\textbf{Dimensionality} & \multicolumn{1}{|c|}{One-dimensional} & \multicolumn{3}{c}{Multi-dimensional}\\
+\hline
+\textbf{Category} & Non-gradient based & Gradient-based & Hessian-based & Non-gradient based \\
+\hline
+\textbf{Algorithms} & Golden Section Search & Gradient descent & Newton/Quasi-Newton (L-BFGS, BFGS) & Nelder-Mead\\
+\hline
+\end{tabular}
+\end{figure}
+\end{frame}
+
+\begin{frame}[t,fragile,containsverbatim]
+\frametitle{One-dimensional nonlinear programming}
+\begin{itemize}
+  \item Golden section search
+  \item Basic steps:
+  \begin{enumerate}
+    \item Golden ratio: $\phi = (\sqrt{5} - 1)/2 = .618$
+    \item Pick an interval $[a,b]$ containing the optimum
+    \item Evaluate $f(x_1)$ at $x_1 = a + (1-\phi)(b-a)$ and compare with 
+      $f(x_2)$ at $x_2 = a + \phi(b-a)$
+    \item if $f(x_1) < f(x_2)$, continue the search in the interval $[a, x_1]$, else $[x_2, b]$
+  \end{enumerate}
+  \item R command \texttt{stats::optimize()}
+  \begin{lstlisting}[language=R]
+optimize(f=, interval=, ...,
+        tol = .Machine$double.eps^0.25)
+  \end{lstlisting}
+\end{itemize}
+\end{frame}
+
+\begin{frame}[t]
+\frametitle{Nondifferentiable function}
+\begin{itemize}
+  \item $f(x) = |x - 2| + 2|x - 1|$
+  \item How to solve it?
+\end{itemize}
+<<echo=FALSE,fig=TRUE>>=
+f <- function(x) abs(x-2) + 2*abs(x-1)
+curve(f, 0, 3)
+@
+\end{frame}
+
+
+
+\begin{frame}[t]
+\frametitle{Newton-Raphson}
+\begin{itemize}
+  \item Newton method is often used to find the zeros of a function
+  \item Minima fulfill the conditions $f^{\prime}(x^*)=0$ and $f^{\prime\prime}(x^*)>0$, so 
+      Newton can be used to find the zeros of the first derivative
+  \item Basic steps
+  \begin{enumerate}
+    \item Approximate the function at the starting point with a linear 
+      tangent (e.g., second-order Taylor expansion $t(x) \approx f^{\prime}(x_0) + (x-x_0)f^{\prime\prime}(x_0)$)
+    \item Find the intersect $t(x_i)=0$ as an approximation to $f^{\prime}(x^*)=0$
+    \item Use the intersect as the new starting point
+    \item Finally, the algorithm $x_{n+1} = x_n - \frac{f^{\prime}(x_n)}{f^{\prime\prime}(x_n)}$ 
+      is repeated until $f^{\prime}(x_n)$ is close enough to 0.
+  \end{enumerate}
+\end{itemize}
+\end{frame}
+
+
+\begin{frame}[t]
+\frametitle{Hessian-based: BFGS and L-BFGS-B}
+\begin{itemize}
+  \item Broyden-Fletcher-Goldfarb-Shanno (BFGS) algorithm builds on 
+    the idea of Newton method to take gradient information into 
+    account
+  \item Gradient information comes from an approximation of the Hessian 
+    matrix
+  \item No guaranteed conversion; especially problematic if Taylor 
+    expansion does not fit well
+  \item L-BFGS-B stands for limited-memory-BFGS-box:
+  \begin{itemize}
+    \item Extension of BFGS
+    \item Memory-efficient implementation
+    \item Additional handles box constraints
+  \end{itemize}
+\end{itemize}
+\end{frame}
+
+
+\begin{frame}[t]
+\frametitle{Himmelblau's function}
+$$
+f(x, y) = (x^2 + y - 11)^2 + (x + y^2 - 7)^2
+$$
+\begin{itemize}
+	\item Himmelblau's function is a popular multi-modal function to 
+		benchmark optimization algorithms.
+	\item For equivalent minima are located at $f(-3.78,-3.28)=0$, 
+		$f(-2.80,3.13)=0$, $f(3,2)=0$, $f(3.58,-1.85)=0$
+\end{itemize}
+<<echo=FALSE,fig=TRUE>>=
+fn <- function(para) {
+	matrix.A <- matrix(para, ncol=2)
+	x <- matrix.A[,1]
+	y <- matrix.A[,2]
+	f.x <- (x^2+y-11)^2 + (x+y^2-7)^2
+	return(f.x)
+}
+par <- c(1,1)
+xy <- as.matrix(expand.grid(seq(-5,5, length=101),
+					seq(-5,5,length=101)))
+colnames(xy) <- c('x', 'y')
+df <- data.frame(fnxy = fn(xy), xy)
+library(lattice)
+wireframe(fnxy ~ x*y, data=df, shade=TRUE, drape=FALSE,
+			scales=list(arrows=FALSE),
+			screen=list(z=-240, x=-70, y=0))
+@
+\end{frame}
+
+\begin{frame}[t]
+\frametitle{Gradient-free method: Nelder-Mead}
+\begin{itemize}
+	\item Nelder-Mead sovles multi-dimensional equations using function values
+	\item Works with non-differentiable functions
+	\item Basic steps:
+	\begin{enumerate}
+		\item Choose a simplex consisting of $n+1$ points $p_1, p-2, \dots, p_{n+1}$ 
+			are chosen with $n$ being the number of variables
+		\item Calculate $f(p_i)$ and sort by value, e.g. $f(p_1) \le f(p_2) \le \dots 
+			\le f(p_{n+1})$
+		\item Check if the best value is good enough, if so, stop
+		\item Drop the point with hightest $f(p_i)$ from the simplex
+		\item Choose a new point to be added to the simplex
+		\item Continue with step 2
+ 	\end{enumerate}
+\end{itemize}
+\end{frame}
+
+\end{CJK*}
+\end{document}
