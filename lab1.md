@@ -32,10 +32,10 @@ attr(,"gradient")
 
 Here we have a function
 $$
-x\sin x + \log x^2
+f(x, y) = x\sin y + \log x^2
 $$
-- Compute the first-order derivative w.r.t. $x$
-- Compute the second-order derivative w.r.t. $x$
+- Compute the first-order derivative w.r.t. $x, y$
+- Compute the second-order derivative w.r.t. $x, y$
 - Plot the function in the range of (0 ,10)
 - Where will the function get the optimum (maximum/minimum) value?
 
