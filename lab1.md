@@ -39,7 +39,28 @@ $$
 - Plot the function in the range of (0 ,10)
 - Where will the function get the optimum (maximum/minimum) value?
 
-### 1.2 The properties of a function
+### 1.4 Taylor Expansion
+
+Let's see the Taylor expansion of $f(x) = \log(1+x)$ at $x_0=0$:
+$$
+f(x) = f(x_0) + \dots
+$$
+
+And in the package `pracma`, we have the `taylor()` function for computing 
+the Taylor's expansion:
+```r
+f <- function(x) log(1+x)
+p <- taylor(f, x0=0, n=4)
+x <- seq(-1, 1, length.out=100)
+yf <- f(x)
+yp <- polyf(p, x)
+plot(x, yf, type="l", col="gray", lwd=3)
+lines(x, yp, col="blue")
+grid()
+```
+
+
+### 1.3 The properties of a function
 - `formals`: `formals()`
 - `body`: `body`
 - `environment`: 
