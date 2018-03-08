@@ -8,6 +8,33 @@ ___
 
 ## 2. Linear algebra in R
 
+### 2.1 Matrix multiplication
+For the following matrix:
+$$
+\mathbf{A} = \begin{bmatrix}
+1 & 1 & 1 & 1 & 1\\\\
+1 & 1 & 1 & 1 & 1\\\\
+1 & 1 & 1 & 1 & 1\\\\
+1 & 1 & 1 & 1 & 1\\\\
+1 & 1 & 1 & 1 & 1
+\end{bmatrix}, B = \mathrm{diag}(1,2,3,4,5)
+$$
+What happens to
+- $AB$
+- $BA$
+
+### 2.2 Least squares fitting
+Consider the table of pairs $(x_i, y_i)$ below:
+```
+x: 1.00,2.00,3.00,4.00,5.00
+y: 3.70,4.20,4.90,5.70,6.00
+```
+Use least squres fitting to approximate the linear models:
+$$
+y_i = \beta_0 + \beta_1 x_i, i=1,\dots,5
+$$
+
+### 2.3 Singular value decomposition (SVD)
 Consider the matrix
 $$
 \mathbf{A} = \begin{bmatrix}
@@ -25,7 +52,8 @@ $$
 - Compute the eigenvalues $\lambda_1, \lambda_2$ of $\mathbf{A}$.
 - Verify that $\mathrm{det} \mathbf{A} = \lambda_1 \lambda_2$
     and $|\mathrm{det}\mathbf{A}| = \sigma_1 \sigma_2$.
-
+- Are $\mathbf{AA^T}$ and $\mathbf{A^TA}$ positive-definite? 
+    positive semi-definite? Use the eigenvalues to answer the question.
 
 ## 3. Optimization in R
 
