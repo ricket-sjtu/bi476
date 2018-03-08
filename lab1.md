@@ -21,7 +21,7 @@ $$
     $\mathbb{R}^2$ and its image under $\mathbf{A}$.
 - Plot the singular vectors with the coordinates of their 
     vertices marked within the above picture.
-- Find $\mathbf{A}^{-1}$ via \textbf{SVD}.
+- Find $\mathbf{A}^{-1}$ via **SVD**.
 - Compute the eigenvalues $\lambda_1, \lambda_2$ of $\mathbf{A}$.
 - Verify that $\mathrm{det} \mathbf{A} = \lambda_1 \lambda_2$
     and $|\mathrm{det}\mathbf{A}| = \sigma_1 \sigma_2$.
