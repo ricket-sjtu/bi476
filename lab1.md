@@ -39,7 +39,10 @@ $$
 - Plot the function in the range of (0 ,10)
 - Where will the function get the optimum (maximum/minimum) value?
 
-### 1.2 The properties of 
+### 1.2 The properties of a function
+- `formals`: `formals()`
+- `body`: `body`
+- `environment`: 
 
 ## 2. Linear algebra in R
 
