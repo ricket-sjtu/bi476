@@ -4,7 +4,42 @@ ___
 
 ## 1. Calculus in R
 
+### 1.1 Differentials
+The R function `stats::deriv()`, `Deriv::Deriv()` can be used to infer the 
+1-order derivative and second derivatives (Hessian). Here is an example:
+```r
+f <- function(x) sin(3*x)
+g <- deriv(as.expression(body(f)), names(formals(f)),
+        function.arg=TRUE, hessian=FALSE)
+g
+function (x) 
+{
+    .expr1 <- x^2
+    .expr2 <- sin(x)
+    .expr6 <- 2 * x
+    .value <- .expr1 * .expr2 + log(.expr1)
+    .grad <- array(0, c(length(.value), 1L), list(NULL, c("x")))
+    .grad[, "x"] <- .expr6 * .expr2 + .expr1 * cos(x) + .expr6/.expr1
+    attr(.value, "gradient") <- .grad
+    .value
+}
+g(5)
+[1] -20.75423
+attr(,"gradient")
+             x
+[1,] -2.097688
+```
 
+Here we have a function
+$$
+x\sin x + \log x^2
+$$
+- Compute the first-order derivative w.r.t. $x$
+- Compute the second-order derivative w.r.t. $x$
+- Plot the function in the range of (0 ,10)
+- Where will the function get the optimum (maximum/minimum) value?
+
+### 1.2 The properties of 
 
 ## 2. Linear algebra in R
 
