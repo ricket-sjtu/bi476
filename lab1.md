@@ -8,10 +8,10 @@ ___
 The R function `stats::deriv()`, `Deriv::Deriv()` can be used to infer the 
 1-order derivative and second derivatives (Hessian). Here is an example:
 ```r
-f <- function(x) sin(3*x)
-g <- deriv(as.expression(body(f)), names(formals(f)),
+> f <- function(x) sin(3*x)
+> g <- deriv(as.expression(body(f)), names(formals(f)),
         function.arg=TRUE, hessian=FALSE)
-g
+> g
 function (x) 
 {
     .expr1 <- x^2
@@ -23,7 +23,7 @@ function (x)
     attr(.value, "gradient") <- .grad
     .value
 }
-g(5)
+> g(5)
 [1] -20.75423
 attr(,"gradient")
              x
