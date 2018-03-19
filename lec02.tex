@@ -1,0 +1,1256 @@
+\documentclass[table,10pt]{beamer}
+
+\mode<presentation>{
+%\usetheme{Goettingen}
+\usetheme{Boadilla}
+\usecolortheme{default}
+}
+\usepackage{CJK}
+\usepackage{graphicx}
+\usepackage{amsmath, amsopn}
+\usepackage{xcolor}
+\usepackage[english]{babel}
+\usepackage[T1]{fontenc}
+\usepackage[latin1]{inputenc}
+\usepackage{enumerate}
+\usepackage{multirow}
+\usepackage{url}
+\ifx\hypersetup\undefined
+	\AtbBeginDocument{%
+		\hypersetup{unicode=true,pdfusetitle,
+bookmarks=true,bookmarksnumbered=false,bookmarksopen=false,
+breaklinks=false,pdfborder={0 0 0},pdfborderstyle={},backref=false,colorlinks=false}
+	}
+\else
+	\hypersetup{unicode=true,pdfusetitle,
+bookmarks=true,bookmarksnumbered=false,bookmarksopen=false,
+breaklinks=false,pdfborder={0 0 0},pdfborderstyle={},backref=false,colorlinks=false}
+\fi
+\usepackage{breakurl}
+\usepackage{color}
+\usepackage{times}
+\usepackage{xcolor}
+\usepackage{listings}
+\lstset{
+language=R,
+keywordstyle=\color{blue!70}\bfseries,
+basicstyle=\ttfamily,
+commentstyle=\ttfamily,
+showspaces=false,
+showtabs=false,
+frame=shadowbox,
+rulesepcolor=\color{red!20!green!20!blue!20},
+breaklines=true}
+
+
+
+\setlength{\parskip}{.5em}
+
+\title[BI476]{BI476: Biostatistics - Case Studies}
+\subtitle[observation]{Lec02: Observational Studies}
+\author[Maoying Wu]{Maoying,Wu ({\small ricket.woo@gmail.com})}
+\institute[CBB] % (optional, but mostly needed)
+{
+  \inst{}
+  Dept. of Bioinformatics \& Biostatistics\\
+  Shanghai Jiao Tong University
+}
+\date{Spring, 2018}
+
+\AtBeginSection[]
+{
+  \begin{frame}<beamer>{Next Section ...}
+    \tableofcontents[currentsection]
+  \end{frame}
+}
+
+\begin{document}
+\begin{CJK*}{UTF8}{gbsn}
+
+\frame{\titlepage}
+
+\begin{frame}
+\frametitle{Goals of the lecture}
+\begin{itemize}[<+->]
+	\item To understand the logic and structure of the cross-sectional study along 
+		its strength and weakness.
+	\item To distinguish from the concepts of prevalence and incidence.
+	\item To define and organize a case-control study.
+	\item To calculate and interpret the odds ratio (OR).
+	\item To understand the strength and weakness of CCS.
+	\item To understand the concept of measurement bias with an example of recall bias.
+	\item To define and organize a cohort study
+	\item To calculate and interpret the relative risk or risk ratio (RR)
+	\item To understand the different biases, and know how to detect them
+	\item To understand the difference between association and causation.
+\end{itemize}
+\end{frame}
+
+\begin{frame}
+\frametitle{Outline}
+	\tableofcontents
+\end{frame}
+
+
+\section{Some important concepts and notions}
+
+
+\begin{frame}[t]
+\frametitle{Measures of Disease Frequency}
+A fundamental task in medical studies is to quantify or measure the \alert{occurrence of 
+a disease in a population}. Obtaining a measure of the disease occurrence is one of the 
+first step in understand the disease of interest.
+\begin{description}[<+->]
+	\item[\alert{Ratios}]{$\frac{a}{b}$, where $a$ is NOT part of $b$}
+	\item[\alert{Proportions}]{$\frac{a}{b}$, where $a$ is INCLUDED in $b$}
+	\item[\alert{Rates}]{$\frac{a}{b}$, where $a$ is the number of affected in a given time 
+		interval, while $b$ is the population at risk over the same interval.}
+\end{description}
+\end{frame}
+
+\begin{frame}[t]
+\frametitle{Prevalence}
+$$
+\textrm{Prevalence} = \frac{\mbox{\#cases observed at time } t}{\mbox{\#individuals at time} t}
+$$
+\begin{itemize}
+	\item An outbreak of diarrhea on a cruise ship in a day.
+	\item 8 persons out of 86 on the ship are exhibiting signs of diarrhea.
+	\item The prevalence of diarrhea at this particular time is $8/86=0.092$
+\end{itemize}
+\end{frame}
+
+\begin{frame}[t]
+\frametitle{Incidence}
+\begin{itemize}
+	\item Cumulative incidence rate (CIR)
+	$$
+\textrm{CIR} = \frac{\mbox{\#newly disease cases in a time interval}}{\mbox{\#individuals-at-risk}}
+	$$
+	\begin{itemize}
+		\item In the cruise ship example
+		\item 12 persons developed diarrhoeal disease after 5 days of the outbreak.
+		\item The indicidence rate was therefore $12/86=0.14$
+	\end{itemize}
+	\item Incidence density rate (IDR)
+	$$
+\textrm{IDR} = \frac{\mbox{\#individuals of newly disease}}{\mbox{total time for all disease-free individuals-at-risk}}
+	$$
+\end{itemize}
+\end{frame}
+
+\begin{frame}
+\frametitle{Outcome and Exposure}
+A good research statement of a medical problem is often simple, considering one 
+exposure and one outcome variable (e.g. organic solvents and brain tumor).
+
+\begin{itemize}
+	\item Primary outcome
+	\item Secondary outcome
+\end{itemize}
+
+Research questions ask about the associations between exposures and outcomes. 
+\begin{quote}
+Is proximity of the residents to the coke-works site associated with hospital 
+admission of children for repiratory problems?
+\end{quote}
+
+A hypothesis is then formulated to predict the result.
+\begin{quote}
+The risk of hospital admission for respiratory problems for children increases 
+with proximity to the coke-works site.
+\end{quote} 
+\end{frame}
+
+
+\begin{frame}[t]
+\frametitle{Analytic Design Strategies}
+\begin{block}{Observational Studies}
+\begin{itemize}
+	\item Case-control; cohort
+	\item Exposures are self-selected;
+	\item we simply observe exposed or not;
+	\item whether they develop the outcome or not.
+\end{itemize}
+\end{block}
+\begin{block}{Intervention Studies}
+\begin{itemize}
+	\item Randomized controlled trials
+	\item Exposures are allocated by investigators (not self-selected)
+	\item Closest to a laboratory experiment;
+	\item Basis of evidence-based recommendations;
+	\item Required by regulatory bodies.
+\end{itemize}
+\end{block}
+\end{frame}
+
+
+\begin{frame}[t]
+\frametitle{Epidemiological Studies: Categories}
+\begin{itemize}
+	\item Descriptive Studies
+	\begin{itemize}
+		\item Correlational (Ecological) studies
+		\item Case reports; Case series
+		\item \alert{Cross-sectional studies}
+	\end{itemize}
+	\item Analytic Studies
+	\begin{itemize}
+		\item Case-cohort study
+		\item Cohort study
+		\item Intervention study
+	\end{itemize}
+	\item Time-dependent
+	\begin{itemize}
+		\item Retrospective study
+		\item Prospective study
+	\end{itemize}
+\end{itemize}
+\end{frame}
+
+
+\begin{frame}[t]
+\frametitle{Ecological Fallacy}
+\framesubtitle{Higher fat intake causes breast cancer?}
+\begin{figure}
+\includegraphics[width=0.50\textwidth]{../images/ecological_fallacies.png}
+\end{figure}
+\begin{itemize}
+	\item<1-> Ecological fallacy is an error in reasoning, usually based on 
+		mistaken assumptions. 
+	\item<2-> The ecological fallacy occurs when you \alert{make conclusions about 
+		individuals based only on analyses of group data}. 
+	\item<3-> In this fat intake example, we do not know individuals having 
+		breast cancer were actually consumed high amount of fat.
+\end{itemize}
+\end{frame}
+
+\section{Case Reports}
+
+\begin{frame}[t]
+\frametitle{Case Report: Example}
+{\large \alert{Haemorrhagic-fever-like changes and normal chest radiograph in a doctor with SARS.}\\
+\small{Wu E., et al. Lancet 2013; 361(9368): 1520-1521.}}
+
+This case report is written by the patient, a physician who contracted SARS, 
+and his colleague who treated him, during the 2003 outbreak of SARS in Hong Kong. 
+They describe how the disease progressed in Dr. Wu and based on Dr. Wu’s case, 
+advised that a chest CT showed hidden pneumonic changes and facilitate a rapid 
+diagnosis.
+
+{\large \alert{Kaposi's sarcoma in homosexual men-a report of eight cases.}}\\
+\small{Hymes KB. et al. Lancet 1981; 2(8247): 598-600.}
+
+This case report was published by eight physicians in New York city who had 
+unexpectedly seen eight male patients with Kaposi’s sarcoma (KS). Prior to this, 
+KS was very rare in the U.S. and occurred primarily in the lower extremities of 
+older patients. These cases were decades younger, had generalized KS, and a much 
+lower rate of survival. This was before the discovery of HIV or the use of the 
+term AIDS and this case report was one of the first published items about AIDS 
+patients.
+\end{frame}
+
+
+\begin{frame}[t]
+\frametitle{Case Report: Definition}
+Case report is an article that describes and interprets an individual case, often 
+written in the form of a detailed story.
+
+Case reports often describe:
+\begin{itemize}
+	\item Unique cases that cannot be explained by known diseases or syndromes
+	\item Cases that show an important variation of a disease or condition
+	\item Cases that show unexpected events that may yield new or useful information
+	\item Cases in which one patient has two or more unexpected diseases or disorders
+	\item the \alert{lowest-level} of evidence, but also the \alert{first-line} evidence.
+\end{itemize}
+
+A good case report will be clear about the importance of the observation being reported.
+
+If multiple case reports show something similar, the next step might be a case-control 
+study to determine if there is a relationship between the relevant variables.
+\end{frame}
+
+
+\begin{frame}[t]
+\frametitle{Case Report: Pros and Cons}
+\uncover<1->{\begin{alertblock}{\center Advantages}
+\begin{itemize}
+	\item Help the identification of new trends or diseases;
+	\item Help detect new drug side effects and potential uses (adverse or beneficial)
+	\item Educational - a way of sharing lessons learned
+	\item Identifies rare manifestations of a disease
+\end{itemize}
+\end{alertblock}}
+\uncover<2->{\begin{alertblock}{\center Disadvantages}
+\begin{itemize}
+	\item Cases may not be generalizable
+	\item Not based on systmatic studies
+	\item Causes or associations may have other explanations (confounding)
+	\item Can be seen as emphasizing the bizarre or focusing on misleading elements.
+\end{itemize}
+\end{alertblock}}
+\end{frame}
+
+\begin{frame}[t]
+\frametitle{Case Series: Example}
+\framesubtitle{TNF inhibitors treatment vs. chronic cutaneous sarcoidosis}
+\begin{figure}
+\includegraphics[width=0.85\textwidth]{../images/case_series_example.png}
+\end{figure}
+\end{frame}
+
+\begin{frame}[t]
+\frametitle{Case Series: Example}
+\framesubtitle{Bullous pemphigoid}
+{\large \alert{Clinical and Immunological Profiles of 14 Patients With Bullous
+Pemphigoid Without IgG Autoantibodies to the BP180 NC16A Domain}}\\
+\small{Kenta N. et al. JAMA Dermatol. 2018;154(3):347-350.}
+
+This case series examines the association of nonreactivity of IgG to the 
+noncollagenous 16A domain using the enzyme-linked immunosorbent assay and 
+the chemiluminescent enzyme immunoassay and severity of disease course in 
+14 patients with bullous pemphigoid.
+
+\begin{figure}
+\includegraphics[width=.90\textwidth]{../images/bullous_pemphigoid.png}
+\end{figure}
+\end{frame}
+
+\section{Cross-sectional study}
+
+\begin{frame}[t]
+\frametitle{Cross-sectional Studies: Definition}
+\begin{itemize}
+	\item A cross-sectional study explores the disease and risk factor 
+		patterns in a representive part of the population, in a 
+		narrowly defined time period.
+	\item Primarily, this study provides information on \alert{prevalence} 
+		of disease and risk factors.
+	\item It also can seek associations, generate and test hypotheses. And, 
+		by repetition, cross-sectional study can be used to measure 
+		changes.
+	\item Ideal cross-sectional study is of a geographically-defined, 
+		representative sample of the population within a slice of 
+		time and space.    
+\end{itemize}
+\end{frame}
+
+\begin{frame}[t]
+\frametitle{Cross-Sectional Studies: Example}
+\framesubtitle{Association between sleep and hypertension}
+{\large \alert{Insomnia with objective short sleep duration is associated 
+with a high risk for hypertension.}}\\
+\small{Vgontzas AN et al. Sleep 2009. 32:491-497.}
+\begin{table}
+\renewcommand\arraystretch{1.2}
+\caption{Cross-sectional results of insomnia and hypertension}
+\begin{tabular}{lccc}
+\hline
+ & Hypertension(+) & Hypertension(-) & \\
+\hline
+Insomnia(+) & 121 & 78 & 199\\
+Insomnia(-) & 837 & 705 & 1542\\
+\hline
+ & 958 & 783 & 1741
+\end{tabular}
+\end{table}
+Prevalence of hypertension: $958/1741 = 55\%$\\
+Prevalence of insomnia: $199/1741 = 11\%$\\
+Prevalence of hypertension among insomnia: $121/199 = 61\%$\\
+Prevalence of hypertension among non-insomnia: $837/1542 = 54\%$\\
+Prevalence ratio: $0.61/0.54 = 1.13$\\
+Odds ratio: $\frac{121/78}{837/705} = $
+\end{frame}
+
+\begin{frame}[t]
+\frametitle{Cross-Sectional Studies: Example}
+\framesubtitle{The effect of sunless tanning products on tanning behaviors}
+{\large \alert{A Cross-sectional Study Examining the Correlation Between 
+Sunless Tanning Product Use and Tanning Beliefs and Behaviors.}}\\
+\small{Rachel E. et al. Arch Dermatol. 2012;148(4):448-454.}
+\begin{figure}
+\includegraphics[width=0.90\textwidth]{../images/sunless_tanning.jpg}
+\end{figure}
+\begin{itemize}
+	\item Time: May 30, 2007 - Dec 4, 2007
+	\item Location: The Emory University campus and surroundings in Atlanta, 
+		Georgia
+	\item Participants: 415 community and university-affiliated women.
+\end{itemize}
+\end{frame}
+
+
+\section{Case-control study}
+
+
+\begin{frame}[t]
+\frametitle{Case-Control Studies: Definition}
+An epidemiological study in which a group of persons with the disease 
+of interest (\alert{case}) and a group of persons with similar features 
+to the case group but without the disease (\alert{control}) are selected 
+to compare the proportion of persons exposed to a risk factor of interest 
+(\alert{exposure}) in order to elucidate the causal relationship of the 
+risk factor of interest and the disease.
+
+From \textbf{case series}, \textbf{personal experience}, and \textbf{others stuffs},
+\begin{itemize}
+	\item Almost 99\% of patients suffered from condition $Y$ had a 
+		history/evidence of exposure to $X$.
+	\item What is the problem in this case study?
+	\begin{itemize}
+		\item It will never prove a causal relationship due to lack of 
+			control group.
+	\end{itemize}
+	\item It will generate a hypothesis testable using epidemiological methods:
+	\begin{itemize}
+		\item Persons with disease $Y$ were more likely to have been exposed 
+			to factor $X$ comparing to persons without the disease, but 
+			similar in other aspects.
+	\end{itemize} 
+\end{itemize}
+That's the case-control study, a retrospective, observational study.
+\end{frame}
+
+\begin{frame}[t]
+\frametitle{Case-control studies}
+\uncover<1->{\begin{table}
+\footnotesize
+\caption{$2\times 2$ contingency table}
+\begin{tabular}{lcc}
+\hline
+ & Cases & Controls\\
+\hline
+Exposed(+) & $a$ & $b$\\
+Exposed(-) & $c$ & $d$\\
+\hline
+\end{tabular}
+\end{table}}
+
+\uncover<2->{\begin{alertblock}{\center \small What we can answer}
+\begin{itemize}
+	\item What are the odds that a case was exposed? \alert{$a/c$}
+	\item What are the odds that a control was exposed? \alert{$b/d$}
+	\item What is the odds ratio? \alert{$\frac{a/c}{b/d} = \frac{ad}{bc}$}
+\end{itemize}
+\alert{Note}: OR is calculated in different fashion in pair-match case-control 
+study. 
+\end{alertblock}}
+\uncover<3->{\begin{alertblock}{\center \small What we CAN'T answer}
+\begin{itemize}
+	\item the prevalence of disease in exposed and not-exposed.
+	\item the incidences of disease in exposed and not-exposed.
+	\item the relative risk to determine if there is an association 
+		between the exposure and the disease.
+\end{itemize}
+\end{alertblock}}
+\end{frame}
+
+\begin{frame}[t]
+\frametitle{Case-Control Studies: Computing Odds Ratio (OR)}
+\begin{table}
+\footnotesize
+\caption{$2\times 2$ contingency table}
+\begin{tabular}{lcc}
+\hline
+ & Cases & Controls\\
+\hline
+Exposed(+) & $a$ & $b$\\
+Exposed(-) & $c$ & $d$\\
+\hline
+\end{tabular}
+\end{table}
+
+\uncover<2->{\begin{alertblock}{\center Computing OR}
+\begin{itemize}
+	\item The OR: $\widehat{\textrm{OR}} = \frac{a/c}{b/d} = \frac{ad}{bc}$
+	\item The standard error: $\mathrm{SE}\log \textrm{OR} = \sqrt{\frac{1}{a} + \frac{1}{b} + \frac{1}{c} + \frac{1}{d}}$
+	\item The 95\% confidence interval of $\log \textrm{OR}$: $\widehat{\log \textrm{OR}} \pm Z_{1-\alpha/2}^{-1} \mathrm{SE}\log \textrm{OR}$
+	\item $p$-value can be computed using either \texttt{Chi-square test} or \texttt{Fisher's exact test}.
+	\item In matched case-control study, \text{McNemar's test} is used to compute the $p$-value. 
+\end{itemize}
+\end{alertblock}}
+\end{frame}
+
+
+\begin{frame}[t]
+\frametitle{Case-Control Studies Problems}
+\framesubtitle{Bias and confounding}
+In case-control studies, the inferred association can be introduced by the 
+subject selection process, the problem of data collection, and/or the other 
+factor(s) that are related to both exposure and the outcome under study.
+
+Only when the two concerns - \alert{bias and confounding} are addressed, the 
+causality relationship can be derived.
+\end{frame}
+
+
+\begin{frame}[t]
+\frametitle{Bias}
+\begin{description}
+	\item[Bias]{Any systematic error in the \underline{design/subject recruitment}, 
+		\underline{data collection}, and/or \underline{data analysis} that 
+		results in a mistaken estimation of the true exposure-outcome association.}
+	\item[Selection Bias]{Error due to systematic differences in characteristics 
+		between those selected/non-selected into a study; or systematic differences 
+		in which cases and controls, exposed and non-exposed subjects are selected 
+		so that distorted association is observed.}
+\end{description}
+\uncover<1->{\begin{exampleblock}{Smoking-AMI Association}
+\begin{itemize}
+	\item If hospitalized cases of AMI are selected as cases, and heavy/long-term smokers are more 
+likely to die outside of hospital (massive MI), the smoking-MI association would be 
+underestimated.
+
+	\item If hospitalized AMI and hostpitalized non-MI patients are selected as cases and controls, 
+and smokers are more likely to be hospitalized for other condition (e.g. pulmonary), the 
+smoking-AMI association would be underestimated.
+\end{itemize}
+\end{exampleblock}}
+\end{frame}
+
+\begin{frame}[t]
+\frametitle{Selection Bias}
+\begin{itemize}
+	\item Exposure has influence on the process of case assessment: the 
+		exposure prevalence in cases is biased.
+	\item Exposure has influence on the process of control selection: the 
+		exposure prevalence in controls is biased (e.g. use chronic 
+		bronchitis patients as controls for study of smoking and CHD, 
+		smoking and LC.)
+	\item \alert{Selective survival} and \alert{selective migration}: the 
+		exposure prevalence in prevalent cases may be biased compared 
+		to incident cases. 
+\end{itemize}
+\uncover<2->{\begin{alertblock}{Case-control association is valid only when}
+\begin{itemize}
+	\item Cases are selected as \alert{representative sample} of all people 
+		with such disease.
+	\item Controls are selected as a representive sample of all people 
+		without the disease in the same population as cases. 
+\end{itemize}
+\end{alertblock}}
+\end{frame}
+
+\begin{frame}[t]
+\frametitle{Information Bias}
+\framesubtitle{Misclassification bias}
+\begin{description}
+	\item[Information bias]{Systematic error due to inaccurate measurement and/or 
+		classification of study variables. It can occur in the classification 
+		of outcome, exposures, and covariates.}
+\end{description}
+\uncover<2->{\begin{exampleblock}{Example}
+\begin{description}
+	\item[recall bias]{Lung cancer cases are more likely to recall their smoking 
+		history (quantitatively or qualitatively), which will lead to over-estimation 
+		of smoking-cancer relationship.}
+	\item[missing bias]{Overweighed persons are more likely to have missing data in 
+		untrasound examination of carotid arteries.}
+	\item[report bias]{Females are more likely to under-report of their weight, and males 
+		over-report.}
+\end{description}
+\end{exampleblock}}
+\end{frame}
+
+\begin{frame}[t]
+\frametitle{Confounders (Confounding)}
+\alert{Confounding} is a situation in which a measure of the association between 
+exposure and outcome is distorted because of the relationship between the exposure 
+and the other factor (the confounder) that influences the outcome under study.
+
+Confounding is the most important concept because it impacts the \textbf{validity} 
+of an observational study.
+
+\uncover<2->{\begin{alertblock}{Factor $X$ is a confounder only if it meets the 3 criteria}
+\begin{itemize}
+	\item It is an risk factor of the outcome under study, independent of the risk 
+		factor under study.
+	\item It is associated with the exposure under study.
+	\item It is not in the causal pathway between the exposure and the outcome. 
+\end{itemize}
+\end{alertblock}}
+\end{frame}
+
+
+\begin{frame}[t]
+\frametitle{How to avoid confounding association?}
+\uncover<1->{\begin{alertblock}{In the design and conduct of study}
+\begin{itemize}
+	\item \alert{Matching} (individual or group) by potential confounders - in 
+		case-control studies.
+	\item Collect \alert{information} on potential confounders. 
+\end{itemize}
+\end{alertblock}}
+\uncover<2->{\begin{alertblock}{In the analysis of study}
+\begin{itemize}
+	\item \alert{Conceptualize} your potential confounders.
+	\item \alert{Stratify} by potential confounders to identify major confounders.
+	\item Stratify to derive stratum-specific exposure-outcome association.
+	\item Statistical \alert{adjustment} of confounders.
+\end{itemize}
+\end{alertblock}}
+\end{frame}
+
+
+\begin{frame}[t]
+\frametitle{Matched Case-Control Studies}
+\begin{itemize}
+	\item<1-> Select controls who are identical (similar) to cases on potential confounders.
+	\begin{itemize}
+		\item<2-> \alert{Pair/Individual} match or \alert{frequency} match
+		\item<3-> Better control for confounding, especially when the distribution of a 
+			confounder do not have much overlap between the cases and source 
+			population (e.g., if cases of myocardial infaction tends to be older)
+		\item<4-> Analytical methods: \alert{Matched paired analysis} or \alert{conditional 
+			logistic regression}
+	\end{itemize} 
+\end{itemize}
+\uncover<5->{
+\begin{table}
+\caption{Pair-matched data}
+\begin{tabular}{lcc}
+\hline
+\multirow{2}{*}{Cases} & \multicolumn{2}{c}{Controls} \\
+\cline{2-3}
+& Exposed & Non-exposed\\
+\hline
+Exposed & $a$ & \alert{$b$}\\
+Non-exposed & \alert{$c$} & $d$\\
+\hline
+\end{tabular}
+\end{table}}
+\uncover<5->{\alert{How to compute the odds ratio (OR)?}}
+\uncover<6->{$$
+\textrm{OR} = \frac{b}{c}
+$$}
+\end{frame}
+
+
+\begin{frame}[t]
+\frametitle{Matched Paired Data Analsysis}
+\begin{table}
+\scriptsize
+\caption{Pair-matched data}
+\begin{tabular}{lcc}
+\hline
+\multirow{2}{*}{Cases} & \multicolumn{2}{c}{Controls} \\
+\cline{2-3}
+& Exposed & Non-exposed\\
+\hline
+Exposed & $a$ & \alert{$b$}\\
+Non-exposed & \alert{$c$} & $d$\\
+\hline
+\end{tabular}
+\end{table}
+\uncover<2->{
+\begin{alertblock}{\center \small Computing OR}
+\begin{itemize}
+\scriptsize
+	\item $a$ and $d$ are \alert{concordant pairs}; $b$ and $c$ are \alert{discordant pairs}.
+	\item The odds ratio: $\widehat{\mathrm{OR}} = \frac{b}{c}$
+	\item The standard error: $\mathrm{SE}_{\log \hat{\mathrm{OR}}} = \sqrt{\frac{1}{b} + \frac{1}{c}}$
+	\item The confidence interval of $\log \mathrm{OR}$:
+	$$
+\log \widehat{\mathrm{OR}} \pm Z_{1-\alpha/2}\mathrm{SE}_{\log \hat{\mathrm{OR}}}
+	$$
+	\item The \alert{regular McNemar's Chi-square test}:
+	$$
+\chi_{\textrm{McN}}^2 = \frac{(b-c)^2}{b+c} \sim \chi_{df=1}^2
+	$$
+	\item The \alert{continuity-correct McNemar's Chis-square test}:
+	$$
+\chi_{\textrm{McN}}^2 = \frac{(|b-c|-1)^2}{b+c} \sim \chi_{df=1}^2
+	$$
+\end{itemize}
+\end{alertblock}}
+\end{frame}
+
+\begin{frame}[t]
+\frametitle{A Paired Match Analysis}
+\framesubtitle{estrogen and endometrial carcinoma}
+{\large \alert{Association Of Exogenous Estrogen And Endometrial Carcinoma}}\\
+\small{Donald C. Smith et al. NEJM 1975 Dec 4;293(23):1164-7.}
+\begin{itemize}
+	\item Retrospective case-control study;
+	\item 317 patients with endometrium carcinoma
+	\item 317 matched controls with other gynecologic neoplasms
+\end{itemize}
+\begin{table}
+\renewcommand\arraystretch{1.2}
+\small
+\caption{Paired study of association between estrogen and endometrial carcinoma}
+\begin{tabular}{lccc}
+\hline
+ & \multicolumn{2}{c}{Controls} & \\
+\cline{2-3}
+Cases & Exposed & Non-exposed & Total\\
+\hline
+Exposed & 39 & \alert{113} & 152\\
+Non-exposed & \alert{15} & 150 & 165\\
+\hline
+Total & 54 & 263 & 317
+\end{tabular}
+\end{table}
+\uncover<2->{
+$$
+\textrm{OR} = 113/15 = 7.5
+$$
+}
+\end{frame}
+
+
+\begin{frame}[t]
+\frametitle{Estrogen and Endometrial Carcinoma}
+\framesubtitle{Misuse of unmatched analysis}
+{\large \alert{Association Of Exogenous Estrogen And Endometrial Carcinoma}}\\
+\small{Donald C. Smith et al. NEJM 1975 Dec 4;293(23):1164-7.}
+\begin{table}
+\renewcommand\arraystretch{1.2}
+\footnotesize
+\caption{Unmatched study of association between estrogen and endometrial carcinoma}
+\begin{tabular}{lccc}
+\hline
+ & Cases & Controls & Total\\
+\hline
+Exposed & 152 & 54 & 206\\
+Non-exposed & 165 & 263 & 428\\
+\hline
+Total & 317 & 317 & 634
+\end{tabular}
+\end{table}
+\uncover<2->{
+$$
+\textrm{OR} = \frac{152/54}{165/263} = 4.5
+$$
+}
+\uncover<3->{\begin{alertblock}{\center \small Conclusion}
+\begin{itemize}
+	\item The unmatched $\textrm{OR}$ (4.5) is biased towards null compared 
+		to the matched one (7.5).
+	\item The stronger the confounders, the biased the association. 
+\end{itemize}
+\end{alertblock}}
+\end{frame}
+
+\begin{frame}[t]
+\frametitle{Case-control Studies: Strengths and Limitations}
+\uncover<1->{\begin{alertblock}{\center Advantages}
+\begin{itemize}
+	\item Small sample size (rare disease)
+	\item Less time (disease with long induction and latent period)
+	\item Less expensive (small N, efficient for exposure that is 
+		expensive to measure)
+\end{itemize}
+\end{alertblock}}
+
+\uncover<2->{\begin{alertblock}{\center Disadvantages}
+\begin{itemize}
+	\item Inefficient for rare exposure
+	\item Selection bias (Are cases representative? Do controls 
+		represent the source population?)
+	\item Challenge in measurement of exposure (measure exposure 
+		after the occurrence of disease)
+	\item Difficulty in determine temporality
+	\item Only one disease is studied
+	\item Incidence of disease cannot be studied, though OR is 
+		intended to estimate incidence ratio
+\end{itemize}
+\end{alertblock}}
+\end{frame}
+
+\begin{frame}[t]
+\frametitle{Exercise: Case-control study}
+\framesubtitle{Tabacco use and acoustic neuroma}
+{\large \alert{Role of tobacco use in the etiology of acoustic neuroma}}\\
+\small{Palmisano S et al. Am J Epidemiol. 2012 Jun 15;175(12):1243-51.}
+\begin{itemize}
+	\item What kind of study? \alert{case-control study}
+	\item How many cases and controls? \alert{451 cases} and \alert{710 
+		population-based controls.}
+	\item How did the author match the cases and controls?
+	\item Can you write down the $2\times 2$ contingency tables here?
+	\item How did the author analyze the data?
+	\item What was the effect size used in this article? and the confidence 
+		interval?
+	\item Why did the author analyze the data in males and females, respectively?
+\end{itemize}
+\end{frame}
+
+\section{Cohort Study}
+
+\begin{frame}[t]
+\frametitle{Cohort study}
+\begin{itemize}
+	\item Observational study, with selection into study on basis of exposure 
+		status at the beginning of the study
+	\item Either prospective study or retrospective study
+\end{itemize}
+\end{frame}
+
+
+\begin{frame}
+\frametitle{Flu Vaccine Study}
+\framesubtitle{An epidemiology case study}
+{\large \alert{Influenza Vaccination and Reduction in Hospitalizations
+for Cardiac Disease and Stroke among the Elderly.}}\\
+\small{Kristin Nichol et al.: NEJM 2003;348:1322-32.}
+
+These investigators used the administrative data bases
+of three large managed care organizations to study the
+impact of vaccination in the elderly on hospitalization
+and death. Administrative records were used to whether
+subjects had received influenza vaccine and whether
+they were hospitalized or died during the year of study.
+\end{frame}
+
+
+\begin{frame}[t]
+\frametitle{Flu Vaccine Study}
+\framesubtitle{Summarization table}
+The table below summarizes findings during the \underline{1998-1999} flu season.
+\begin{table}
+\renewcommand\arraystretch{1.2}
+\footnotesize
+\caption{flu vaccine study data in 1998-1999}
+\begin{tabular}{p{3cm}cc}
+\hline
+& Vaccinated & Unvaccinated\\
+& $N=77,738$ & $N=62,217$ \\
+\hline
+Hospitalized due to pneumonia or influenza & 495 & 581\\
+\hline
+Hospitalized due to cardiac disease & 888 & 1026\\
+\hline
+Deaths & 943 & 1361\\
+\hline
+\end{tabular}
+\end{table}
+\alert{If the exposure is vacination and outcome of interest is death, how to assess the 
+association?}
+\end{frame}
+
+\begin{frame}[t]
+\frametitle{Flu Vaccine Study}
+\framesubtitle{Contingency table}
+\begin{table}
+\renewcommand\arraystretch{1.2}
+\rowcolors{2}{gray!25}{white}
+\scriptsize
+\caption{flu vaccine study data in 1998-1999}
+\begin{tabular}{p{3cm}cc}
+\hline
+& Vaccinated & Unvaccinated\\
+& $N=77,738$ & $N=62,217$ \\
+\hline
+Hospitalized due to pneumonia or influenza & 495 & 581\\
+\hline
+Hospitalized due to cardiac disease & 888 & 1026\\
+\hline
+Deaths & 943 & 1361\\
+\hline
+\end{tabular}
+\end{table}
+\alert{If the exposure is vacination and outcome of interest is death, how to assess the 
+association?}
+\begin{table}
+\rowcolors{2}{white}{gray!25}
+\renewcommand\arraystretch{1.2}
+\small
+\caption{flu vaccine and deaths in 1998-1999}
+\begin{tabular}{lccc}
+\hline
+ & Dead & Alive & \\
+\hline
+Vaccinated & 943 & 76,795 & 77,738\\
+Non-vaccinated & 1361 & 60,856 & 62,217\\
+\hline
+\end{tabular}
+\end{table}
+\end{frame}
+
+\begin{frame}[t]
+\frametitle{Solutions}
+\framesubtitle{Relative Risk (RR) and Risk Difference (RD)}
+\begin{table}
+\rowcolors{2}{white}{gray!25}
+\renewcommand\arraystretch{1.2}
+\scriptsize
+\caption{A general $2 \times 2$ contingency table}
+\begin{tabular}{lccc}
+\hline
+ & Disease & Non-Disease & \\
+\hline
+Exposed & $a$ & $b$ & $r_1$\\
+Non-exposed & $c$ & $d$ & $r_2$\\
+\hline
+\end{tabular}
+\end{table}
+\begin{columns}
+\footnotesize
+\begin{column}{0.45\textwidth}
+\begin{block}{\center RR approach}
+\textcolor{red}{$$
+\textrm{RR} = \frac{a/r_1}{c/r_2}
+$$}
+\begin{itemize}
+	\item measuring the strength of the association.
+	\begin{itemize}
+	\scriptsize
+		\item $\textrm{RR}=1$ suggests no association.
+		\item $\textrm{RR} \to 1$ suggests weak association.
+		\item $|\textrm{RR}|>>1$ suggests a strong association.
+	\end{itemize} 
+\end{itemize}
+\end{block}
+\end{column}
+\begin{column}{0.45\textwidth}
+\begin{block}{\center RD approach}
+\textcolor{red}{$$
+\textrm{RD} = \frac{a}{r_1} - \frac{c}{r_2}
+$$}
+\begin{itemize}
+	\item a better measure of \alert{public health impact}.
+	\item How much impact would a prevention have?
+	\item How many people would benefit?
+\end{itemize}
+\end{block}
+\end{column}
+\end{columns}
+\end{frame}
+
+
+\begin{frame}[t]
+\frametitle{Risk Ratio (RR)}
+\framesubtitle{measuring the association between vaccination and death}
+\begin{table}
+\rowcolors{2}{white}{gray!25}
+\renewcommand\arraystretch{1.2}
+\small
+\caption{flu vaccine and deaths in 1998-1999}
+\begin{tabular}{lccc}
+\hline
+ & Dead & Alive & \\
+\hline
+Vaccinated & 943 & 76,795 & 77,738\\
+Non-vaccinated & 1361 & 60,856 & 62,217\\
+\hline
+\end{tabular}
+\end{table}
+$$\textrm{RR} = \frac{\textrm{CI}_e}{\textrm{CI}_u} = \frac{943/77738}{1361/62217} = 0.554$$
+\begin{alertblock}{\center Conclusion}
+\begin{itemize}
+	\item There is a strong association between flu vaccination and death?
+	\item Vaccination can protect ...?
+	\item How about the hospitalization due to two diseases?
+\end{itemize}
+\end{alertblock}
+\end{frame}
+
+
+\begin{frame}[t]
+\frametitle{Risk Ratio: Confidence Interval}
+\begin{table}
+\rowcolors{2}{white}{gray!25}
+\renewcommand\arraystretch{1.2}
+\scriptsize
+\caption{A general $2 \times 2$ contingency table}
+\begin{tabular}{lccc}
+\hline
+ & Disease & Non-Disease & \\
+\hline
+Exposed & $a$ & $b$ & $r_1$\\
+Non-exposed & $c$ & $d$ & $r_2$\\
+\hline
+\end{tabular}
+\end{table}
+\uncover<2->{\begin{alertblock}{\center Confidence interval}
+\begin{itemize}
+	\item $\hat{p_1} = \frac{a}{r_1}$; $\hat{p_0} = \frac{c}{r_2}$
+	\item $\widehat{\mathrm{RR}} = \frac{p_1}{p_0}$
+	\item $\mathrm{SE}_{\log \mathrm{RR}} = \sqrt{\frac{1-\hat{p_1}}{r_1 \hat{p_1}} + 
+		\frac{1-\hat{p_0}}{r_2 \hat{p_0}}}$
+	\item The confidence interval of $\log \mathrm{RR}$: $\log \widehat{\mathrm{RR}} \pm 
+		z_{1-\alpha/2} \mathrm{SE}_{\log \mathrm{RR}}$
+	\item Hypothesis testing: \alert{Chi-square test} or \alert{Fisher's exact test}
+\end{itemize}
+\end{alertblock}}
+\end{frame}
+
+
+\begin{frame}[t]
+\frametitle{Risk Difference (RD)}
+\framesubtitle{Attributable risk}
+\begin{table}
+\rowcolors{2}{white}{gray!25}
+\renewcommand\arraystretch{1.2}
+\small
+\caption{flu vaccine and deaths in 1998-1999}
+\begin{tabular}{lccc}
+\hline
+ & Dead & Alive & \\
+\hline
+Vaccinated & 943 & 76,795 & 77,738\\
+Non-vaccinated & 1361 & 60,856 & 62,217\\
+\hline
+\end{tabular}
+\end{table}
+$$\textrm{RD} = \textrm{CI}_e - \textrm{CI}_u = \frac{943}{77738} - \frac{1361}{62217} = -0.0097 = -97/100000$$ per year.
+\begin{alertblock}{\center Conclusion}
+\begin{itemize}
+	\item Flu vacinnation can reduce the death rate by 97 per 100,000 population per year.
+	\item Flu vaccination has a strong protective effect ....?  
+	\item How about the hospitalization due to two diseases?
+\end{itemize}
+\end{alertblock}
+\end{frame}
+
+\begin{frame}[t]
+\frametitle{Different conclusions for RR and RD}
+\framesubtitle{Sometimes ...}
+\begin{table}
+\caption{Annual Mortality Per 100,000 (CI)}
+\begin{tabular}{p{3cm}cc}
+\hline
+ & LC & CHD\\
+\hline
+Smokers & 140 & 669\\
+Non-smokers & 10 & 413\\
+\hline
+RR & 14 & 1.6\\
+RD & 130 & 256\\
+\hline
+\end{tabular}
+\end{table}
+\center\alert{Note: LC - lung cancer; CHD - coronary heart disease}
+\begin{alertblock}{\center Conclusion}
+\begin{itemize}
+	\item Smoking is a stronger risk factor for ...?
+	\item Smoking is a bigger public health problem for ...?
+\end{itemize}
+\end{alertblock}
+\end{frame}
+
+
+\begin{frame}[t]
+\frametitle{Benefits and Risks for Different Diseases}
+\framesubtitle{Protective and risk effects of aspirin}
+\begin{table}
+\renewcommand\arraystretch{1.2}
+\caption{RRs and RDs of aspirin on some heart diseases}
+\begin{tabular}{lcccc}
+ & Aspirin & Placebo & Risk & Risk\\
+ & (/10,000) & (/10,000) & Ratio & Diff\\
+\hline
+MI & 125.9 & 216.6 & 0.59 & -100\\
+\hline
+Stroke & 107.8 & 88.8 & 1.2 & 19\\
+- Ischemic & 82.4 & 74.3 & 1.1 & 8\\
+- Hemorrhagic & 20.8 & 10.9 & 1.9 & 10\\
+\hline
+Upper GI ulcer & 153.1 & 125.1 & 1.2 & 28\\
+- with hemorrhage & 34.4 & 19.9 & 1.7 & 15\\
+\hline
+Bleeding & 2699.1 & 2037.3 & 1.3 & 690\\
+- Transfusion need & 43.5 & 25.4 & 1.7 & 18\\
+\hline
+\end{tabular}
+\end{table}
+\center \alert{The risk difference is in /10,000 persons per year.}
+\end{frame}
+
+\begin{frame}[t]
+\frametitle{Rare Outcomes - RR or RD?}
+\framesubtitle{It depends ...}
+If we are going to discuss rare, but severe possible complications of influenza vaccine, would 
+it be better to look at the \alert{RR} or the \alert{RD}?
+\begin{alertblock}{\center Observed frequencies}
+\begin{itemize}
+	\item Exposed people: 2/100,000
+	\item Non-exposed people: 1/100,000
+\end{itemize}
+\end{alertblock}
+\begin{alertblock}{\center Choices}
+\begin{itemize}
+	\item \alert{RR=2}: those exposed had two times the risk! (\alert{OMG!})
+	\item \alert{RD=1/100,000}: the exposed group had an excess risk of 1 case 
+		per 100,000 subjects (\alert{NO THAT IMPORTANT!}). 
+\end{itemize}
+\end{alertblock}
+\end{frame}
+
+
+\begin{frame}[t]
+\frametitle{Attributable Risk \%}
+\framesubtitle{Attributable proportion}
+\alert{\large{What \% of risks in the exposed group
+can be attributed to having had the exposure?}}
+
+The proportion (\%) of disease in the exposed group
+that can be attributed to the exposure, i.e., the
+proportion of disease in the exposed group that
+could be prevented by eliminating the exposure:
+
+$$
+\textrm{AR}\% = \frac{\textrm{RD}}{I_e} = \frac{0.053-0.013}{0.053}\times 100 = 75\% 
+$$
+
+\begin{alertblock}{\center Interpretation} 
+\textcolor{blue}{\large 75\% of risks occurring in patients who had the exposure could be 
+attributable to the exposure.}
+\end{alertblock}
+\end{frame}
+
+\begin{frame}[t]
+\frametitle{Cohort study： Pros and cons}
+\begin{block}{Strengths}
+\begin{itemize}
+	\item Accurate exposure
+	\item Subjects in cohorts can be matched, limiting the influence of confounders.
+	\item Temporal relationship: short-term or long-term outcome
+	\item Multiple outcomes: cerebral dysfunction, myocardial infarction, etc.
+	\item Very rich study design, but it is diffcult and often act as the second step.
+	\item Easier and chpeaper than an RCTs.
+\end{itemize}
+\end{block}
+\begin{block}{Limitations}
+\begin{itemize}
+	\item Cohorts can be difficult to identify due to confounders.
+	\item No randomization leads to imbalance in patient features.
+	\item Blinding/masking is difficult.
+	\item More difficulties related to both costs and feasibility because of the 
+		longitudinal follow-ups
+	\item Different lost-to-follow-up (LTFU) rates for healthier and diseased groups
+\end{itemize}
+\end{block}
+\end{frame}
+
+
+\begin{frame}[t]
+\frametitle{Limitations of Observational Studies}
+\begin{itemize}
+	\item Patients who receive on-pump or off-pump CABG may differ in many ways 
+		besides their type of surgery that could be related to the outcome under 
+		study (confounding).
+	\item In observational studies, on- vs. off-pump CABG was related to:
+	\begin{itemize}
+		\item extent and location of heart disease
+		\item obesity
+		\item chronic obstructive pulmonary disease (COPD)
+		\item experience of practitioner with off-pump
+		\item etc.
+	\end{itemize}
+	\item These differences could explain differences in rates of endpoints such 
+		as mortality or complications seen in observational studies between on- vs. 
+		off-pump patients.
+	\item We can control for known confounders through univariate stratification, 
+		or multivariate analysis (MVA), but we can't control for unknown, unmeasured, 
+		or unmeasurable differences.
+	\item The amount of uncontrolled bias and confounding could be as large as the 
+		effect under assessment.
+\end{itemize}
+\end{frame}
+
+
+\begin{frame}[t]
+\frametitle{Propensity score}
+\framesubtitle{A method to minimize the confounding in observational studies}
+\begin{itemize}
+	\item In RCTs, the proper randomization provides a \alert{balanced distribution} of both observed 
+		and unobserved factors between different study arms, which \alert{minimize confounding}.
+	\item Observational studies often suffer because such balance cannot be met.
+	\item Multivariate regression can provide adjusted estimate for the main exposure by 
+		including the confounders in a model.
+	\item However, when more than the allowable number of covariates need to be adjusted, we 
+		may need to consider dimensionality reduction.
+	\item Propensity score adjustment is a method of control for potential confounders for the 
+		association between a pre-specified exposure and outcome, which provides a \alert{
+		quasi-RCT} setting for observational data analysis. 
+\end{itemize}
+The propensity score analysis works by creating a single score estimate on the probability to 
+exposure, which is used to control for many potential confounders at once without a loss of 
+analytical power, is considered the most aggressive adjustment for measured confounders.
+\end{frame}
+
+
+\begin{frame}[t]
+\frametitle{Aspirin Use and All-Cause Mortality}
+\framesubtitle{A propensity score matching and adjustment}
+{\large \alert{Aspirin Use and All-Cause Mortality Among Patients Being Evaluated for Known or Suspected 
+Coronary Artery Disease: A Propensity Analysis}}\\
+\small{Gum PA et al. JAMA, 2001 Sep 12; 286(10):1187-94.}
+\begin{itemize}
+	\item Prospective cohort study
+	\item Cleveland Clinic, 1990-1998
+	\item Mean follow-up 3.1 years
+	\item 6174 patients undergoing stress echocardiography for evaluation of known or suspected 
+		coronary disease
+\end{itemize}
+\end{frame}
+
+
+\begin{frame}[t]
+\frametitle{Exercise: Propensity Score Matching}
+\framesubtitle{Association of statin use and cataracts}
+{\large \alert{Association of statin use with cataracts: a propensity score-matched analysis.}}\\
+\small{Leuschen J, et al. JAMA Ophthalmol. 2013 Nov;131(11):1427-34.}
+\begin{itemize}
+	\item What was the primary outcome?
+	\item What was the exposure in this study?
+	\item Which study design did this study adopt?
+	\item Why do we say it is a cohort study other than a case-control study?
+	\item What were the variables used to compute the propensity scores? Why and how?
+	\item How did the authors compare the baseline characteristics between statin-users 
+		and non-statin users?
+	\item Why did the authors conduct sensitivity analysis?
+	\item What is the difference between primary analysis and secondary analysis?
+	\item Read the comments and response supplementing this article, and give your 
+		own comments.
+\end{itemize}
+\end{frame}
+
+\begin{frame}[t]
+\frametitle{Observational Studies: Summary}
+\begin{itemize}
+	\item<1-> Cross-sectional Study
+	\item<2-> Case-control study
+	\begin{itemize}
+		\item<2-> Matched case-control study
+	\end{itemize}
+	\item<3-> Cohort study
+\end{itemize}
+\uncover<4->{\begin{alertblock}{Important issues}
+\begin{itemize}
+	\item<5-> Low response rate in cross-sectional study
+	\item<6-> Low follow-up rate in cohort study
+	\item<7-> Selection bias in case-control study
+	\item<8-> Information (misclassification) bias in all studies
+	\item<9-> Confounding bias in all studies
+	\item<10-> Use the most appropriate analytical methods
+\end{itemize}
+\end{alertblock}}
+\end{frame}
+
+
+\begin{frame}[t]
+\frametitle{Design a Study Protocol}
+\begin{enumerate}[(A)]
+	\item Research Question and Hypothesis 
+	\item Target population
+	\item Explanatory variable (Exposure)
+	\item Response variable (Outcome)
+	\item Extraneous variable (Potential confounders)
+	\item Anatomy of the design
+	\item Planned analyses
+	\item Sample size requirements
+	\item Study limitations
+\end{enumerate}
+\end{frame}
+
+
+\begin{frame}
+\center{\LARGE{Questions?}}
+\end{frame}
+
+\end{CJK*}
+\end{document}

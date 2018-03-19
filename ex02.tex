@@ -1,0 +1,189 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage{CJK}
+\usepackage{graphicx}
+\usepackage{amsmath,amssymb,amsopn}
+\usepackage[english]{babel}
+\usepackage[latin1]{inputenc}
+\usepackage{url}
+\usepackage{enumerate}
+\usepackage{color}
+\usepackage{times}
+\usepackage{xcolor}
+\usepackage{geometry}
+\usepackage{listings}
+\lstset{
+language=R,
+keywordstyle=\color{blue!70}\bfseries,
+basicstyle=\ttfamily,
+commentstyle=\ttfamily,
+showspaces=false,
+showtabs=false,
+frame=shadowbox,
+rulesepcolor=\color{red!20!green!20!blue!20},
+breaklines=true
+}
+
+\geometry{paperwidth=18.4cm,paperheight=26cm}
+\setlength{\parindent}{0em}
+\setlength{\parskip}{1.2\baselineskip}
+
+
+\title{\small{BI476: Biostatistics - Case Studies}\\
+\Large{Assignment 2: Observational Studies}
+}
+\author{}
+\date{Spring, 2018}
+
+\begin{document}
+\begin{CJK*}{UTF8}{gbsn}
+\maketitle
+
+
+\section{Case Report and Case Series}
+\subsection{True or False}
+\begin{enumerate}[(1)]
+	\item Case reports are not considered evidence-based study because 
+		they involve only one or several patients and are thus not 
+		systematic research.
+	\item Case reports can demonstrate causality or argue for the adoption 
+		of a new treatment approach.
+	\item The patient should be described in detail, allowing others to 
+		identify patients with similar characteristics.
+\end{enumerate}
+
+
+\section{Cross-sectional Studies}
+One hundred healthy troops go on a 1-year mission to a malariandemic area of North Africa. 
+During their stay 5 new cases of malaria are dentified, for a rate of 5\%. This number is a:
+\begin{enumerate}[(A)]
+	\item prevalence rate
+	\item mortality rate
+	\item incidence-density rate
+	\item cumulative-incidence rate
+\end{enumerate}
+
+Among untreated children under age 3, 20\% of malaria cases are fatal. 20\% is a:
+\begin{enumerate}[(A)]
+  \item case-fatality rate
+  \item mortality rate
+  \item attack rate
+  \item prevalence
+\end{enumerate}
+
+
+During the past year, 7 new cases of multiple sclerosis were diagnosed in your 
+community of 100,000 people. At any one time during the year, the prevalence of 
+multiple sclerosis in your community was probably.
+\begin{enumerate}[(A)]
+  \item Substantially higher than 7/100,000
+  \item Substantially lower than 7/100,000
+  \item About 7/100,000
+  \item Equal to the cause-specific mortality rate
+\end{enumerate}
+
+\section{Case-Control Studies}
+\subsection{Read the three articles}
+\begin{itemize}
+	\item Chambers C.，et al. Selective serotonin-reuptake inhibitors and risk of persistent 
+pulmonary hypertension of the newborn. NEJM 2006; 354(6): 579-587.
+	\item Smedby K.，et al. Autoimmune and chronic inflammatory disorders and risk of 
+non-hodgkin lymphoma by subtype. JNCI 2006；98(1)： 51-60.
+	\item Teo, K. et al. Tobacco use and risk of myocardial infarction in 52 countries 
+in the INTERHEART study: A case-control study. Lancet 2006；368(9536)： 647-658.
+\end{itemize}
+and then answer the following questions.
+\begin{enumerate}[(1)]
+	\item Is this article paired or not?
+	\item Print out the contingency tables.
+	\item Can you compute each effect size (OR) of the association, also the corresponding 
+		95\% confidence interval, and the $p$-value.
+	\item Did the authors use appropriate inclusion and exclusion criteria to avoid effects 
+		of confoundings? Why?
+\end{enumerate}
+
+\subsection{Answer the question}
+How to correct for the effect of confounding factors on the association between the 
+outcome and exposure of interest? Can you post some of the commonly-used methods.
+
+
+\subsection{Choices}
+1. Three years ago there was a multistate outbreak of illnesses caused by a specific and 
+unusual strain of Listeria monocytogenes. As part of the investigation of this outbreak, 
+CDC workers checked the food histories of 20 patients infected with the outbreak strain 
+and compared them with the food histories of 20 patients infected with other Listeria 
+strains. This study design is best described as which one of the following:
+\begin{enumerate}[(A)]
+  \item Analytical, experimental
+  \item Analytical, observational, case-control
+  \item Analytical, observational, cohort
+  \item Descriptive
+\end{enumerate}
+
+2. The initial studies establishing maternal diethylstilbesterol (DES) intake as a 
+cause of vaginal adenocarcinoma in female offspring were case-control studies. 
+This was probably largely because:
+\begin{enumerate}[(A)]
+  \item A couple of decades ago cohort studies hadn't been invented.
+  \item A woman taking DES was always rare.
+  \item The disease outcome is rare.
+  \item The investigators had probably just happened to have a number of cases in their practices.
+\end{enumerate}
+
+
+3. In a case-control study of alcohol intake and bladder cancer, cases and 
+matched controls are each interviewed by interviewers who are not blinded 
+as to whether the subject is a case or a control. Many of the interviewers 
+are in fact convinced that drinking alcohol is a cause of bladder cancer. 
+Is this likely to represent a bias?
+\begin{enumerate}[(A)]
+  \item No, because the interviewers can't affect whether the subjects are considered 
+	cases or controls; that's already decided
+  \item Yes, but it's hard to predict the direction of the bias.
+  \item Yes, and would predispose to a rejection of the null hypothesis.
+  \item Yes, and would predispose to an acceptance of the null hypothesis.
+\end{enumerate}
+
+\section{Cohort Studies}
+
+\subsection{Choices}
+
+1. A published study follows a large group of women with untreated dysplasia of 
+the uterine cervix, documenting the number who improve, stay unchanged, or progress 
+into cervical cancer. This study design is best described as which one of the 
+following:
+\begin{enumerate}[(A)]
+  \item Analytic, experimental
+  \item Analytic, observational, cohort
+  \item Analytic, observational, case/control
+  \item Descriptive, observational
+\end{enumerate}
+
+
+2. A community assesses a random sample of its residents by telephone questionnaire. 
+Obesity is strongly associated with diagnosed diabetes. This study design is best 
+described as which one of the following:
+\begin{enumerate}[(A)]
+  \item Case-control
+  \item Cohort
+  \item Cross-sectional
+  \item Experimental
+\end{enumerate}
+
+
+\subsection{Cytomegalovirus and coronary restenosis}
+Each year cardiologists perform procedures to blocked coronary arteries only to 
+have may of these repaired arteries re-clog (restenosis) afterwards. A study 
+sponsored by the NIH Heart, Lung and Blood Institute was performed to determine 
+whether prior infection with cytomegalovirus was predictive of arterial restenosis. 
+In 21 of the 49 patients with serologic evidence of cytomegalovirus infection, 
+re-growth of arterial plaque was noted. In contrast, only 2 of the 26 patients 
+seronegative patient had restenosis. 
+\begin{enumerate}[(1)]
+	\item Calculate the risk ratio of restenosis associated with CMV infection. 
+		Include a 95\% confidence interval.
+	\item Try to interpret results.
+	\item Conduct a chi-square test of $H_0: RR = 1$.
+\end{enumerate}
+
+\end{CJK*}
+\end{document}
