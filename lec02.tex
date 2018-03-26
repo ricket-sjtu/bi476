@@ -72,16 +72,15 @@ breaklines=true}
 \begin{frame}
 \frametitle{Goals of the lecture}
 \begin{itemize}[<+->]
-	\item To understand the logic and structure of the cross-sectional study along 
-		its strength and weakness.
+	\item To understand the cross-sectional study along its strength and weakness.
 	\item To distinguish from the concepts of prevalence and incidence.
-	\item To define and organize a case-control study.
-	\item To calculate and interpret the odds ratio (OR).
+	\item To define the organization of a case-control study.
+	\item To calculate and interpret the odds ratio (OR) as well as the confidence interval.
 	\item To understand the strength and weakness of CCS.
-	\item To understand the concept of measurement bias with an example of recall bias.
-	\item To define and organize a cohort study
-	\item To calculate and interpret the relative risk or risk ratio (RR)
-	\item To understand the different biases, and know how to detect them
+	\item To understand the concept of bias and confounding.
+	\item To define and organize a cohort study.
+	\item To calculate and interpret the relative risk or risk ratio (RR).
+	\item To understand the different biases, and know how to detect them.
 	\item To understand the difference between association and causation.
 \end{itemize}
 \end{frame}
@@ -110,6 +109,7 @@ first step in understand the disease of interest.
 
 \begin{frame}[t]
 \frametitle{Prevalence}
+\textbf{Proportion of cases in the population at a given time}, indicating \alert{how widespread the disease is.}
 $$
 \textrm{Prevalence} = \frac{\mbox{\#cases observed at time } t}{\mbox{\#individuals at time} t}
 $$
@@ -133,6 +133,11 @@ $$
 		\item The indicidence rate was therefore $12/86=0.14$
 	\end{itemize}
 	\item Incidence density rate (IDR)
+	\begin{itemize}
+		\item \textbf{rate of occurrence of new cases}
+		\item conveys information about the \alert{risk of 
+			contracting the disease}. 
+	\end{itemize}
 	$$
 \textrm{IDR} = \frac{\mbox{\#individuals of newly disease}}{\mbox{total time for all disease-free individuals-at-risk}}
 	$$
@@ -160,28 +165,6 @@ A hypothesis is then formulated to predict the result.
 The risk of hospital admission for respiratory problems for children increases 
 with proximity to the coke-works site.
 \end{quote} 
-\end{frame}
-
-
-\begin{frame}[t]
-\frametitle{Analytic Design Strategies}
-\begin{block}{Observational Studies}
-\begin{itemize}
-	\item Case-control; cohort
-	\item Exposures are self-selected;
-	\item we simply observe exposed or not;
-	\item whether they develop the outcome or not.
-\end{itemize}
-\end{block}
-\begin{block}{Intervention Studies}
-\begin{itemize}
-	\item Randomized controlled trials
-	\item Exposures are allocated by investigators (not self-selected)
-	\item Closest to a laboratory experiment;
-	\item Basis of evidence-based recommendations;
-	\item Required by regulatory bodies.
-\end{itemize}
-\end{block}
 \end{frame}
 
 
@@ -474,7 +457,7 @@ Exposed(-) & $c$ & $d$\\
 
 
 \begin{frame}[t]
-\frametitle{Case-Control Studies Problems}
+\frametitle{Case-Control Study Issues}
 \framesubtitle{Bias and confounding}
 In case-control studies, the inferred association can be introduced by the 
 subject selection process, the problem of data collection, and/or the other 
@@ -658,7 +641,7 @@ Non-exposed & \alert{$c$} & $d$\\
 	$$
 \chi_{\textrm{McN}}^2 = \frac{(b-c)^2}{b+c} \sim \chi_{df=1}^2
 	$$
-	\item The \alert{continuity-correct McNemar's Chis-square test}:
+	\item The \alert{continuity-correct McNemar's Chi-square test}:
 	$$
 \chi_{\textrm{McN}}^2 = \frac{(|b-c|-1)^2}{b+c} \sim \chi_{df=1}^2
 	$$
@@ -752,7 +735,7 @@ $$
 	\item Challenge in measurement of exposure (measure exposure 
 		after the occurrence of disease)
 	\item Difficulty in determine temporality
-	\item Only one disease is studied
+	\item Only one outcome is studied
 	\item Incidence of disease cannot be studied, though OR is 
 		intended to estimate incidence ratio
 \end{itemize}
@@ -1225,7 +1208,7 @@ Coronary Artery Disease: A Propensity Analysis}}\\
 	\item<6-> Low follow-up rate in cohort study
 	\item<7-> Selection bias in case-control study
 	\item<8-> Information (misclassification) bias in all studies
-	\item<9-> Confounding bias in all studies
+	\item<9-> Confounding in all studies
 	\item<10-> Use the most appropriate analytical methods
 \end{itemize}
 \end{alertblock}}
@@ -1235,7 +1218,7 @@ Coronary Artery Disease: A Propensity Analysis}}\\
 \begin{frame}[t]
 \frametitle{Design a Study Protocol}
 \begin{enumerate}[(A)]
-	\item Research Question and Hypothesis 
+	\item What is your Research Question and Hypothesis 
 	\item Target population
 	\item Explanatory variable (Exposure)
 	\item Response variable (Outcome)
@@ -1247,6 +1230,47 @@ Coronary Artery Disease: A Propensity Analysis}}\\
 \end{enumerate}
 \end{frame}
 
+
+\begin{frame}[t]
+\frametitle{Statistical Testing Choices}
+\uncover<1->{\begin{alertblock}{Continuous outcome (mean)}
+\begin{itemize}
+	\item Two independent groups
+	\begin{itemize}
+		\item $t$-test (parametric)
+		\item Wilcoxon Mann-Whitney rank-sum test (nonparametric)
+	\end{itemize}
+	\item 2+ independent groups
+	\begin{itemize}
+		\item ANOVA (parametric)
+		\item Kruskal-Wallis test (nonparametric)
+	\end{itemize}
+	\item Paired data
+	\begin{itemize}
+		\item Paired $t$-test (parametric)
+		\item Wilcoxon signed-rank test (nonparametric)
+	\end{itemize}
+	\item 2+ dependent groups
+	\begin{itemize}
+		\item ANOVA
+		\item Friedman's test
+	\end{itemize}
+\end{itemize}
+\end{alertblock}}
+\uncover<2->{\begin{alertblock}{Categorical outcome (Percentage)}
+\begin{itemize}
+	\item Independent groups (2+)
+	\begin{itemize}
+		\item $\chi^2$-test
+		\item Fisher's exact test
+	\end{itemize}
+	\item Paired data ($2 \times 2$)
+	\begin{itemize}
+		\item McNemar's test
+	\end{itemize}
+\end{itemize}
+\end{alertblock}}
+\end{frame}
 
 \begin{frame}
 \center{\LARGE{Questions?}}

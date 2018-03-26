@@ -39,6 +39,19 @@ breaklines=true
 \maketitle
 
 
+\section{Notations}
+\subsection{Define the following terms in your own words.}
+\begin{enumerate}[(1)]
+	\item Prevalence
+	\item Prevalence ratio
+	\item Risk
+	\item Risk ratio
+	\item Odds
+	\item Odds ratio
+	\item Confounder
+	\item Bias
+\end{enumerate}
+
 \section{Case Report and Case Series}
 \subsection{True or False}
 \begin{enumerate}[(1)]
@@ -70,6 +83,49 @@ Among untreated children under age 3, 20\% of malaria cases are fatal. 20\% is a
   \item prevalence
 \end{enumerate}
 
+
+What is the name of statistician who invented the exact test for 2-by-2 table?
+\begin{enumerate}[(A)]
+  \item Pearson
+  \item Fisher
+  \item Galton
+  \item Kolmorov 
+\end{enumerate}
+
+
+For a same data, which produces the larger $P$-vallue?
+\begin{enumerate}[(A)]
+  \item Pearson's uncorrelated chi-square test
+  \item Yates' continuity-corrected chi-square test?
+\end{enumerate}
+
+
+\subsubsection{HIV affection in the prison.}
+A study planned to determine the prevalence of HIV-seropositivity in 
+female prison inmates. And the association between HIV and intravenous 
+drug use was studied. The individual records are stored in the data 
+\texttt{prison.RData}.
+\begin{enumerate}[(1)]
+	\item Write down the cross-tabulated results by intravenous 
+		drug use (IVDU) and HIV.
+	\item Calculate the prevalence of HIV in each group.
+	\item Calculate the prevalence ratio associated with IVDU and then 
+		interpret your results in your own words.
+	\item Calculate a $95\%$ confidence interval for the prevalence 
+		ratio. Interpret your results.
+	\item Use Yates' continuity corrected chis-square test to derive a 
+		$P$-value for the association. Show all hypothesis testing.
+	\item Do we need the Fisher's exact test here?
+	\item Replicate the analysis in R.
+	\item Suppose you were to plan a study in a prison population to 
+		see if ethnic group is an independent risk factor for HIV. 
+		You want to achieve $90\%$ power with $\alpha=0.05$ 
+		(two-sides). We will use a equal number of study subjects 
+		in each ethnic group. Determine the sample size you need 
+		to detect a \textbf{two-fold} difference in prevalence.
+	\item Detect the sample size needed to detect a $50\%$ increase in 
+		risk.
+\end{enumerate}
 
 During the past year, 7 new cases of multiple sclerosis were diagnosed in your 
 community of 100,000 people. At any one time during the year, the prevalence of 
