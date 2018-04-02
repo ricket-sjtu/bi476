@@ -1,0 +1,1515 @@
+\documentclass[table,10pt]{beamer}
+
+\mode<presentation>{
+%\usetheme{Goettingen}
+\usetheme{Boadilla}
+\usecolortheme{default}
+}
+\usepackage{CJK}
+\usepackage{graphicx}
+\usepackage{amsmath, amsopn}
+\usepackage{xcolor}
+\usepackage[english]{babel}
+\usepackage[T1]{fontenc}
+\usepackage[latin1]{inputenc}
+\usepackage{enumerate}
+\usepackage{multirow}
+\usepackage{url}
+\ifx\hypersetup\undefined
+	\AtbBeginDocument{%
+		\hypersetup{unicode=true,pdfusetitle,
+bookmarks=true,bookmarksnumbered=false,bookmarksopen=false,
+breaklinks=false,pdfborder={0 0 0},pdfborderstyle={},backref=false,colorlinks=false}
+	}
+\else
+	\hypersetup{unicode=true,pdfusetitle,
+bookmarks=true,bookmarksnumbered=false,bookmarksopen=false,
+breaklinks=false,pdfborder={0 0 0},pdfborderstyle={},backref=false,colorlinks=false}
+\fi
+\usepackage{breakurl}
+\usepackage{color}
+\usepackage{times}
+\usepackage{xcolor}
+\usepackage{listings}
+\lstset{
+language=R,
+keywordstyle=\color{blue!70}\bfseries,
+basicstyle=\ttfamily,
+commentstyle=\ttfamily,
+showspaces=false,
+showtabs=false,
+frame=shadowbox,
+rulesepcolor=\color{red!20!green!20!blue!20},
+breaklines=true}
+
+\makeatletter
+\newcommand{\rmnum}[1]{\romannumeral #1}
+\newcommand{\Rmnum}[1]{\expandafter\@slowromancap\romannumeral #1@}
+\makeatother
+
+\setlength{\parskip}{.5em}
+\renewcommand\arraystretch{1.3}
+
+\title[BI476]{BI476: Biostatistics - Case Studies}
+\subtitle[trial]{Lec03: Designing Clinical Trials (临床试验设计)}
+\author[Maoying Wu]{Maoying,Wu\\{\small ricket.woo@gmail.com}}
+\institute[CBB] % (optional, but mostly needed)
+{
+  \inst{}
+  Dept. of Bioinformatics \& Biostatistics\\
+  Shanghai Jiao Tong University
+}
+\date{Spring, 2018}
+
+\AtBeginSection[]
+{
+  \begin{frame}<beamer>{Next Section ...}
+    \tableofcontents[currentsection]
+  \end{frame}
+}
+
+\begin{document}
+\begin{CJK*}{UTF8}{gbsn}
+
+\frame{\titlepage}
+
+\begin{frame}
+\frametitle{Outline}
+\tableofcontents
+\end{frame}
+
+\section{Clinical Trials: Introduction}
+
+\begin{frame}[t]
+\frametitle{Pharmaceutical Drug Design: 3 Phases}
+\framesubtitle{Phase I trials: Clinical pharmacology and toxicity study}
+\begin{table}
+\begin{tabular}{p{0.3\textwidth}p{0.6\textwidth}}
+\textbf{Objective:} & The main objective is safety, by providing information on the 
+	\textbf{pharmacokinetics} and \textbf{pharmacodynamics}\\
+\textbf{Design} & Usually single or multiple dose-escalation studies.\\
+\textbf{Subjects} & Normal healthy subjects. Patients may be used, particularly with 
+	anti-oncology drugs. The objective in oncology studies is to determine the 
+	dose to be used in phase \Rmnum{2} studies (the maximum tolerated dose, MTD)\\ 
+\textbf{Sample size} & Approximately 20 to 80 subjects.
+\end{tabular}
+\uncover<2->{\begin{description}
+	\item[Pharmacokinetics (药代)]{Process by which a drug is absored, distributed, metabolized, and eliminated by the body.}
+	\item[Pharmacodynamics (药效)]{Study of action or effects of drugs on living organisms or living systems.}
+\end{description}}
+\end{table}
+\end{frame}
+
+
+\begin{frame}[t]
+\frametitle{Pharmaceutical Drug Design: 3 Phases}
+\framesubtitle{Phase II trials: Initial clinical investigation on treatment effect}
+\begin{table}
+\footnotesize
+\begin{tabular}{p{0.25\textwidth}p{0.70\textwidth}}
+\textbf{Objective:} & To evaluate the potential effectiveness of a drug based on clinical endpoints for a particular indication or indications, the common short-term side effects, and the risks associated with the drug. Providing data on the doses to be used for \Rmnum{3} trials.\\
+\textbf{Design: } & Often single-arm, to be compared with historical controls or current treatment:
+\begin{itemize}
+	\item Randomized dose ranging design
+	\item Randomized titration design
+	\item Two-stage phase \Rmnum{2} design (oncology)
+	\item Multistage design
+	\item Bayesian design
+	\item Randomized phase \Rmnum{2}
+	\item Multiple-endpoint design
+\end{itemize}\\
+\textbf{Subjects:} & Patients with disease.\\
+\textbf{Sample size: } & Often $<100$ patients.
+\end{tabular}
+\end{table}
+\end{frame}
+
+\begin{frame}[t]
+\frametitle{Pharmaceutical Drug Design: 3 Phases}
+\framesubtitle{Phase III trials: Full-scale evaluation of the effects}
+\begin{table}
+\begin{tabular}{p{0.25\textwidth}p{0.70\textwidth}}
+\textbf{Objective:} & To compare the efficacy of the new treatment with the standard regimen in a scientifically rigorous manner.\\
+\textbf{Design: } & Randomized trial of the new treatment \emph{versus} the control regimen.\\
+\textbf{Subjects:} & Patients with disease.\\
+\textbf{Sample size: } & Often $100$ to $1000+$ patients.
+\end{tabular}
+\end{table}
+We will focus on the phase \Rmnum{3} study in the following slides.
+\end{frame}
+
+
+\begin{frame}[t]
+\frametitle{Phase III Clinical Trials}
+\framesubtitle{Randomized controlled trials}
+\begin{itemize}
+	\item Gold-standard clinical design:
+	\begin{itemize}
+		\item \textbf{New} intervention compared with a \textbf{control}
+		\item Treatment assignment made randomly.
+	\end{itemize}
+	\item Randomization:
+	\begin{itemize}
+		\item Remove \textbf{bias} in subject allocation to treatments.
+		\item Tends to produce comparable group (w.r.t. confounders)
+		\item Allows valid statistical tests to be performed.	
+	\end{itemize}
+\end{itemize}
+Randomized clinical trials (RCTs) are the standard to which other designs are compared.
+\end{frame}
+
+\begin{frame}[t]
+\frametitle{Clinical Trials: Notations and Priciples}
+A clinical trial is a \alert{propspective study} comparing the \alert{efficacy and safety} 
+of an \alert{intervention (干预)} against a \alert{control (对照)} in human subjects.
+
+\uncover<2->{\begin{alertblock}{\center 3 Principles}
+\begin{itemize}
+	\item Randomization (随机)
+	\item Controlled (对照)
+	\item Replication/Sample size (重复/样本量)
+\end{itemize}
+\end{alertblock}}
+
+\uncover<3->{The control can be 
+\begin{itemize}
+	\item<4-> external/historical control (外部/历史对照)
+	\item<5-> no-treatment control (空白对照)
+	\item<6-> placebo control (安慰剂对照)
+	\item<7-> active/positive control （阳性对照）
+	\item<8-> dose-response control (剂量-响应对照)
+	\item<9-> hybrid control (组合对照)
+\end{itemize}}
+\end{frame}
+
+
+\begin{frame}[t]
+\frametitle{A Randomized Clinical Trial: Example}
+{\large \alert{Effect of Nitroglycerin Ointment on Bone Density
+and Strength in Postmenopausal Women}}\\
+\small{Sophie A. Jamal, et al. JAMA 2011; 305(8):800-807}
+\begin{description}
+	\item[Objective]To determine if nitroglycerin increases 
+		lumbar spine bone mineral density (BMD)
+	\item[Design]\underline{\bf Single-center}, \underline{\bf double-blind}, \underline{\bf placebo-controlled} 
+		\underline{\bf randomized} trial.
+	\item[Intervention]Nitroglycerin ointment (15 mg/d) or placebo 
+		applied at bedtime for 24 months.
+	\item[Primary outome]Areal BMD at the lumbar spine, femoral neck, 
+		and total hip.
+	\item[Results]blahblah
+	\item[Conclusion]Among postmenopausal women, nitroglycerin ointment 
+		modestly increased BMD and decreased bone reabsorption.
+\end{description}
+\end{frame}
+
+
+\begin{frame}[t]
+\frametitle{A Randomized Clinical Trial: Example}
+\framesubtitle{Participant flow diagram}
+\begin{figure}
+\includegraphics[width=0.5\textwidth]{images/nitroglycerin_bmd_trial_flowchart.png}
+\end{figure}
+\end{frame}
+
+\begin{frame}[t]
+\frametitle{Nitroglycerin and BMD: Baseline characteristics}
+\begin{table}
+\footnotesize
+\caption{Baseline characteristics of study participants}
+\begin{tabular}{lcc}
+\hline
+Characteristics & Nitroglycerin (n=126) & Placebo (n=117)\\
+\hline
+Age (y) & 61.3 (6.6) & 61.9 (7.3)\\
+\hline
+Weight (kg) & 70.3 (11.9) & 70.9 (13.3)\\
+\hline
+White race (\%) & 118 (94) & 107 (91)\\
+\hline
+Years since menopause & 11.8 (8.2) & 11.8 (8.3)\\
+\hline
+Walks $\ge 2h$ per wk (\%) & 104 (89) & 109 (87)\\
+\hline
+Nonsmoker (\%) & 124 (98) & 113 (97)\\
+\hline
+Vitamine D intake (IU/d) & 783.2 (251.2) & 753.2 (237.2)\\
+\hline
+Cacium intake (mg/d) & 1548.8 (317.2) & 1565.6 (373.6)\\
+\hline
+T score (Lumbar spine) & -0.9 (0.6) & -1.1 (0.6)\\
+\hline
+T score (Femoral neck) & -0.9 (0.6) & -0.8 (0.7)\\
+\hline
+T score (Total hip) & -0.6 (0.7) & -0.6 (0.7)\\
+\hline  
+\end{tabular}
+\end{table}
+\end{frame}
+
+\begin{frame}[t]
+\frametitle{Results}
+\begin{table}
+\footnotesize
+\caption{Absolute BMDs of different sites at baseline, 12 and 24 months}
+\begin{tabular}{lccc}
+\hline
+ & \multicolumn{3}{c}{BMD, Absolute value (95\%CI)}\\
+ \cline{2-4}
+{\bf Site and Group} & {\bf Baseline} & {\bf 12 months} & {\bf 24 months}\\
+\hline
+Lumbar spine & & & \\ 
+- Placebo & 1.06 (1.05-1.08) & 1.06 (1.05-1.08) & 1.08 (1.08-1.09)\\
+- Nitroglycerin & 1.05 (1.04-1.07) & 1.11 (1.10-1.13) & 1.14 (1.12-1.15)\\
+\hline
+Total hip & & & \\
+- Placebo & 0.93 (0.91-0.94) & 0.92 (0.91-0.94) & 0.92 (0.90-0.94)\\
+- Nitroglycerin & 0.92 (0.91-0.94) & 0.96 (0.94-0.98) & 0.97 (0.96-0.99)\\
+\hline
+Femoral neck & & & \\
+- Placebo & 0.87 (0.86-0.89) & 0.87 (0.85-0.88) & 0.86 (0.85-0.88)\\
+- Nitroglycerin & 0.88 (0.86-0.90) & 0.91 (0.89-0.92) & 0.93 (0.92-0.95)\\
+\hline
+\end{tabular}
+\end{table}
+\end{frame}
+
+
+
+\begin{frame}[t]
+\frametitle{Sample size requirements}
+In order to compute the sample size required for comparing two means, we need
+\begin{itemize}
+	\item $\delta_0 = 0.02$: difference between the nitroglycerin and control group;
+	\item $\sigma = 0.045$: estimated standard deviation for treatment or control group;
+	\item $\alpha = 0.05$: Two-tailed type I error;
+	\item $1-\beta = 0.90$: Power to detect the difference
+\end{itemize}
+
+Then, sample size for each group is:
+$$
+\begin{aligned}
+n &=& 2 \times \left( \frac{(z_{1-\frac{\alpha}{2}} + z_{1-\beta})\sigma}{\delta_0}\right)^2\\
+ &=& 106.4 \approx 107
+\end{aligned}
+$$ 
+\end{frame}
+
+\begin{frame}[t]
+\frametitle{Statistical test for comparing the differences in changes of BMD}
+\begin{itemize}
+	\item $H_0: \mu_1 = \mu_2$;
+	\item $H_a: \mu_1 \neq \mu_2$;
+	\item Two side $t$-test with $\alpha = 0.05$;
+	\item Statistic: $t = \frac{\bar{x}_1 - \bar{x}_2}{S_{\bar{x}_1 - \bar{x}_2}}$
+	\item $S_{\bar{x}_1 - \bar{x}_2} = \sqrt{S_c^2 \frac{n_1 + n_2}{n_1 n_2}}$
+	\item $S_c^2 = \frac{(n_1-1)S_1^2 + (n_2 - 1)S_2^2}{(n_1-1)+(n_2-1)}$
+	\item $t = 8.80 \sim t_{df=n_1+n_2-2}$
+	\item $p = 2.69 \times 10^{-16}$
+	\item Reject the null hypothesis.
+	\item $95\%$ confidence interval of difference: $(\bar{x}_1 - \bar{x}_2) \pm t_{0.975, n_1+n_2-2} 
+		\times S_{\bar{x}_1 - \bar{x}_2}$
+\end{itemize}
+\end{frame}
+
+
+\begin{frame}[t]
+\frametitle{Key issues and the corresponding solution}
+\begin{table}
+\footnotesize
+\caption{Issues and Solutions}
+\begin{tabular}{p{0.3\textwidth}p{0.6\textwidth}}
+\hline
+\textbf{Issues} & \textbf{Solutions}\\
+\hline
+Procedure selection bias & \alert{Randomization (随机化)}\\
+\hline
+Assessment bias & \alert{Masking/blinding (盲法)}\\
+\hline
+Assessment bias & Objective assessment (客观评价)\\
+\hline
+Treatment-time confounding & Concurrent controls (同期对照)\\
+\hline
+Disease remission/progression & Concurrent controls (同期对照)\\
+\hline
+Variation & \alert{Replication (重复，保证足够样本量)}\\
+\hline
+\end{tabular}
+\end{table}
+\end{frame}
+
+
+\section{Clinical trial designs}
+
+\begin{frame}[t]
+\frametitle{Clinical Trials: Various Controls}
+\begin{itemize}
+	\item No control
+	\item Historical control (single-arm)
+	\item Concurrent but non-randomized control
+	\item Randomized
+\end{itemize}
+\end{frame}
+
+\begin{frame}[t]
+\frametitle{Historical control design}
+A.k.a \alert{single-arm study (单臂试验)}.
+
+In trials with historical controls, a new treatment is used in a series of subjects; the outcome 
+is compared with previous series of comparable subjects.
+\begin{alertblock}{\center Pros}
+\begin{itemize}
+	\item Rapid, inexpensive, good for initial testing of new treatment 
+\end{itemize}
+\end{alertblock}
+\begin{alertblock}{\center Cons: Vulnerable to bias}
+Changes in outcome over time may come from:
+\begin{itemize}
+	\item change in underlying patient population
+	\item change in criteria for selecting patients
+	\item change in patient care and management peripheral to treatment
+	\item change in diagnostic or evaluating criteria
+	\item change in quality of data available
+\end{itemize}
+Studies with historical controls tend to exaggerate the value of new treatment.
+
+Control groups taken from the literature are a particularly poor choice.
+
+Covariate analysis can be used to adjust for patient selection, but all other 
+biases will remain. 
+\end{alertblock}
+\end{frame}
+
+
+\begin{frame}[t]
+\frametitle{Concurrent control design (同期对照)}
+\begin{itemize}
+	\item Not randomized
+	\item Patients compared, treated by different strategies, same period
+\end{itemize}
+
+\begin{alertblock}{\center Advantage}
+\begin{itemize}
+	\item Eliminate time trend
+	\item Data of comparable quality
+\end{itemize}
+\end{alertblock}
+
+\begin{alertblock}{Disadvantage}
+\begin{itemize}
+	\item Selection Bias
+	\item Treatment groups not comparable
+	\item Covariance analysis not adequate
+\end{itemize}
+\end{alertblock}
+\end{frame}
+
+\begin{frame}[t]
+\frametitle{Randomization can reduce the selection bias}
+\begin{table}
+\footnotesize
+\caption{Clinical trials on the use of anticoagulant therapy on acute MI (1977)}
+\begin{tabular}{p{0.20\textwidth}|p{0.20\textwidth}p{0.20\textwidth}p{0.20\textwidth}}
+\hline
+ & \#studies & \#($p<.05$) & Estimated reduction in total mortality\\
+\hline
+Non-randomized & & & \\
+- Historical controls & 18 & 15 & 50\%\\
+- Concurrent controls & 8 & 5 & 50\%\\
+\hline
+Randomized & 6 & 1 & 20\%\\
+\hline
+\end{tabular}
+\end{table}
+\begin{itemize}
+	\item<2-> The difference in estimated reduction is probably due to biases in 
+		the non-randomized trials.
+	\item<3-> Selection bias can lead historically controlled studies to inappropriately 
+		favor the new intervention.
+	\item<4-> However, small sample sizes in randomized trials lead to missing benefits 
+		of new treatments that truly exists. 
+\end{itemize}
+\end{frame}
+
+\begin{frame}[t]
+\frametitle{Commonly used Phase-III designs}
+\begin{itemize}
+	\item Parallel (平行)
+	\item Crossover (交叉)
+	\item Factorial (因子)
+	\item Group/Cluster (组)
+	\item Adaptive (适应性)
+\end{itemize}
+\end{frame}
+
+\begin{frame}[t]
+\frametitle{Parallel design}
+\begin{table}
+\begin{tabular}{lc}
+\hline
+\textbf{Patient} & \textbf{Treatment}\\
+\hline
+1 & A\\
+2 & B\\
+3 & B\\
+4 & A\\
+\hline
+\end{tabular}
+\end{table}
+\begin{itemize}
+	\item In a parallel study design, each subject is randomized to one 
+		and only one treatment.
+	\item Most large clinical trials adopt this approach.
+	\item During the trial, participants in one group receive drug A \alert{
+		in parallel} to participants in the other group receiving drug B
+\end{itemize}
+\end{frame}
+
+
+\begin{frame}[t]
+\frametitle{Crossover design}
+\begin{table}
+\begin{tabular}{lcc}
+\hline
+\textbf{Patient} & \textbf{Period 1} & \textbf{Period 2}\\
+\hline
+1 & A & B\\
+2 & B & A\\
+\hline
+\end{tabular}
+\end{table}
+Each patient is randomly assigned to "A, then B" or "B, then A".
+\uncover<2->{
+\begin{alertblock}{Pros}
+\begin{itemize}
+	\item Each subject serves as own control $\Rightarrow$ variability reduced.
+\end{itemize}
+\end{alertblock}}
+\uncover<3->{\begin{alertblock}{Cons}
+\begin{itemize}
+	\item Condition must be chronic (e.g., HBP, arthritis), either "cure" or "death" 
+		before the second treatment would ruin the design.
+\end{itemize}
+\end{alertblock}}
+
+\uncover<4->{This design must assume \alert{no carryover (residual) effect} of the first treatment.
+The statistical test for carryover has low power. Else you need \alert{wash-out} period to avoid a \alert{carry-over} effect.}  
+\end{frame}
+
+\begin{frame}[t]
+\frametitle{Crossover Trials: Advantage and disadvantages}
+\uncover<1->{\begin{alertblock}{\center Advantages}
+\begin{itemize}
+	\item Reducing the variability since the treatment comparison is 
+		only \alert{within-subject} other than between-subject
+	\item Smaller sample size needed. 
+\end{itemize}
+\end{alertblock}}
+
+\uncover<2->{\begin{alertblock}{\center Disadvantages}
+\begin{itemize}
+	\item Strict assumption about carry-over effects;
+	\item Only appropriate for chronic diseases;
+	\item Drop-out may occurred before second period;
+	\item Period effect.
+\end{itemize}
+\end{alertblock}}
+\end{frame}
+
+\begin{frame}[t]
+\frametitle{High-order Crossover Designs}
+\begin{itemize}
+	\item Note that in crossover design, the number of periods does not necessarily have to be 
+		equal to the number of treatments to be compared.
+	\item Here is an example of $2 \times 3$ crossover design for comparing two treatments with 
+		three periods.
+\end{itemize}
+\uncover<2->{\begin{table}
+\footnotesize
+\caption{Two-sequence Dual Crossover Design}
+\begin{tabular}{lccc}
+\hline
+ & \textbf{Period 1} & \textbf{Period 2} & \textbf{Period 3}\\
+\hline
+Sequence 1 & A & B & B\\
+Sequence 2 & B & A & A\\ 
+\hline
+\end{tabular}
+\end{table}}
+\uncover<3->{\begin{alertblock}{Types of high-order crossover designs}
+\begin{itemize}
+	\item \alert{Balaam's design}: AA, BB, AB, BA
+	\item \alert{Two-sequence dual design}: ABB, BAA
+	\item \alert{Double (replicated) design}: AABB, BBAA
+	\item \alert{Four-sequence design}: AABB, BBAA, ABBA, BAAB
+	\item \alert{William's design with three treatments}: ACB, BAC, CBA, BCA, CAB, ABC
+	\item \alert{William's design with four treatments}: ADBC, BACD, CBDA, DCAB
+\end{itemize}
+\end{alertblock}}
+\end{frame}
+
+\begin{frame}[t]
+\frametitle{Factorial design}
+Assumed that there are two different treatments: $A$ and $B$
+\begin{table}
+\begin{tabular}{lcc}
+& Treatment $B$ & Control\\
+\hline
+Treatment $A$ & $A+B$ & $A$\\
+\hline
+Control & $B$ & Control\\
+\hline
+\end{tabular}
+\end{table}
+Randomization of subjects to one of 4 possible regimens.
+
+\uncover<2->{\begin{alertblock}{Pros}
+\begin{itemize}
+	\item Conduct 2 experiments at once!
+	\item Investigate potential interaction between $A$ and $B$
+\end{itemize}
+\end{alertblock}}
+\uncover<3->{\begin{alertblock}{Cons}
+\begin{itemize}
+	\item If \textbf{interaction exists}, each treatment must be tested separately within 
+		each level of the other ($\Rightarrow$ reduced power).
+\end{itemize}
+\end{alertblock}}
+
+\uncover<4->{But if there are three dffernet treatments?}\\
+\uncover<5->{\alert{Balanced $2\times 2 \times 2$ factorial design.}}
+\end{frame}
+
+
+\begin{frame}[t]
+\frametitle{Group allocation design}
+Groups (clinics, communities) are randomized to treatment or control (e.g. 
+trials on fluoridated water).
+\begin{alertblock}{Pros}
+\begin{itemize}
+	\item Sometimes logistically more feasible.
+	\item Avoids individual consent problem.
+\end{itemize}
+\end{alertblock}
+\begin{alertblock}{Cons}
+\begin{itemize}
+	\item Many units must participate to overcome unit-to-unit variation.
+	\item Larger sample size required than simple randomized design.
+\end{itemize}
+\end{alertblock}
+\end{frame}
+
+
+\begin{frame}[t]
+\frametitle{Cluster RCT Example}
+\framesubtitle{1. Population settings}
+\footnotesize
+\textbf{Aim of study}\\
+To examine the effectiveness of a school intervention for well-being and 
+health risk behaviors.
+
+\textbf{Study design}\\
+Cluster RCT
+
+\textbf{Source population}\\
+Metropolitan Melbourne and rural districts, Australia
+
+\textbf{Study year}\\
+1997
+
+\textbf{Eligible population}\\
+Schools in 12 districts in two education regions in Melbourne and schools 
+in 4 rural districts.
+
+\textbf{Selected population}\\
+26 metropolitan government, independent and catholic schools and country 
+schools.
+
+\textbf{Age}\\
+13-14 years (year 8)
+
+\textbf{Female}\\
+53.2\%
+
+\textbf{Excluded population}\\
+Classrooms in government, independent and catholic metropolitan schools 
+and country schools. 
+\end{frame}
+
+
+\begin{frame}[t]
+\frametitle{Cluster RCT Example}
+\framesubtitle{2. Intervention allocation method}
+\footnotesize
+Demographic factors.
+
+\textbf{Intervention/s}\\
+Intervention involved institutional and individual-based components based 
+on an understanding of mental health and risk behaviors that derive from 
+social environments.
+
+On a whole school level, intervention involved establishing an 
+"adolescent health team" to identify effective strategies to address risk 
+issues.
+
+The teaching part of the intervention was derived over 10 weeks in 2 
+school years (years 8 and 9).
+
+\textbf{Intervention category}\\
+School-based
+
+\textbf{Intervention period}\\
+10 weeks during 2 years
+
+\textbf{Control/s}\\
+No intervention.
+
+\textbf{Sample sizes}:
+Total $n = 26$ schools, 2678 students.\\
+Intervention $n = 12$\\
+Control $n=14$
+
+\textbf{Baseline comparisons}\\
+The intervention group reported slightly lower-level of parental smoking 
+and parental separation.   
+\end{frame}
+
+\begin{frame}[t]
+\frametitle{Cluster RCT Example}
+\framesubtitle{3. Outcome and methods of analysis}
+\footnotesize
+\textbf{Primary outcomes}\\
+Smoking Prevalence (any smoking or regular smoker)
+
+\textbf{Secondary outcomes}\\
+None
+
+\textbf{Follow-up periods}\\
+1,2 and 3 years from baseline.
+
+\textbf{Evaluation}\\
+Students completed questionnaires at baseline (beginning of year 8) and 
+were followed-up at 1 (end of year 8), 2 (end of year 9) and 3 years (end 
+of year 10). Absent students were surveyed at a later date or telephoned 
+(along with students who had left the schools).
+
+\textbf{Analysis method}\\
+Multivariate analysis. Stated that analysis was intention-to-treat but it 
+appears that only students that took part in each measurement stage were 
+included in the analysis.
+\end{frame}
+
+
+\begin{frame}[t]
+\frametitle{Cluster RCT Example}
+\framesubtitle{4. Results}
+\footnotesize
+\textbf{Primary outcomes}\\
+\begin{table}
+\caption{Prevalence of smoking (intervention vs. control)}
+\begin{tabular}{lp{0.2\textwidth}p{0.2\textwidth}p{0.2\textwidth}}
+\hline
+  & Year 1 & Year 2 & Year 3\\
+\hline
+Any smoking & 22.0\% vs. 24.9\% (OR: 0.89 (0.72-1.12)) & 25.0\% vs. 18.7\% (OR: 0.92 (0.63-1.33)) & 24.9\% vs. 28.2\% (OR: 0.91 (0.67-1.24))\\
+\hline 
+Regular smoking & 4.9\% vs. 8.3\% (OR: 0.66 (0.46-0.95)) & 7.7\% vs. 11.9\% (OR: 0.72 (0.47-1.09)) & 11.8\% vs. 15.6\% (OR: 0.79 (0.58-1.07))\\
+\hline
+\end{tabular}
+\end{table}
+Reported ORs were adjusted for baseline measurements and gender, family 
+structure, Australian born and parental structure.
+\end{frame}
+
+\begin{frame}[t]
+\frametitle{Cluster RCT Example}
+\framesubtitle{5. Notes}
+\footnotesize
+\textbf{Limitations identified by author}\\
+The small number of schools in the trial limits the effectiveness of the 
+randomization process.
+
+\textbf{Limitations identified by review team}\\
+Although it is implied taht schools were the units of randomization, 
+randomization was primarily by district. It is unclear whether this was 
+taken into account in the analysis.
+
+\textbf{Evidence gaps and/or recommendations for future research}\\
+Research to investigate specific mechanisms that affect change.
+
+
+\end{frame}
+
+\begin{frame}[t]
+\frametitle{Hybrid design}
+\textbf{Hybrid design} combines historical controls and traditional controls.
+
+These \textbf{criteria} must be met:
+\begin{itemize}
+	\item Same entry criteria and evaluation factors.
+	\item Participant recruitment by the same clinic or investigator
+	\item Data from historical control participants must be fairly current
+\end{itemize}
+\begin{alertblock}{Advantages}
+\begin{itemize}
+	\item Potentially, the need for few participants to be entered into a trial.
+\end{itemize}
+\end{alertblock}
+\begin{alertblock}{Disadvantages}
+\begin{itemize}
+	\item Bias can be introduced from nonrandomized participants (historical controls).
+\end{itemize}
+\end{alertblock}
+\end{frame}
+
+
+\begin{frame}[t]
+\frametitle{Adaptive design}
+\textbf{Adaptive trial design} refers to a clinical trial methodology that allows trial design 
+modifications to be made after patients have been enrolled in a study, without compromising the 
+scientific method.
+
+In order to maintain the integrity of the trial, these modification should be \alert{clearly 
+pre-defined} in the protocol. When designed well, an adaptive trial empowers sponsors to respond 
+to data collected during the trial.
+
+\uncover<2->{\begin{alertblock}{\center Types of adaptive trial designs}
+\begin{itemize} 
+	\item Dropping a treatment arm
+	\item Modifying the sample size
+	\item Balancing treatment assignment using an adaptive randomization
+	\item Stopping a study early for success or failure
+\end{itemize}
+\end{alertblock}}
+\end{frame}
+
+
+\section{Efficacy Assessment}
+
+\begin{frame}[t]
+\frametitle{Efficacy of the new treatment compared to a control (有效性评估分类)}
+\begin{itemize}
+	\item The new treatment has superior efficacy to the control (Superiority trial, 优效性试验)
+	\item The new treatment has efficacy equivalent to that of the active control (Equivalence trial，等效性试验)
+	\item The new treatment is not much worse than the active control (Non-inferiority trial, 非劣效性试验)
+\end{itemize}
+\end{frame}
+
+
+
+\begin{frame}[t]
+\frametitle{Superiority Design (优效性试验设计)}
+\textbf{Aim}\\
+Show that a new drug is \textbf{better} than control w.r.t. the efficacy variable of interest.
+
+\textbf{Statistical Tests}\\
+$H_0$: No difference in effect between the treatment and controls.
+
+\begin{table}
+\caption{Superiority trials}
+\begin{tabular}{p{0.20\textwidth}p{0.25\textwidth}p{0.25\textwidth}}
+\hline
+$p$-value & Indication & Conclusion\\
+\hline
+$p<.001$ & Strong evidence & "is superior"\\
+$p=0.02$ & Some evidence & "Seems superior"\\
+$p=0.06$ & Weak evidence & "Might be superior"\\
+$p=0.3$ & No evidence & "Seems not superior"\\
+\hline
+\end{tabular}
+\end{table}
+\end{frame}
+
+
+\begin{frame}[t]
+\frametitle{Equivalence Design (等效性试验设计)}
+\textbf{Purpose}\\
+To confirm the \alert{absence of a clinically meaningful difference} between 
+treatments.
+
+\textbf{Hypothesis testing}
+Equivalence is inferred when \alert{ENTIRE confidence interval falls exclusively 
+within equivalence margin: }
+$$
+(-\delta, +\delta)
+$$
+\end{frame}
+
+
+\begin{frame}[t]
+\frametitle{Noninferiority Design (非劣效性试验设计)}
+A non-inferiority trial aims to demonstrate that the effect of a new treatment 
+is as good as, or better than, that of the standard one.
+
+This is assessed by demonstrating that the new treatment is \alert{not worse than} 
+the comparator by more than a specified margin ($\delta_0$).
+
+The new treatment might be tested to establish taht it matches the efficacy of 
+standard one, and meanwhile has secondary advantages (e.g., in terms of safety, 
+convenience to the patients, or cost-effectiveness).
+
+Alternatively, it might have potential as a \alert{second-line therapy} to the 
+standard (in cases when the standard fails or is not tolerated).
+\end{frame}
+
+
+\begin{frame}[t]
+\frametitle{Hypothesis formula}
+\begin{table}
+\footnotesize
+\caption{Hypotheses formulation for superiority, non-inferiority, and equivalence trials}
+\begin{tabular}{llll}
+\hline
+Study type & Null hypothesis & Alternative hypothesis & Statistic\\
+\hline
+Statistical superiority & $H_0: C - T \ge 0$ & $H_a: C - T < 0$ & $Z=\delta/s$\\
+Clinical superiority & $H_0: C - T \ge -\delta_0$ & $H_a: C - T < -\delta$ & $Z=(\delta - \delta_0)/s$\\
+Non-inferiority & $H_0: C - T \ge \delta_0$ & $H_a: C - T < \delta$ & $Z=(\delta + \delta_0)/s$\\
+Equivalence & $H_0: |C - T| \ge \delta_0$ & $H_a: |C - T| < \delta$ & $Z_1 = (\delta+\delta_0)/s, Z_2=(\delta-\delta_0)/s$\\
+\hline
+\end{tabular}
+\end{table}
+\begin{itemize}
+	\item $C$: control or standard treatment;
+	\item $T$: new treatment;
+	\item $\delta_0$: clinically admissible margin of non-inferiority/
+		equivalence/superiority;
+	\item $\delta$: Observed difference;
+	\item One-sided test is performed in both superiority and non-inferiority 
+		trials;
+	\item Two-sided test is performed in equivalence test.
+\end{itemize}
+\end{frame}
+
+
+\begin{frame}[t]
+\frametitle{Hypothesis testing: Sample size for continuous outcome}
+\only<1>{\begin{figure}
+\includegraphics[width=0.50\textwidth]{images/three_testings.png}
+\end{figure}}
+\begin{itemize}
+	\item<2-> \alert{Non-inferiority design}
+	$$
+N = 2 \times \left( \frac{z_{1-\alpha} + z_{1-\beta}}{\delta_0} \right)^2 \times s^2
+	$$
+	\item<3-> \alert{Equivalence design}
+	$$
+N = 2 \times \left( \frac{z_{1-\frac{\alpha}{2}} + z_{1-\beta}}{\delta_0} \right)^2 \times s^2
+	$$
+	\item<4-> \alert{Statistical superiority design}
+	$$
+N = 2 \times \left( \frac{z_{1-\frac{\alpha}{2}} + z_{1-\beta}}{\delta} \right)^2 \times s^2
+	$$
+	\item<5-> \alert{Clinical superiority design}
+	$$
+	N = 2 \times \left( \frac{z_{1-\frac{\alpha}{2}} + z_{1-\beta}}{\delta - \delta_0} \right)^2 \times s^2
+	$$
+\end{itemize}
+\end{frame}
+
+
+\begin{frame}[t]
+\frametitle{Hypothesis testing: Sample size for dichotomous outcome}
+\only<1>{\begin{figure}
+\includegraphics[width=0.50\textwidth]{images/three_testings.png}
+\end{figure}}
+\begin{itemize}
+	\item<2-> \alert{Non-inferiority design}
+	$$
+N = 2 \times \left( \frac{z_{1-\alpha} + z_{1-\beta}}{\delta_0} \right)^2 \times p \times (1-p)
+	$$
+	\item<3-> \alert{Equivalence design}
+	$$
+N = 2 \times \left( \frac{z_{1-\frac{\alpha}{2}} + z_{1-\beta}}{\delta_0} \right)^2 \times p \times (1-p)
+	$$
+	\item<4-> \alert{Statistical superiority design}
+	$$
+N = \frac{1}{2} \times \left( \frac{z_{\frac{\alpha}{2}} + z_{1-\beta}}{\arcsin \sqrt{p} - \arcsin \sqrt{p_0}} \right)^2
+	$$
+	\item<5-> \alert{Clinical superiority design}
+	$$
+	N = 2 \times \left( \frac{z_{1-\alpha} + z_{1-\beta}}{\delta - \delta_0} \right)^2 \times p \times (1-p)
+	$$
+\end{itemize}
+\end{frame}
+
+\begin{frame}[t]
+\frametitle{Sample size for dichotomous outcome: Example}
+\textbf{Goal}
+To test whether there is a difference in the efficacy of mirtazapine (new drug) 
+and sertraline (standard drug) for the treatment of resistant depression in 
+6-week treatment duration.
+\begin{itemize}
+	\item $p = 0.40$: the response rate of standard treatment group;
+	\item $p_0 = 0.58$: the response rate of new drug treatment group;
+	\item $\delta = p_0 - p = 0.18$: the real difference between the two treatment effects;
+	\item $\delta_0 = 0.10$: clinically admissible margin;
+	\item $1-\beta = 0.80$: Power;
+	\item $1-\alpha = 0.95$: Significance level.
+\end{itemize}
+
+\uncover<2->{\begin{alertblock}{\center Sample size calculation}
+\begin{itemize}
+	\item $N_{NI} = 2 \times \left(\frac{z_{0.95} + z_{0.80}}{0.10} \right)^2 \times 0.40 \times 0.60 = 298$
+	\item $N_{EQ} = 2 \times \left( \frac{z_{0.975} + z_{0.80}}{0.10} \right)^2 \times 0.40 \times 0.60 = 378$
+	\item $N_{SS} = \frac{1}{2} \times \left( \frac{z_{0.025} + z_{0.80}}{\arcsin \sqrt{0.40} - \arcsin \sqrt{0.58}} \right)^2 = 121$
+	\item $N_{CS} = 2 \times \left( \frac{z_{0.95} + z_{0.80}}{0.18 - 0.10}\right)^2 \times 0.40 \times 0.60 = 466$
+\end{itemize}
+\end{alertblock}}
+\end{frame}
+
+
+\section{Randomization techniques}
+
+
+\begin{frame}[t]
+\frametitle{Allocation procedures to achieve balance}
+\begin{itemize}[<+->]
+	\item Simple randomization (简单随机)
+	\item Biased coin randomization (有偏投币随机)
+	\item Permuted block randomization (随机排列区块随机)
+	\item Balanced permuted block randomization (平衡随机排列区块随机)
+	\item Stratified randomization (分层随机)
+	\item Minimization method （最小化方法）
+\end{itemize}
+\end{frame}
+
+
+\begin{frame}[t]
+\frametitle{Simple Randomization}
+A specified probability $p$ (usually equal), of patients assigned to 
+each treatment arm, remains constant or may change but not a function 
+of covariates or response.
+\begin{itemize}[<+->]
+	\item Fixed-random allocation
+	\begin{itemize}
+		\item $n$ known in advance, exactly
+		\item $n/2$ selected at random and assigned to Trt A, rest to B
+	\end{itemize}
+	\item Complete randomization (most common)
+	\begin{itemize}
+		\item $n$ not exactly known
+		\item marginal and conditional prob of assignment = 1/2
+		\item analogous to a coin-flip/random-digit
+	\end{itemize}
+\end{itemize}
+\end{frame}
+
+
+\begin{frame}[t]
+\frametitle{Restricted Randomization}
+\framesubtitle{guarantee of procedure balance (过程平衡)}
+\begin{itemize}
+	\item Biased coin (Efron)
+	\item Urn design (LJ Wei)
+	\item Permuted block
+\end{itemize}
+\end{frame}
+
+
+\begin{frame}[t]
+\frametitle{Biased coin design (BCD)}
+\begin{itemize}[<+->]
+	\item Allocation probability to Trt A changes to keep balanced in 
+		each group nearly equal
+	\item $\textrm{BCD}(p)$
+	\begin{enumerate}[(1)]
+		\item Compute the \alert{running difference} $D = n_A - n_B$ and 
+			$n = n_A + n_B$;
+		\item Define $p$ to be the probability of assigning Trt $> 1/2$
+		\item We can compute $p_A$:
+		$$
+p_A = \begin{cases}
+1/2 & D = 0\\
+1-p & D > 0\\
+p & D < 0
+\end{cases}
+		$$
+	\end{enumerate}
+	\item Efron suggests that $p=2/3$
+\end{itemize}
+\end{frame}
+
+\begin{frame}[t]
+\frametitle{Urn randomization}
+\begin{itemize}
+	\item Wei \& Lachin: Controlled Clinical Trials, 1988
+	\item A generalization of BCD to correct for the constant correction prob 
+		(e.g. $2/3$) regardless of the degree of imbalance
+	\item Urn design modifies $p$ as the function of the degree of imbalance
+	\item $U(n, n)$:
+	\begin{enumerate}
+		\item Start with Urn containing $n$ white and $n$ red balls;
+		\item Ball is drawn at random and replaced;
+		\item If red, assign $B$; else assign $A$;
+		\item Add 1 ball of opposite color;
+		\item Go to 2
+	\end{enumerate}
+\end{itemize}
+\end{frame}
+
+
+\begin{frame}[t]
+\frametitle{Permuted Block Randomization}
+\begin{alertblock}{\center Basic Idea}
+\begin{enumerate}[(1)]
+	\item Divide potential patients into $G$ groups or blocks of size $2m$
+	\item Randomize each block such that $m$ patients are allocated to A, and 
+		$m$ to B;
+	\item The total sample size is $2\times m \times G$
+	\item For each block, there are $\binom{2m}{m}$ realizations.
+	\item Maximum imbalance at any time is $m$
+\end{enumerate}
+\end{alertblock}
+\end{frame}
+
+\begin{frame}[t]
+\frametitle{Permuted Block Randomization: Concerns}
+If blocking is NOT masked, the sequence become somewhat predictable 
+(e.g., $2m=4$):
+\begin{itemize}
+	\item ABAB BAB?
+	\item AA??
+\end{itemize}
+This will lead to selection bias.
+
+\uncover<2->{\begin{alertblock}{\center Simple solution}
+\begin{itemize}
+	\item Do NOT reveal blocking mechanism;
+	\item Use random block sizes;
+\end{itemize}
+\end{alertblock}}
+\uncover<3->{\alert{If treatment is double-blinded, no selection 
+bias.}}
+\end{frame}
+
+
+\begin{frame}[t]
+\frametitle{Balancing on Baseline Covariates (基于基线协变量的平衡)}
+\begin{itemize}
+	\item Stratified Randomization (分层平衡)
+	\begin{itemize}
+		\item balanced w.r.t prognostic or risk factors (covariates)
+	\end{itemize}
+	\item Covariate Adaptive (协变量自适应平衡)
+	\begin{itemize}
+		\item Minimization
+		\item Pocock \& Simon method
+	\end{itemize}
+\end{itemize}
+\end{frame}
+
+
+\begin{frame}[t]
+\frametitle{Stratififed Randomization (分层随机法)}
+\begin{itemize}
+	\item For large studies, randomization "tends" to be balanced.
+	\item For small studies, a better guarantee may be needed.
+	\item Divide each risk factor into discrete categories:
+	\begin{itemize}
+		\item $f$: number of risk factors;
+		\item $\ell_i$: number of categories for factor $i$ 
+	\end{itemize}
+	\item Randomize within each stratum (usually blocked)
+\end{itemize}
+\uncover<2->{
+\begin{table}
+\begin{tabular}{lll}
+\hline
+Age & Male & Female\\
+\hline
+40- & ABBA, BAAB, ... & BABA, BAAB, ...\\
+41-60 & BBAA, ABAB, ... & ABAB, BBAA, ...\\
+60+ & AABB, ABBA, ... & BAAB, ABAB, ...\\
+\hline
+\end{tabular}
+\end{table}
+}
+\end{frame}
+
+
+\begin{frame}[t]
+\frametitle{Minimization}
+\begin{itemize}
+	\item Balances treatments simultaneously over several prognostic factors (strata)
+	\item Does NOT balance \alert{within} cross-classified cells; balance over the 
+		\alert{marginal totals} of each stratum separately.
+	\item Used when the number of stratum cells is large relative to the sample size 
+		(stratified design will yield sparse cells)
+	\item Can be computerized 
+\end{itemize}
+\end{frame}
+
+
+\begin{frame}[t]
+\frametitle{Minimization: Method}
+Three stratification factors:
+\begin{itemize}
+	\item Gender (2 levels)
+	\item Age (3 levels)
+	\item Disease stage (3 levels)
+\end{itemize}
+\begin{table}
+\footnotesize
+\caption{Current assignment for 50 patients}
+\begin{tabular}{llcc}
+\hline
+& & Treatment A & Treatment B\\
+\hline
+Gender: & Male & 16 & 14\\
+& Female & 10 & 10\\
+\hline
+Age: & 40- & 13 & 12\\
+& 41-60 & 9 & 6\\
+& 61+ & 4 & 6\\
+\hline
+Disease stage: & Stage I & 6 & 4\\
+& Stage II & 13 & 16\\
+& Stage III & 7 & 4\\
+\hline
+Total & & 26 & 24
+\end{tabular}
+\end{table}
+\end{frame}
+
+\begin{frame}[t]
+\frametitle{Minimization}
+Say the 51st patient enrolled in the study is male, $age \ge 61$, stage III.
+Summarize the above table for the corresponding factors:
+\begin{table}
+\footnotesize
+\begin{tabular}{lccc}
+\hline
+ & Treatment A & Treatment B & Sign of difference\\
+\hline
+Male & 16 & 14 & +\\
+Age: 61+ & 4 & 6 & -\\
+Stage III & 7 & 4 & +\\
+\hline
+Total & 27 & 24 & 2+,1-
+\end{tabular}
+\end{table}
+\uncover<2->{\begin{alertblock}{\center Two possible criteria}
+\begin{itemize}
+	\item Count only the direction (sign) of the difference in each factor (\alert{2A vs. 1B}) 
+		$\Rightarrow$ \alert{assign the 51st patient to B}.
+	\item Add the total overall categories (\alert{27A vs. 24B}) $\Rightarrow$ 
+		\alert{assign the 51st patient to B}.
+\end{itemize}
+\end{alertblock}}
+\uncover<3->{The two criteria will usually agree, but not always.}
+\end{frame}
+
+\section{Blinding/Masking}
+
+\begin{frame}[t]
+\frametitle{Blinding}
+The goal of blinding is to minimize the potential biases resulting from differences in
+\alert{management, treatment, assessment of patients, interpretation of results}
+that could arise as a result of participant or investigator knowledge of assigned treatment.
+
+\uncover<2->{\begin{alertblock}{\center Types of blinding}
+\begin{description}
+	\item[Single-blind design: ] Only participants are blinded.
+	\item[Double-blind design: ] Both participants and investigators are blinded.
+	\item[Triple-blind design: ] Participants, investigators, and statisticians 
+		are blinded.
+	\item[PROBE: ] Prospective Randomized Open with Blinded Endpoint Assessment.
+\end{description}
+\end{alertblock}}
+
+\uncover<3->{The opposites of a blind trial is \alert{open-label trials}, which are 
+		ethical phase I dose-escalating studies in oncology, 
+		pre-marketing, post-marketing surveillance.}
+\end{frame}
+
+
+\begin{frame}[t]
+\frametitle{Open-label/Unblinded trials}
+\begin{figure}
+\includegraphics[width=0.40\textwidth]{images/open-label.jpg}
+\end{figure}
+\uncover<2->{\begin{alertblock}{Advantages}
+\begin{itemize}
+	\item Simple and fairly inexpensive
+	\item A true reflection of clinical practice.
+\end{itemize}
+\end{alertblock}}
+\uncover<3->{\begin{alertblock}{Disadvantages}
+\begin{itemize}
+	\item Participants may underreport adverse effects of the new treatment.
+	\item Investigators might supply different amounts of concomitant treatments (e.g., only giving analgesics to the surgical group).
+\end{itemize}
+\end{alertblock}}
+\end{frame}
+
+\begin{frame}[t]
+\frametitle{Single-blinded (单盲) trials}
+\framesubtitle{to counteract expectations and the placebo effect}
+\begin{itemize}
+	\item The participants should be unware of which treatment they are taking.
+	\item The investigators are aware of whether the treatment is new, standard 
+		or placebo.
+\end{itemize}
+\only<1>{\begin{figure}
+\includegraphics[width=0.65\textwidth]{images/single-blinded.jpg}
+\end{figure}}
+
+\uncover<2->{\begin{alertblock}{\center Advantages}
+The design is simple and allows investigators to exercise their clinical judgement 
+when treating participants.
+\end{alertblock}}
+
+\uncover<3->{\begin{alertblock}{\center Disadvantages}
+\begin{itemize}
+	\item Patients might under- or over-report treatment effects and side-effects, 
+		based on some influence or response from the investigators.
+	\item Investigators may give advice or prescribe additional therapy to the 
+		control arm if they feel that these patients are disadvantaged in 
+		comparison to the active arm - bias.
+\end{itemize}
+\end{alertblock}}
+\end{frame}
+
+
+\begin{frame}[t]
+\frametitle{Double-blinded trials}
+\begin{figure}
+\includegraphics[width=0.40\textwidth]{images/double-blind.jpg}
+\end{figure}
+
+\uncover<2->{\begin{alertblock}{\center Advantages}
+\begin{itemize}
+	\item Reducing the biases incurred by unblindedness.
+\end{itemize}
+\end{alertblock}}
+
+\uncover<3->{\begin{alertblock}{\center Disadvantages}
+\begin{itemize}
+	\item Lessening the ability for investigators to monitor the safety of treatments.
+\end{itemize}
+\end{alertblock}}
+
+\uncover<4->{\begin{alertblock}{\center Limitations}
+\begin{itemize}
+	\item Matched medication required, especially for crossover design.
+	\item Unblinded unless the medication is of identical appearance. 
+\end{itemize}
+\end{alertblock}}
+\end{frame}
+
+
+\begin{frame}[t]
+\frametitle{Triple-blinded trials}
+\begin{itemize}
+	\item Appropriate for studies with low risk of adverse events;
+	\item Not for treatments with critical safety issues.
+\end{itemize}
+\begin{figure}
+\includegraphics[width=0.30\textwidth]{images/triple_blinded.png}
+\end{figure}
+\uncover<2->{\begin{alertblock}{\center Advantages}
+\begin{itemize}
+	\item 
+\end{itemize}
+\end{alertblock}}
+
+\uncover<3->{\begin{alertblock}{\center Disadvantages}
+\begin{itemize}
+	\item Lessening the chance that the trial may stop early to favor either 
+		treatment;
+	\item Making the evaluation of results more objective;
+	\item Lessening investigator's ability to monitor safety and efficacy.
+\end{itemize}
+\end{alertblock}}
+\end{frame}
+
+
+\begin{frame}[t]
+\frametitle{PROBE trials}
+\begin{itemize}
+	\item \alert{P}rospective, \alert{R}andomized, \alert{O}pen-label,
+		\alert{B}linded \alert{E}ndpoint Design
+	\item Phrase coined by Hannsson et al. (Blood Pressure, 1992)
+	\item Motivation:
+	\begin{itemize}
+		\item More similar to clinical practice
+		\item Easier to enroll trials
+		\item Better patient compliance
+		\item Cheaper (?)
+	\end{itemize}
+\end{itemize}
+\end{frame}
+
+\begin{frame}[t]
+\frametitle{Blinding: Summary}
+\begin{itemize}[<+->]
+	\item Blinding is an effective way to reduce/eliminate 
+		bias in clinical trials - do it when you can.
+	\item Blinding does not guarantee valid results.
+	\item Willingness to compromise is essential:
+	\begin{itemize}
+		\item Feasibility (cost, time, patient/investigator 
+			interest, patient safety)
+		\item Necessity and common sense (how much bias)
+	\end{itemize}
+	\item In some circumstances, blinding can change the nature of 
+		research question.
+	\item Consider opportunities for blinding carefully before the 
+		trial begins.
+\end{itemize}
+\end{frame}
+
+\section{Intention-to-Treat Analysis}
+
+\begin{frame}[t]
+\frametitle{Intention-to-treat (IIT) analysis}
+\framesubtitle{Once randomized, always analyzed!}
+RCTs often suffer from two major complications: \alert{noncompliance (违反协议)} and 
+\alert{missing outcome (数据缺失)}.
+
+Participants in a trial may experience:
+\begin{itemize}
+	\item Completed the treatment (完成治疗);
+	\item Did NOT receive treatment (未接受任何治疗);
+	\item Lost-to-follow-up (失访)
+	\item Discontinued to treatment (中途退出，有部分治疗结果数据);
+	\item Stop treatment early (早期退出，只由很少数据);
+	\item Died (死亡);
+	\item Received incorrect treatment （依从性不佳）
+\end{itemize}
+\end{frame}
+
+\begin{frame}[t]
+\frametitle{ITT: An example}
+\textbf{Patients: }\\
+200 patients with cerebrovascular disease
+
+\textbf{Randomization: }
+\begin{itemize}
+	\item Group $A$: ASA + Surgery, 100 patients
+	\item Group $B$: ASA only, 100 patients
+\end{itemize}
+
+\textbf{Follow-up: }
+1 year.
+
+\textbf{Result: }
+\begin{itemize}
+	\item 10 patients in group $A$ got stroke before surgery.
+	\item 10 patients in group $B$ got stroke within a month.
+	\item 10 more patients in group $A$ got stroke after surgery within a year.
+	\item 10 more patients in group $B$ got stroke within a year of follow-up.
+\end{itemize}
+
+\alert{Any significant difference between the two groups?}
+\end{frame}
+
+
+\begin{frame}[t]
+\frametitle{Three common approaches}
+\alert{ITT} analysis includes every subject who is randomized accordign to randomized 
+treatment assignment by ignoring noncompliance, protocol deviations, withdrawal, 
+and anything that happens after randomization.
+
+\alert{Per-protocol (PP)} population is defined as a subset of ITT population who 
+complete the study without any major protocol violations.
+
+\alert{Modified ITT (mITT)} is a subset of ITT population and allows the exclusion 
+of some randomized subjects in a justified way (such as patients who were deemed 
+ineligible after randomization or certain patients who never started treatment.
+
+\uncover<2->{\alert{Then, which approach should we choose, for the above example?}}
+
+\begin{itemize}
+	\item<3-> Ignoring those getting stroke before surgery in group $A$?
+	\item<4-> Transfer those getting stroke before surgery in group $A$ to group $B$?
+	\item<5-> Intention-to-treat?
+\end{itemize}
+\end{frame}
+
+
+\begin{frame}[t]
+\frametitle{RCTs Example}
+\framesubtitle{A clinical trial for primary breast cancer (1972)}
+\textbf{Study question}\\
+Does L-Pam prolong the disease-free interval of primary breast cancer patients after radical mastectomy?
+
+\textbf{Randomized treatments}\\
+\begin{itemize}
+	\item L-Pam (orally, 0.15mg/kg body weight, 5 consecutive days every 6 weeks for 2 years, with 
+		specified dose modification for hematological toxicity)
+	\item Placebo (physically indistinguishable from L-Pam)
+\end{itemize}
+
+\textbf{Eligibility}
+\begin{itemize}
+	\item Radical mastectomy for primary breast cancer (with 4 weeks of starting protocol treatment)
+	\item Historically confirmed axillary node involvement.
+	\item No skin ulceration or peau d'orange
+	\item Age $\le$ 75 years
+	\item Not pregnant or lactating
+\end{itemize}
+Focus is on those patients most likely to benefit.
+\end{frame}
+
+
+\begin{frame}[t]
+\frametitle{RCTs Example}
+\framesubtitle{A clinical trial for primary breast cancer (1972)}
+\textbf{Outcomes}
+\begin{itemize}
+	\item Primary outcome: disease-free interval = time from mastectomy till fist detection of tumor (local 
+		regional, or distance)
+	\item Other outcomes:
+	\begin{itemize}
+		\item Survial time = time from mastectomy until death
+		\item Toxicity = occurrences of hematological toxicity or nausea/vomting
+	\end{itemize}
+\end{itemize}
+\end{frame}
+
+\begin{frame}[t]
+\frametitle{RCTs Example}
+\framesubtitle{A clinical trial for primary breast cancer (1972)}
+\textbf{The study}
+\begin{itemize}
+\small
+	\item A \underline{\bf written protocol} documented all study procedures and information. \alert{Sample size 
+		requirements} dictated several hundred patients $\Rightarrow$ a \alert{multicenter} trial (37 hospitals) 
+		was undertaken.
+	\item \underline{\bf Randomization} was performed by phoning the central office. Patients were \alert{stratified} 
+		by age ($<50$, $\ge 50$), nodal status (1 to 3 vs. 4+ positive axillary nodes), and institution.
+	\item The trial was \alert{double-blinded}
+	\item \underline{\bf Follow-up} exams were performed every 6 weeks, with test for hematological toxicity every 3 
+		weeks $\Rightarrow$ outcome evaluation was done consistently and objectively.
+	\item Patient \underline{\bf accrual} started Sep 1972 and ended Feb 1975. In total, 370 were accrued.
+	\item \underline{\bf Information consent} was obtained from all patients.
+	\item The \textbf{trial committee} reviewed the study regularly. After the first few months they decided 
+		to relax eligibility w.r.t. \#(positive nodes)
+	\item The \textbf{central coordinating office} supervised data collection and processing.
+	\item As the data accumulated, \underline{\bf interim analyses} were preformed. There was pressure to release 
+		interim results
+\end{itemize}
+\end{frame}
+
+\begin{frame}[t]
+\frametitle{RCTs Example}
+\framesubtitle{A clinical trial for primary breast cancer (1972)}
+\textbf{Results}
+\begin{itemize}
+	\item The final results showed that L-Pam significantly increased the disease-free 
+		survival time ($p=0.009$)
+	\item \textbf{Subgroup analysis} revealed that L-Pam had the largest benefit in 
+		younger patients ($\le 50$ years old).
+	\item \textbf{Toxicity}: Hematological toxicity was common (25\%), but never 
+		life-threatening.
+	\item \textbf{Side effect}: Nausea/vomting was experienced by 40\% of L-Pam patients 
+		and 11\% of placebo patients.
+\end{itemize}
+\textbf{Conclusion}\\
+L-Pam was adopted as the new "standard" treatment.
+\end{frame}
+
+\end{CJK*}
+\end{document}
