@@ -1,0 +1,184 @@
+\documentclass[a4paper,11pt]{article}
+
+\usepackage{CJK}
+\usepackage{graphicx}
+\usepackage{amsmath,amssymb,amsopn}
+\usepackage[english]{babel}
+\usepackage[latin1]{inputenc}
+\usepackage{url}
+\usepackage{enumerate}
+\usepackage{multirow}
+\usepackage{color}
+\usepackage{times}
+\usepackage{xcolor}
+\usepackage{geometry}
+\usepackage{listings}
+\lstset{
+language=R,
+keywordstyle=\color{blue!70}\bfseries,
+basicstyle=\ttfamily,
+commentstyle=\ttfamily,
+showspaces=false,
+showtabs=false,
+frame=shadowbox,
+rulesepcolor=\color{red!20!green!20!blue!20},
+breaklines=true
+}
+
+\geometry{paperwidth=18.4cm,paperheight=26cm}
+\setlength{\parindent}{0em}
+\setlength{\parskip}{1.2\baselineskip}
+
+\title{\small{BI476: Biostatistics - Case Studies}\\
+	\Large{Exercise 03 - Designing Clinical Trials}
+}
+\author{Spring, 2018}
+\date{}
+
+\begin{document}
+\begin{CJK*}{UTF8}{gbsn}
+\maketitle
+
+\section{Answer the following questions}
+\begin{enumerate}[(1)]
+	\item Can we draw a conclusion of equivalence based on the insignificance result 
+		of superiority trial? If not, then outline the statistical testing on how 
+		to prove that a treatment $T$ is equivalent to $B$ in a parallel trial?
+	\item Which test requires a larger sample size for the same $\delta_0$, $\alpha$, 
+		power, equivalence trial or non-inferiority trial?
+	\item How to deal with the non-compliance of the participants in a clinical trial?
+	\item When aren't the double-blind feasible in a clinical trial?
+	\item As we have talked about selection bias in the observational study, it is a 
+		more severe issue in a randomized controlled trial. Can you use some 
+		example to illustrate the types of selection biases in an RCT.
+	\item Illustrate how block randomization could be used to randomly allocate 
+		treatments to 30 patients with an allocation ratio of 1:2 using a block 
+		size of 6.
+\end{enumerate}
+
+\section{Data analysis of continuous outcome}
+An RCT was conducted to compare two therapies for pain relief after the wisdom tooth 
+extraction surgery. A dual-therapy (Acetaminophen+lbuprofen) was compared againt a 
+mono-therapy (lbuprofen only). The primary outcome is the post-surgery pain measure 
+at an interval of 15 minutes within a follow-up of 120 minutes. The pain was measured 
+in a scal of 0 (no pain) to 100 (worst pain).
+\begin{table}[t]
+\caption{The follow-up pain data after wisdom-tooth extraction surgery}
+\begin{tabular}{rccccccc}
+\hline
+ & \multicolumn{3}{c}{lbuprofen} & &\multicolumn{3}{c}{Acetaminophen+lbuprofen}\\
+\cline{2-4} \cline{6-8}
+Time (min) & Mean (mm) & S.D. (mm) & N & & Mean (mm) & S.D. (mm) & N\\
+\hline
+15 & 27.9 & 14.8 & 24 & & 18.2 & 13.1 & 24\\
+30 & 32.6 & 24.4 & 25 & & 25.3 & 20.9 & 25\\
+45 & 35.5 & 23.2 & 22 & & 28.7 & 23.3 & 20\\
+60 & 31.3 & 18.9 & 19 & & 25.1 & 22.8 & 23\\
+75 & 29.9 & 18.8 & 24 & & 14.9 & 13.8 & 24\\
+90 & 23.8 & 17.9 & 22 & & 15 & 14.2 & 24\\
+105 & 22.7 & 16.4 & 21 & & 13.7 & 12.8 & 19\\
+120 & 20.9 & 17.2 & 24 & & 15.2 & 14.4 & 23\\
+\hline
+\end{tabular}
+\end{table}
+\begin{enumerate}[(1)]
+	\item Conduct a $t$-test to compare the treatment effects of the two therapies 
+		at each time point. Give also the 95\% confidence interval.
+	\item What kind of assumptions should we make when we conduct a $t$-test? So, 
+		is it plausible to use $t$-test here? Should we use a nonparametic 
+		approach, instead?
+	\item We can also calcualte the weighted average of the pain scores across 
+		the time points for every patient:
+\begin{table}[h]
+\begin{tabular}{rccccccc}
+\hline
+ & \multicolumn{3}{c}{lbuprofen} & &\multicolumn{3}{c}{Acetaminophen+lbuprofen}\\
+\cline{2-4} \cline{6-8}
+ & Mean (mm) & S.D. (mm) & N & & Mean (mm) & S.D. (mm) & N\\
+\hline
+summary & 27.9 & 13.6 & 25 & & 19.5 & 12.3 & 26\\
+\hline
+\end{tabular}
+\end{table}
+Can you conduct the $t$-test only on the weighted mean to compare the treatment effect.
+	\item You can count the number of the tests for all the time points with $p$-value 
+		less than 0.05, and then arrive at the final conclusion.
+	\item The other approach is to only use the weighted average to reach the conclusion.
+		Which one do you prefer? Why?
+	\item If the pain reduction $\delta=-8$ is clinically significant, can the sample 
+		size in this trial achieve a power of 0.90 to detect such reduction? (Hint: 
+		$\alpha=0.05$)
+	\item Can you find some flaws for the above study design? Comment.
+	\item Try to figure out a method to give the best estimate of the effect of 
+		Acetaminophen in pain relief following the wisdom-tooth extraction?
+\end{enumerate}
+
+
+\section{Clinical trial design}
+An RCT was comparing the psychological treatment (\textbf{CBT}) with the exercise program 
+(\textbf{EX}) for patient suffering from moderate to severe anxiety. Patients are randomized 
+to treatment using \textbf{deterministic minimization} controlling for gender and severity. After 
+65 patients have entered the trial. The number of patients with each characteristic is summarized 
+in the following table:
+\begin{table}
+\caption{Number of patients for each characteristic}
+\center{
+\begin{tabular}{llcc}
+& & \multicolumn{2}{c}{Treatment}\\
+\cline{3-4}
+\multicolumn{2}{l}{Characteristics} &  CBT & EX\\
+\hline
+\multirow{2}{*}{Gender} & Male & 18 & 15\\
+& Female & 15 & 17\\
+\hline
+\multirow{2}{*}{Severity} & Moderate & 22 & 21\\
+& Severe & 11 & 11\\
+\hline
+\end{tabular}}
+\end{table}
+\begin{enumerate}[(1)]
+	\item How many patients have been allocated to each treatment?
+	\item If the 66$^{\textrm{th}}$ is a male and moderately severe patient, 
+		which treatment would he be allocated?
+	\item The 67$^{\textrm{th}}$ is a female and moderately severe patient, 
+		which treatment would she be allocated? 
+\end{enumerate}
+
+
+
+\section{Case study}
+Read this article, and answer the following questions.\\
+\begin{quote}
+Petter Quist-Paulsen. Randomised controlledtrial of smoking cessation 
+intervention after admission for coronary heart disease. BMJ 2003;327:1254.
+\end{quote}
+\begin{enumerate}[(1)]
+	\item Using a $z$-test of proportions, check the analysis for Table 2 of 
+		the paper to compare the smoking cessation rates in intervention 
+		group and control group at 12 months. Report also the $95\%$ 
+		confidence interval of the treatment effect.
+	\item Summarize the results of the above analysis in your own words.
+	\item How does the author deal with the missing data? Since we have talked about 
+		intention-to-treat analysis, how does it deal with the missing data? 
+		Compare the results with the article.
+	\item Comparing the lost-to-follow-up rates between the intervention and 
+		control group, what conclusion can you draw from this analysis? 
+\end{enumerate}
+
+
+\section{Case study}
+A randomized controlled equivalence trial is conducted to test whether a new \textbf{generic 
+drug} is of equal efficacy to the current \textbf{standard drug}. Here is the partial result:
+\begin{verbatim}
+         | Obs   Mean   Std. Err. Std. Dev. [90% Conf. Interval]
+---------+-------------------------------------------------------
+Standard | 42   35.2    2.79289   18.1      30.49991    39.90009
+Generic  | 41   34.1    2.79551   17.9      29.39278    38.80722
+---------+-------------------------------------------------------
+\end{verbatim}
+The investigators suggest that a difference of 5 is clinically significant. Using the above 
+data, tell whether the new generic drug is equivalent to the current standard drug under the 
+significance level of $\alpha=0.05$.
+
+\end{CJK*}
+\end{document}
