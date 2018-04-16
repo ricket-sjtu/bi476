@@ -11,6 +11,8 @@ Fill the blanks in the following table:
 | Interventional study | |
 | Retrospective study | |
 | Prospective study | |
+| Ecological study | |
+| Ecological fallacy |  |
 | Prevalence | |
 | Incidence | |
 | Cumulative incidence rate | | 
@@ -114,7 +116,7 @@ AUC = \sum_{\tau=1}^k \frac{(c_{\tau}+c_{\tau-1})\times (t_{\tau} - t_{\tau-1})}
   where $t_{\tau}$ is the $\tau$-th time point of blood sample collection and $c_{\tau}$ is the 
   $\tau$-th blood or plasma concentration and $\tau=0,1,2,\dots,k$.
   - Test for the carryover effect
-    * Compute the subject totals across two periods:
+   * Compute the subject totals across two periods:
 
     $$
   U_{ik} = Y_{i1k} + Y_{i2k}
@@ -123,16 +125,16 @@ AUC = \sum_{\tau=1}^k \frac{(c_{\tau}+c_{\tau-1})\times (t_{\tau} - t_{\tau-1})}
       - $k=1,2$: the sequence
       - $i=1,\dots,n_k$: the subject in each sequence $k$
       - $Y_{ijk}$: the AUC for subject $i$ in sequence $k$ and period $j$.
-    * Calculate the sample mean across all the subjects in each sequence:
+   * Calculate the sample mean across all the subjects in each sequence:
 	$$
 	\overline{U_{*k}} = \frac{1}{n_k} \sum_{i=1}^{n_k} U_{ik}, k=1,2
 	$$
-    * Compute the differential carryover effect $C$:
+   * Compute the differential carryover effect $C$:
 
 	$$
 	\hat{C} = \overline{U_{*2}} - \overline{U_{*1}}
 	$$
-    * $\hat{C}$ is normally distributed with mean $C$ and variance:
+   * $\hat{C}$ is normally distributed with mean $C$ and variance:
     $$
     \widehat{Var}(\hat{C}) = \hat{\sigma_u^2}(\frac{1}{n_1} + \frac{1}{n_2})
     $$
@@ -141,33 +143,33 @@ AUC = \sum_{\tau=1}^k \frac{(c_{\tau}+c_{\tau-1})\times (t_{\tau} - t_{\tau-1})}
     $$
   \hat{\sigma_u^2} = \frac{1}{n_1+n_2-2}\sum_{k=1}^2 \sum_{i=1}^{n_k} (U_{ik} - \overline{U_{*k}})^2
     $$
-    * Compute the statistic:
+   * Compute the statistic:
     $$
     T = \frac{\hat{C}}{\sqrt{\widehat{Var}(\hat{C})}} \sim t(n_1 + n_2 - 2)
     $$
-    * Compute the $p$-value, and draw the conclusion.
+   * Compute the $p$-value, and draw the conclusion.
 
   - Test for direct formulation effect:
-    * Compute the difference in periods for each subject within each sequence:
+   * Compute the difference in periods for each subject within each sequence:
     $$
     d_{ik} = \frac{1}{2}(Y_{i2k} - Y_{i1k}), i=1,\dots,n_k; k=1,2
     $$
-    * Compute the sample means for the period differences for each sequence:
+   * Compute the sample means for the period differences for each sequence:
     $$
     \overline{d_{*k}} = \frac{1}{n_k} \sum_{i=1}^{n_k} d_{ik}
     $$
-    * Compute the direct differential formulation effect:
+   * Compute the direct differential formulation effect:
     $$
     \hat{F} = \overline{d_{*1}} - \overline{d_{*2}}
     $$
-    * If no carryover effect, $\hat{F} \sim N(F, \widehat{Var}(\hat{F}))$, where
+   * If no carryover effect, $\hat{F} \sim N(F, \widehat{Var}(\hat{F}))$, where
       - (1) $\widehat{Var}(\hat{F}) = \hat{\sigma}_d^2(\frac{1}{n_1} + \frac{1}{n_2})$
       - (2) $\hat{\sigma}^2_d = \frac{1}{n_1+n_2-2} \sum_{k=1}^2 \sum_{i=1}^{n_k}(d_{ik} - \overline{d}_{*k})^2$
-    * Similarly, compute the $t$-statistic:
+   * Similarly, compute the $t$-statistic:
     $$
     T_F = \frac{\hat{F}}{\sqrt{\widehat{Var}(\hat{F})}}
     $$
-    * Compute the $p$-value and reach the conclusion.
+   * Compute the $p$-value and reach the conclusion.
 
   - Analysis of variance (ANOVA)
   ```
@@ -185,10 +187,10 @@ AUC = \sum_{\tau=1}^k \frac{(c_{\tau}+c_{\tau-1})\times (t_{\tau} - t_{\tau-1})}
   FDA has specified a decision criterion for concluding bioequivalence of a test formulation (T) to a 
   reference formulation (R): T is bioequivalent to R if the 90\%CI on the ratio of the mean of T to the 
   mean of R is between 80\% and 125\% for bioequivalent outcome AUC.
-    * Compute the mean AUC for each formulation
-    * Determine the decision CI $(\theta_L, \theta_R)$ for the difference in means calculated using 
+   * Compute the mean AUC for each formulation
+   * Determine the decision CI $(\theta_L, \theta_R)$ for the difference in means calculated using 
 	the mean of the reference formulation (R).
-    * Use two one-sided t-test to validate the bioequivalence of the two formulations.
+   * Use two one-sided t-test to validate the bioequivalence of the two formulations.
     $$
     \begin{aligned}
     T_L = \frac{\overline{Y}_T - \overline{Y}_R - \theta_L}{\sqrt{\hat{\sigma}_d^2 (\frac{1}{n_1} + \frac{1}{n_2})}}\\\\
