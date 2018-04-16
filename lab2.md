@@ -160,8 +160,8 @@ $\tau$-th blood or plasma concentration and $\tau=0,1,2,\dots,k$.
   \hat{F} = \overline{d}_{*1} - \overline{d}_{*2}
   $$
   * If no carryover effect, $\hat{F} \sim N(F, \widehat{Var}(\hat{F}))$, where
-    - $\widehat{Var}(\hat{F}) = \hat{\sigma}_d^2(\frac{1}{n_1} + \frac{1}{n_2})$
-    - $\hat{\sigma}_d^2 = \frac{1}{n_1+n_2-2} \sum_{k=1}^2 \sum_{i=1}^{n_k}(d_{ik} - \overline{d}_{*k})^2$
+    - (1) $\widehat{Var}(\hat{F}) = \hat{\sigma}_d^2(\frac{1}{n_1} + \frac{1}{n_2})$
+    - (2) $\hat{\sigma}_d^2 = \frac{1}{n_1+n_2-2} \sum_{k=1}^2 \sum_{i=1}^{n_k}(d_{ik} - \overline{d}_{*k})^2$
   * Similarly, compute the $t$-statistic:
   $$
   T_F = \frac{\hat{F}}{\sqrt{\widehat{Var}(\hat{F})}}
