@@ -157,7 +157,7 @@ $\tau$-th blood or plasma concentration and $\tau=0,1,2,\dots,k$.
   $$
   * Compute the direct differential formulation effect:
   $$
-  \hat{F} = \overline{d}_{*1} - \overline{d}_{*2}
+  \hat{F} = \overline{d_{*1}} - \overline{d_{*2}}
   $$
   * If no carryover effect, $\hat{F} \sim N(F, \widehat{Var}(\hat{F}))$, where
     - (1) $\widehat{Var}(\hat{F}) = \hat{\sigma}_d^2(\frac{1}{n_1} + \frac{1}{n_2})$
