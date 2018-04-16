@@ -103,6 +103,7 @@ where $t_{\tau}$ is the $\tau$-th time point of blood sample collection and $c_{
 $\tau$-th blood or plasma concentration and $\tau=0,1,2,\dots,k$.
 - Test for the carryover effect
   * Compute the subject totals across two periods:
+
   $$
 U_{ik} = Y_{i1k} + Y_{i2k}
   $$
@@ -111,18 +112,22 @@ U_{ik} = Y_{i1k} + Y_{i2k}
     - $i=1,\dots,n_k$: the subject in each sequence $k$
     - $Y_{ijk}$: the AUC for subject $i$ in sequence $k$ and period $j$.
   * Calculate the sample mean across all the subjects in each sequence:
+
   $$
 \bar{U}_{*k} = \frac{1}{n_k} \sum_{i=1}^{n_k} U_{ik}, k=1,2
   $$
   * Compute the differential carryover effect $C$:
+
   $$
 \hat{C} = \bar{U}_{*2} - \bar{U}_{*1}
   $$
   * $\hat{C}$ is normally distributed with mean $C$ and variance:
+
   $$
 \widehat{Var}(\hat{C}) = \hat{\sigma}_u^2(\frac{1}{n_1} + \frac{1}{n_2})
   $$
   and
+
   $$
 \hat{\sigma}_u^2 = \frac{1}{n_1+n_2-2}\sum_{k=1}^2 \sum_{i=1}^{n_k} (U_{ik} - \bar{U}_{*k})^2
   $$
@@ -166,6 +171,7 @@ summary(aov(auc ~ seq*formu + Error(subj), data=Data))
 ```
 
 - Two one-sided t-test
+
 FDA has specified a decision criterion for concluding bioequivalence of a test formulation (T) to a 
 reference formulation (R): T is bioequivalent to R if the 90\%CI on the ratio of the mean of T to the 
 mean of R is between 80\% and 125\% for bioequivalent outcome AUC.
@@ -175,7 +181,7 @@ mean of R is between 80\% and 125\% for bioequivalent outcome AUC.
   * Use two one-sided t-test to validate the bioequivalence of the two formulations.
   $$
 \begin{aligned}
-T_L = \frac{\bar{Y}_T - \bar{Y}_R - \theta_L}{\sqrt{\hat{\sigma}_d^2 (\frac{1}{n_1} + \frac{1}{n_2})}}\\
+T_L = \frac{\bar{Y}_T - \bar{Y}_R - \theta_L}{\sqrt{\hat{\sigma}_d^2 (\frac{1}{n_1} + \frac{1}{n_2})}}\\\\
 T_U = \frac{\bar{Y}_T - \bar{Y}_R - \theta_U}{\sqrt{\hat{\sigma}_d^2 (\frac{1}{n_1} + \frac{1}{n_2})}}
 \end{aligned}
   $$
