@@ -83,10 +83,21 @@ in the following table:
 | --- | --- | --- | --- |
 | New drug | 50 | 23 | 0.46 |
 | Stanard care | 50 | 11 | 0.22 |
-
+ 
 - How would you analyze the data for this superiority design? Write down the R code.
 
-3. Bioequivalence, crossover clinical trial
+3. A small randomized clinical trial was conducted to test whether treatment $A$ (new drug) was 
+effective in lowering DBP as compared to $B$ (standard) and to describe changes in DBP across times 
+at which it was measured (`DBP.dat`).
+- Are the baseline (DBP1) and the potential confounding factors balanced in these two groups? How to 
+analyze? Write down the R code and also the results and conclusion.
+- Is the treatment $A$ more effective in lowering the DBP than $B$? Use the parametric methods, 
+	adjusted by the confounders.
+- Can you analyze the data using the nonparametric methods?
+
+
+
+4. Bioequivalence, crossover clinical trial
 In this exercise we will use a dataset from a bioequivalence clinical trial described in Chow and Liu 
 (2009). The trial utilized a standard two-sequence (i.e., 1=RT and 2=TR), two-period, two-formulation 
 (T=Test; R=Reference) (i.e., $2 \times 2 \times 2$) crossover design to compare two oral formulations 
@@ -112,29 +123,28 @@ U_{ik} = Y_{i1k} + Y_{i2k}
     - $i=1,\dots,n_k$: the subject in each sequence $k$
     - $Y_{ijk}$: the AUC for subject $i$ in sequence $k$ and period $j$.
   * Calculate the sample mean across all the subjects in each sequence:
-
-  $$
+$$
 \bar{U}_{*k} = \frac{1}{n_k} \sum_{i=1}^{n_k} U_{ik}, k=1,2
-  $$
+$$
   * Compute the differential carryover effect $C$:
 
-  $$
+$$
 \hat{C} = \bar{U}_{*2} - \bar{U}_{*1}
-  $$
+$$
   * $\hat{C}$ is normally distributed with mean $C$ and variance:
 
-  $$
+$$
 \widehat{Var}(\hat{C}) = \hat{\sigma}_u^2(\frac{1}{n_1} + \frac{1}{n_2})
-  $$
+$$
   and
 
-  $$
+$$
 \hat{\sigma}_u^2 = \frac{1}{n_1+n_2-2}\sum_{k=1}^2 \sum_{i=1}^{n_k} (U_{ik} - \bar{U}_{*k})^2
-  $$
+$$
   * Compute the statistic:
-  $$
+$$
 T = \frac{\hat{C}}{\sqrt{\widehat{Var}(\hat{C})}} \sim t(n_1 + n_2 - 2)
-  $$
+$$
   * Compute the $p$-value, and draw the conclusion.
 
 - Test for direct formulation effect:
