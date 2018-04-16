@@ -116,7 +116,7 @@ $\tau$-th blood or plasma concentration and $\tau=0,1,2,\dots,k$.
   * Compute the subject totals across two periods:
 
   $$
-U_{ik} = Y_{i1k} + Y_{i2k}
+  U_{ik} = Y_{i1k} + Y_{i2k}
   $$
   where
     - $k=1,2$: the sequence
@@ -132,40 +132,39 @@ U_{ik} = Y_{i1k} + Y_{i2k}
 	\hat{C} = \overline{U}_{*2} - \overline{U}_{*1}
 	$$
   * $\hat{C}$ is normally distributed with mean $C$ and variance:
-
-$$
-\widehat{Var}(\hat{C}) = \hat{\sigma}_u^2(\frac{1}{n_1} + \frac{1}{n_2})
-$$
+  $$
+  \widehat{Var}(\hat{C}) = \hat{\sigma}_u^2(\frac{1}{n_1} + \frac{1}{n_2})
+  $$
   and
 
-$$
-\hat{\sigma}_u^2 = \frac{1}{n_1+n_2-2}\sum_{k=1}^2 \sum_{i=1}^{n_k} (U_{ik} - \overline{U}_{*k})^2
-$$
+  $$
+  \hat{\sigma}_u^2 = \frac{1}{n_1+n_2-2}\sum_{k=1}^2 \sum_{i=1}^{n_k} (U_{ik} - \overline{U}_{*k})^2
+  $$
   * Compute the statistic:
-$$
-T = \frac{\hat{C}}{\sqrt{\widehat{Var}(\hat{C})}} \sim t(n_1 + n_2 - 2)
-$$
+  $$
+  T = \frac{\hat{C}}{\sqrt{\widehat{Var}(\hat{C})}} \sim t(n_1 + n_2 - 2)
+  $$
   * Compute the $p$-value, and draw the conclusion.
 
 - Test for direct formulation effect:
   * Compute the difference in periods for each subject within each sequence:
   $$
-d_{ik} = \frac{1}{2}(Y_{i2k} - Y_{i1k}), i=1,\dots,n_k; k=1,2
+  d_{ik} = \frac{1}{2}(Y_{i2k} - Y_{i1k}), i=1,\dots,n_k; k=1,2
   $$
   * Compute the sample means for the period differences for each sequence:
   $$
-\overline{d}_{*k} = \frac{1}{n_k} \sum_{i=1}^{n_k} d_{ik}
+  \overline{d}_{*k} = \frac{1}{n_k} \sum_{i=1}^{n_k} d_{ik}
   $$
   * Compute the direct differential formulation effect:
   $$
-\hat{F} = \overline{d}_{*1} - \overline{d}_{*2}
+  \hat{F} = \overline{d}_{*1} - \overline{d}_{*2}
   $$
   * If no carryover effect, $\hat{F} \sim N(F, \widehat{Var}(\hat{F}))$, where
     - $\widehat{Var}(\hat{F}) = \hat{\sigma}_d^2(\frac{1}{n_1} + \frac{1}{n_2})$
     - $\hat{\sigma}_d^2 = \frac{1}{n_1+n_2-2} \sum_{k=1}^2 \sum_{i=1}^{n_k}(d_{ik} - \overline{d}_{*k})^2$
   * Similarly, compute the $t$-statistic:
   $$
-T_F = \frac{\hat{F}}{\sqrt{\widehat{Var}(\hat{F})}}
+  T_F = \frac{\hat{F}}{\sqrt{\widehat{Var}(\hat{F})}}
   $$
   * Compute the $p$-value and reach the conclusion.
 
@@ -190,9 +189,9 @@ mean of R is between 80\% and 125\% for bioequivalent outcome AUC.
 	the mean of the reference formulation (R).
   * Use two one-sided t-test to validate the bioequivalence of the two formulations.
   $$
-\begin{aligned}
-T_L = \frac{\overline{Y}_T - \overline{Y}_R - \theta_L}{\sqrt{\hat{\sigma}_d^2 (\frac{1}{n_1} + \frac{1}{n_2})}}\\\\
-T_U = \frac{\overline{Y}_T - \overline{Y}_R - \theta_U}{\sqrt{\hat{\sigma}_d^2 (\frac{1}{n_1} + \frac{1}{n_2})}}
-\end{aligned}
+  \begin{aligned}
+  T_L = \frac{\overline{Y}_T - \overline{Y}_R - \theta_L}{\sqrt{\hat{\sigma}_d^2 (\frac{1}{n_1} + \frac{1}{n_2})}}\\\\
+  T_U = \frac{\overline{Y}_T - \overline{Y}_R - \theta_U}{\sqrt{\hat{\sigma}_d^2 (\frac{1}{n_1} + \frac{1}{n_2})}}
+  \end{aligned}
   $$
 
