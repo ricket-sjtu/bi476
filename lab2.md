@@ -123,14 +123,14 @@ U_{ik} = Y_{i1k} + Y_{i2k}
     - $i=1,\dots,n_k$: the subject in each sequence $k$
     - $Y_{ijk}$: the AUC for subject $i$ in sequence $k$ and period $j$.
   * Calculate the sample mean across all the subjects in each sequence:
-$$
-\bar{U}_{*k} = \frac{1}{n_k} \sum_{i=1}^{n_k} U_{ik}, k=1,2
-$$
+	$$
+	\bar{U}_{*k} = \frac{1}{n_k} \sum_{i=1}^{n_k} U_{ik}, k=1,2
+	$$
   * Compute the differential carryover effect $C$:
 
-$$
-\hat{C} = \bar{U}_{*2} - \bar{U}_{*1}
-$$
+	$$
+	\hat{C} = \bar{U}_{*2} - \bar{U}_{*1}
+	$$
   * $\hat{C}$ is normally distributed with mean $C$ and variance:
 
 $$
