@@ -119,26 +119,26 @@ $\tau$-th blood or plasma concentration and $\tau=0,1,2,\dots,k$.
   U_{ik} = Y_{i1k} + Y_{i2k}
   $$
   where
-    - $k=1,2$: the sequence
-    - $i=1,\dots,n_k$: the subject in each sequence $k$
-    - $Y_{ijk}$: the AUC for subject $i$ in sequence $k$ and period $j$.
+     - $k=1,2$: the sequence
+     - $i=1,\dots,n_k$: the subject in each sequence $k$
+     - $Y_{ijk}$: the AUC for subject $i$ in sequence $k$ and period $j$.
   * Calculate the sample mean across all the subjects in each sequence:
 	$$
-	\overline{U}_{*k} = \frac{1}{n_k} \sum_{i=1}^{n_k} U_{ik}, k=1,2
+	\overline{U_{*k}} = \frac{1}{n_k} \sum_{i=1}^{n_k} U_{ik}, k=1,2
 	$$
   * Compute the differential carryover effect $C$:
 
 	$$
-	\hat{C} = \overline{U}_{*2} - \overline{U}_{*1}
+	\hat{C} = \overline{U_{*2}} - \overline{U_{*1}}
 	$$
   * $\hat{C}$ is normally distributed with mean $C$ and variance:
   $$
-  \widehat{Var}(\hat{C}) = \hat{\sigma}_u^2(\frac{1}{n_1} + \frac{1}{n_2})
+  \widehat{Var}(\hat{C}) = \hat{\sigma_u^2}(\frac{1}{n_1} + \frac{1}{n_2})
   $$
   and
 
   $$
-  \hat{\sigma}_u^2 = \frac{1}{n_1+n_2-2}\sum_{k=1}^2 \sum_{i=1}^{n_k} (U_{ik} - \overline{U}_{*k})^2
+  \hat{\sigma_u^2} = \frac{1}{n_1+n_2-2}\sum_{k=1}^2 \sum_{i=1}^{n_k} (U_{ik} - \overline{U_{*k}})^2
   $$
   * Compute the statistic:
   $$
@@ -153,7 +153,7 @@ $\tau$-th blood or plasma concentration and $\tau=0,1,2,\dots,k$.
   $$
   * Compute the sample means for the period differences for each sequence:
   $$
-  \bar{d_{*k}} = \frac{1}{n_k} \sum_{i=1}^{n_k} d_{ik}
+  \overline{d_{*k}} = \frac{1}{n_k} \sum_{i=1}^{n_k} d_{ik}
   $$
   * Compute the direct differential formulation effect:
   $$
