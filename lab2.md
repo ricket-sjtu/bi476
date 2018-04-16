@@ -153,7 +153,7 @@ $\tau$-th blood or plasma concentration and $\tau=0,1,2,\dots,k$.
   $$
   * Compute the sample means for the period differences for each sequence:
   $$
-  \bar{d}_{*k} = \frac{1}{n_k} \sum_{i=1}^{n_k} d_{ik}
+  \bar{d_{*k}} = \frac{1}{n_k} \sum_{i=1}^{n_k} d_{ik}
   $$
   * Compute the direct differential formulation effect:
   $$
