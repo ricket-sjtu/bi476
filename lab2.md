@@ -84,16 +84,16 @@ in the following table:
 | New drug | 50 | 23 | 0.46 |
 | Stanard care | 50 | 11 | 0.22 |
  
-- How would you analyze the data for this superiority design? Write down the R code.
+  - How would you analyze the data for this superiority design? Write down the R code.
 
 3. A small randomized clinical trial was conducted to test whether treatment $A$ (new drug) was 
 effective in lowering DBP as compared to $B$ (standard) and to describe changes in DBP across times 
 at which it was measured (`DBP.dat`).
-- Are the baseline (DBP1) and the potential confounding factors balanced in these two groups? How to 
+  - Are the baseline (DBP1) and the potential confounding factors balanced in these two groups? How to 
 analyze? Write down the R code and also the results and conclusion.
-- Is the treatment $A$ more effective in lowering the DBP than $B$? Use the parametric methods, 
+  - Is the treatment $A$ more effective in lowering the DBP than $B$? Use the parametric methods, 
 	adjusted by the confounders.
-- Can you analyze the data using the nonparametric methods?
+  - Can you analyze the data using the nonparametric methods?
 
 
 
@@ -106,92 +106,92 @@ five 50mg tablets (T) or 5 mL of a suspension (R) at the first period baseline, 
 to the alternative formulation at the second period baseline. And the bioavailability outcome is the 
 area under the concentration-by-time curve (AUC) over the interval from 0 to 48 hours. The data file 
 is `ChowLiu2009data.csv`. 
-- Write an R code to compute the area under the concentration-by-time curve (AUC):
-$$
+  - Write an R code to compute the area under the concentration-by-time curve (AUC):
+  $$
 AUC = \sum_{\tau=1}^k \frac{(c_{\tau}+c_{\tau-1})\times (t_{\tau} - t_{\tau-1})}{2}
-$$
-where $t_{\tau}$ is the $\tau$-th time point of blood sample collection and $c_{\tau}$ is the 
-$\tau$-th blood or plasma concentration and $\tau=0,1,2,\dots,k$.
-- Test for the carryover effect
-  * Compute the subject totals across two periods:
+  $$
+  where $t_{\tau}$ is the $\tau$-th time point of blood sample collection and $c_{\tau}$ is the 
+  $\tau$-th blood or plasma concentration and $\tau=0,1,2,\dots,k$.
+  - Test for the carryover effect
+    * Compute the subject totals across two periods:
 
-  $$
+    $$
   U_{ik} = Y_{i1k} + Y_{i2k}
-  $$
-  where
-     - $k=1,2$: the sequence
-     - $i=1,\dots,n_k$: the subject in each sequence $k$
-     - $Y_{ijk}$: the AUC for subject $i$ in sequence $k$ and period $j$.
-  * Calculate the sample mean across all the subjects in each sequence:
+    $$
+    where
+      - $k=1,2$: the sequence
+      - $i=1,\dots,n_k$: the subject in each sequence $k$
+      - $Y_{ijk}$: the AUC for subject $i$ in sequence $k$ and period $j$.
+    * Calculate the sample mean across all the subjects in each sequence:
 	$$
 	\overline{U_{*k}} = \frac{1}{n_k} \sum_{i=1}^{n_k} U_{ik}, k=1,2
 	$$
-  * Compute the differential carryover effect $C$:
+    * Compute the differential carryover effect $C$:
 
 	$$
 	\hat{C} = \overline{U_{*2}} - \overline{U_{*1}}
 	$$
-  * $\hat{C}$ is normally distributed with mean $C$ and variance:
-  $$
-  \widehat{Var}(\hat{C}) = \hat{\sigma_u^2}(\frac{1}{n_1} + \frac{1}{n_2})
-  $$
-  and
+    * $\hat{C}$ is normally distributed with mean $C$ and variance:
+    $$
+    \widehat{Var}(\hat{C}) = \hat{\sigma_u^2}(\frac{1}{n_1} + \frac{1}{n_2})
+    $$
+    and
 
-  $$
+    $$
   \hat{\sigma_u^2} = \frac{1}{n_1+n_2-2}\sum_{k=1}^2 \sum_{i=1}^{n_k} (U_{ik} - \overline{U_{*k}})^2
-  $$
-  * Compute the statistic:
-  $$
-  T = \frac{\hat{C}}{\sqrt{\widehat{Var}(\hat{C})}} \sim t(n_1 + n_2 - 2)
-  $$
-  * Compute the $p$-value, and draw the conclusion.
+    $$
+    * Compute the statistic:
+    $$
+    T = \frac{\hat{C}}{\sqrt{\widehat{Var}(\hat{C})}} \sim t(n_1 + n_2 - 2)
+    $$
+    * Compute the $p$-value, and draw the conclusion.
 
-- Test for direct formulation effect:
-  * Compute the difference in periods for each subject within each sequence:
-  $$
-  d_{ik} = \frac{1}{2}(Y_{i2k} - Y_{i1k}), i=1,\dots,n_k; k=1,2
-  $$
-  * Compute the sample means for the period differences for each sequence:
-  $$
-  \overline{d_{*k}} = \frac{1}{n_k} \sum_{i=1}^{n_k} d_{ik}
-  $$
-  * Compute the direct differential formulation effect:
-  $$
-  \hat{F} = \overline{d_{*1}} - \overline{d_{*2}}
-  $$
-  * If no carryover effect, $\hat{F} \sim N(F, \widehat{Var}(\hat{F}))$, where
-    - (1) $\widehat{Var}(\hat{F}) = \hat{\sigma}_d^2(\frac{1}{n_1} + \frac{1}{n_2})$
-    - (2) $\hat{\sigma}^2_d = \frac{1}{n_1+n_2-2} \sum_{k=1}^2 \sum_{i=1}^{n_k}(d_{ik} - \overline{d}_{*k})^2$
-  * Similarly, compute the $t$-statistic:
-  $$
-  T_F = \frac{\hat{F}}{\sqrt{\widehat{Var}(\hat{F})}}
-  $$
-  * Compute the $p$-value and reach the conclusion.
+  - Test for direct formulation effect:
+    * Compute the difference in periods for each subject within each sequence:
+    $$
+    d_{ik} = \frac{1}{2}(Y_{i2k} - Y_{i1k}), i=1,\dots,n_k; k=1,2
+    $$
+    * Compute the sample means for the period differences for each sequence:
+    $$
+    \overline{d_{*k}} = \frac{1}{n_k} \sum_{i=1}^{n_k} d_{ik}
+    $$
+    * Compute the direct differential formulation effect:
+    $$
+    \hat{F} = \overline{d_{*1}} - \overline{d_{*2}}
+    $$
+    * If no carryover effect, $\hat{F} \sim N(F, \widehat{Var}(\hat{F}))$, where
+      - (1) $\widehat{Var}(\hat{F}) = \hat{\sigma}_d^2(\frac{1}{n_1} + \frac{1}{n_2})$
+      - (2) $\hat{\sigma}^2_d = \frac{1}{n_1+n_2-2} \sum_{k=1}^2 \sum_{i=1}^{n_k}(d_{ik} - \overline{d}_{*k})^2$
+    * Similarly, compute the $t$-statistic:
+    $$
+    T_F = \frac{\hat{F}}{\sqrt{\widehat{Var}(\hat{F})}}
+    $$
+    * Compute the $p$-value and reach the conclusion.
 
-- Analysis of variance (ANOVA)
-```
-Data <- data.frame(subj = as.factor(dat$subj),
+  - Analysis of variance (ANOVA)
+  ```
+  Data <- data.frame(subj = as.factor(dat$subj),
 		formu = as.factor(dat$formulation),
 		seq = as.factor(dat$seq),
 		prd = as.factor(dat$prd),
 		auc = dat$auc)
 
-summary(aov(auc ~ seq*formu + Error(subj), data=Data))
-```
+  summary(aov(auc ~ seq*formu + Error(subj), data=Data))
+  ```
 
-- Two one-sided t-test
+  - Two one-sided t-test
 
-FDA has specified a decision criterion for concluding bioequivalence of a test formulation (T) to a 
-reference formulation (R): T is bioequivalent to R if the 90\%CI on the ratio of the mean of T to the 
-mean of R is between 80\% and 125\% for bioequivalent outcome AUC.
-  * Compute the mean AUC for each formulation
-  * Determine the decision CI $(\theta_L, \theta_R)$ for the difference in means calculated using 
+  FDA has specified a decision criterion for concluding bioequivalence of a test formulation (T) to a 
+  reference formulation (R): T is bioequivalent to R if the 90\%CI on the ratio of the mean of T to the 
+  mean of R is between 80\% and 125\% for bioequivalent outcome AUC.
+    * Compute the mean AUC for each formulation
+    * Determine the decision CI $(\theta_L, \theta_R)$ for the difference in means calculated using 
 	the mean of the reference formulation (R).
-  * Use two one-sided t-test to validate the bioequivalence of the two formulations.
-  $$
-  \begin{aligned}
-  T_L = \frac{\overline{Y}_T - \overline{Y}_R - \theta_L}{\sqrt{\hat{\sigma}_d^2 (\frac{1}{n_1} + \frac{1}{n_2})}}\\\\
-  T_U = \frac{\overline{Y}_T - \overline{Y}_R - \theta_U}{\sqrt{\hat{\sigma}_d^2 (\frac{1}{n_1} + \frac{1}{n_2})}}
-  \end{aligned}
-  $$
+    * Use two one-sided t-test to validate the bioequivalence of the two formulations.
+    $$
+    \begin{aligned}
+    T_L = \frac{\overline{Y}_T - \overline{Y}_R - \theta_L}{\sqrt{\hat{\sigma}_d^2 (\frac{1}{n_1} + \frac{1}{n_2})}}\\\\
+    T_U = \frac{\overline{Y}_T - \overline{Y}_R - \theta_U}{\sqrt{\hat{\sigma}_d^2 (\frac{1}{n_1} + \frac{1}{n_2})}}
+    \end{aligned}
+    $$
 
