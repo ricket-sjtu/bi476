@@ -94,6 +94,7 @@ analyze? Write down the R code and also the results and conclusion.
   - Is the treatment $A$ more effective in lowering the DBP than $B$? Use the parametric methods, 
 	adjusted by the confounders.
   - Can you analyze the data using the nonparametric methods?
+  - Or permutation-based method? Or even bootstrap-based methods? 
 
 
 
