@@ -1,0 +1,699 @@
+\documentclass[table,10pt]{beamer}
+
+\mode<presentation>{
+%\usetheme{Goettingen}
+\usetheme{Boadilla}
+\usecolortheme{default}
+}
+\usepackage{CJK}
+\usepackage{graphicx}
+\usepackage{amsmath, amsopn}
+\usepackage{xcolor}
+\usepackage[english]{babel}
+\usepackage[T1]{fontenc}
+\usepackage[latin1]{inputenc}
+\usepackage{enumerate}
+\usepackage{multirow}
+\usepackage{url}
+\ifx\hypersetup\undefined
+	\AtbBeginDocument{%
+		\hypersetup{unicode=true,pdfusetitle,
+bookmarks=true,bookmarksnumbered=false,bookmarksopen=false,
+breaklinks=false,pdfborder={0 0 0},pdfborderstyle={},backref=false,colorlinks=false}
+	}
+\else
+	\hypersetup{unicode=true,pdfusetitle,
+bookmarks=true,bookmarksnumbered=false,bookmarksopen=false,
+breaklinks=false,pdfborder={0 0 0},pdfborderstyle={},backref=false,colorlinks=false}
+\fi
+\usepackage{breakurl}
+\usepackage{color}
+\usepackage{times}
+\usepackage{xcolor}
+\usepackage{listings}
+\lstset{
+language=R,
+keywordstyle=\color{blue!70}\bfseries,
+basicstyle=\ttfamily,
+commentstyle=\ttfamily,
+showspaces=false,
+showtabs=false,
+frame=shadowbox,
+rulesepcolor=\color{red!20!green!20!blue!20},
+breaklines=true}
+
+
+
+\setlength{\parskip}{.5em}
+
+\title[BI476]{BI476: Biostatistics - Case Studies}
+\subtitle[anova]{Lec05: Power and Sample Size Calculation}
+\author[Maoying Wu]{Maoying,Wu ({\small ricket.woo@gmail.com})}
+\institute[CBB] % (optional, but mostly needed)
+{
+  \inst{}
+  Dept. of Bioinformatics \& Biostatistics\\
+  Shanghai Jiao Tong University
+}
+\date{Spring, 2018}
+
+\AtBeginSection[]
+{
+  \begin{frame}<beamer>{Next Section ...}
+    \tableofcontents[currentsection]
+  \end{frame}
+}
+
+\begin{document}
+\begin{CJK*}{UTF8}{gbsn}
+
+\begin{frame}
+\titlepage
+\end{frame}
+
+\begin{frame}[t]
+\frametitle{Example}
+\begin{table}
+\caption{A multi-center two-arm randomized phase III trial}
+\small
+\begin{tabular}{p{0.30\textwidth}p{0.60\textwidth}}
+Study design & A multi-center two-arm randomized phase III trial to compare the combination of 
+		gemcitabine (吉西它宾) and docetaxel (多西它赛) versus gemcitabine along\\
+Patients & Advanced or metastatic unresectable soft tissue sarcoma (软组织肉瘤)\\
+Primary outcome & progression-free survival\\
+Secondary outcome & overall survival
+\end{tabular}
+\end{table}
+\end{frame}
+
+\begin{frame}[t]
+\frametitle{Why sample size?}
+\begin{itemize}
+	\item The aim of a clinical trial is to judge the efficacy and/or 
+		safety of a new therapy or drug.
+	\item In the planning phase of the study, the calculation of the 
+		necessary sample size is crucial in order to obtain a 
+		meaningful result.
+	\item The study design, the expected treatment \alert{effect} in outcome 
+		and its \alert{variability}, \alert{power} and \alert{significance level} 
+		are factors which determine the sample size.
+	\item It is often difficult to fix these parameters prior to the start of the 
+		study, but related papers from the literature can be helpful sources for 
+		the unknown quantities.
+	\item For scientific as well as ethical reasons it is necessary to calculate 
+		the sample size in advance in order to be able to answer the study 
+		question.
+\end{itemize}
+\end{frame}
+
+
+\begin{frame}[t]
+\frametitle{Calculation of sample size}
+\begin{table}
+\caption{Type I error, Type II error, p-value and power}
+\begin{tabular}{lll}
+& $H_0$ is true & $H_1$ is true\\
+\hline
+Reject $H_0$ & $\alpha$(Type I error) & $1-\beta$(power)\\
+Not Reject $H_0$ & & $\beta$(Type II error)\\
+\hline 
+\end{tabular}
+\end{table}
+\begin{table}
+\begin{tabular}{lcl}
+\textbf{Power} & = & The probability of rejecting $H_0$ if $H_1$ is true.\\
+\textbf{Power} & = & $f$($\alpha$, variation, clinically significant level, \alert{Sample size})\\
+\textbf{Sample size} & = & $f$(\alert{Power}, $\alpha$, variation, clinically significant level)\\
+$p$-value & = & the probability of observing this difference if $H_0$ were true.
+\end{tabular}
+\end{table}
+\end{frame}
+
+
+\begin{frame}[t]
+\frametitle{An example}
+\framesubtitle{Manuscript writeup}
+\alert{\Large Cognitive therapy for the prevention of suiside attempts: a randomized controlled trial.}\\
+{\small Brown GK et al. JAMA 2005; 294:463-570.}
+
+To test the primary hypothesis that the mean time to the next suicide 
+attempt during the follow-up period is different between treatment 
+groups, a priori power calculations were based on the results of a 
+previous randomized controlled trial with a similar protocol. The current sample size ($N = 120$) provided at least $80\%$ power to 
+detect a hazard ratio of $0.44$ in terms of time to next suicide 
+attempt between treatment groups using an assumed repeat attempt rate 
+of $25.8\%$ during the follow-up period and a two-sided $\alpha$ level of 0.05.
+\end{frame}
+
+\begin{frame}[t]
+\frametitle{1. Comparing means for continuous outcomes}
+$$
+Y_{ik} \sim N(\mu_k, \sigma^2); k=1,2; i=1,\dots,n_k
+$$
+\begin{itemize}
+	\item Testing for equality of two independent means
+	\item Superiority trial of two independent means
+	\item Non-inferiority trial of two independent means
+	\item Equivalance trial of two independent means
+\end{itemize}
+\end{frame}
+
+\begin{frame}
+\frametitle{1.1 Testing for equality of two means}
+$$
+H_0: \theta = \mu_1 - \mu_2 = 0 \mbox{ versus } H_1: \theta \neq 0
+$$
+
+\begin{alertblock}{\center Procedure}
+\begin{enumerate}
+	\item The sample mean: $\bar{Y}_k = \frac{1}{n_k} \sum_{i=1}^{n_k} Y_{ik}, k=1,2$
+	\item The pooled-sample variance: $s_n^2 = \frac{1}{n_1 + n_2 - 2} \sum_{k=1}^2 \sum_{i=1}^{n_k} (Y_{ik} - \bar{Y}_k)^2$
+	\item The two-sample $t$-test statistic: $T_n = \frac{\bar{Y}_1 - \bar{Y}_2}{s_n \sqrt{1/n_1 + 1/n_2}}$
+	\item Under $H_0$: $T_n \sim t_{\nu}, \nu = n_1 + n_2 - 2$;
+	\item Under $H_1$: $T_n \sim t_{\nu}(c), c=\frac{\theta}{\sigma \sqrt{1/n_1 + 1/n_2}}$
+	\item Reject $H_0$ if $|T_n| \ge t_{\nu, \alpha/2}$
+\end{enumerate}
+\end{alertblock}
+\end{frame}
+
+
+\begin{frame}[t]
+\frametitle{1.1 Testing for equality of two means}
+Under $H_1$, the power of the two-sample $t$-test is given by
+$$
+1 - \beta = 1 - \mathcal{T}(t_{\nu, \alpha/2}, c) + \mathcal{T}(-t_{\nu,\alpha/2}, c)
+$$
+where $\mathcal{T}(\dot,c)$ denotes the cumulative distribution function of the noncentral $t_{\nu}(c)$ distribution.
+
+We specify the treatment difference to be detected as $\theta$ and define
+$$
+Z = \frac{\bar{Y}_1 - \bar{Y}_2 - \theta}{\sigma \sqrt{1/n_1 + 1/n_2}} \sim N(0, 1)
+$$
+
+Now the power is given by
+$$
+\begin{array}{lcl}
+1 - \beta &=& Pr \left( |\frac{\bar{Y}_1 - \bar{Y}_2}{\sigma \sqrt{1/n_1 + 1/n_2}}| \ge z_{\alpha/2} \big| H_1\right)\\
+&=& Pr \left( Z \ge z_{\alpha/2} - \frac{\theta}{\sigma\sqrt{1/n_1 + 1/n_2}} \big| H_1\right)\\
+& & + Pr \left( Z \le -z_{\alpha/2} - \frac{\theta}{\sigma\sqrt{1/n_1 + 1/n_2}} \big| H_1\right)
+\end{array}
+$$ 
+
+\end{frame}
+
+
+
+\begin{frame}[t]
+\frametitle{1.1 Testing for equality of two means}
+When $\theta > 0$, we can ignore the second term
+$$
+\beta \approx Pr\left( Z \le z_{\alpha/2} - \frac{\theta}{\sigma \sqrt{1/n_1 + 1/n_2}} \big| H_1\right)
+$$
+Similarly when $\theta < 0$, we can ignore the first term
+$$
+\beta \approx Pr\left(Z \le z_{\alpha/2} + \frac{\theta}{\sigma \sqrt{1/n_1 + 1/n_2}} \big| H_1 \right)
+$$
+That is
+$$
+\beta \approx \Phi\left( z_{\alpha/2} - \frac{|\theta|}{\sigma \sqrt{1/n_1 + 1/n_2}} \right)
+$$
+Therefore, sample size can be obtained by solving
+$$
+-z_{\beta} = z_{\alpha/2} - \frac{|\theta|}{\sigma \sqrt{1/n_1 + 1/n_2}} \Rightarrow \frac{|\theta|}{\sigma \sqrt{1/n_1 + 1/n_2}} = z_{\alpha/2} + z_{\beta}
+$$
+If $n_1 = n_2 = n$,
+$$
+n = \frac{2\sigma^2(z_{\alpha/2}+z_{\beta})^2}{\theta^2} 
+$$
+\end{frame}
+
+
+\begin{frame}[t]
+\frametitle{1.1 Exercise: Unbalanced allocation}
+If the patience allocation ratio between arm 1 and arm 2 is
+$$
+r = n_1/n_2
+$$
+\begin{itemize}
+	\item Calculate the required total sample size.
+	\item Is it larger or smaller than the balanced allocation?
+	\item If we set $\theta=1, \sigma^2 = 4, \alpha=0.05$, calculate the required sample size 
+		for balanced allocation and unbalanced allocation with $r=2$, resepectively.
+	\item Draw a figure to illustrate how the powers change with changing allocation by fixing 
+		the total sample size to be 200 and $\alpha=0.05$. 
+\end{itemize}
+\end{frame}
+
+
+\begin{frame}[t]
+\frametitle{1.2 Superiority Trial}
+A superiority trial can be formulated as a one-sided test:
+$$
+H_0: \theta \le 0 \mbox{ versus } H_1: \theta > 0
+$$
+where $\theta$ is the preset clinically meaningful difference and we define
+$$
+Z = \frac{\bar{Y}_1 - \bar{Y}_2 - \theta}{\sigma \sqrt{1/n_1 + 1/n_2}}
+$$
+The power is given by
+$$
+\begin{array}{lcl}
+1 - \beta &=& Pr \left( \frac{\bar{Y}_1 - \bar{Y}_2}{\sigma\sqrt{1/n_1 + 1/n_2}} \ge z_{\alpha} \big| H_1\right)\\
+&=& Pr \left( Z \ge z_{\alpha} - \frac{\theta}{\sigma \sqrt{1/n_1 + 1/n_2}} \big| H_1 \right)
+\end{array}
+$$
+which leads to
+$$
+\frac{\theta}{\sigma \sqrt{1/n_1 + 1/n_2}} = z_{\alpha} + z_{\beta}
+$$
+If $n_1 = n_2 = n$, then
+$$
+n = \frac{2\sigma^2(z_{\alpha} + z_{\beta})^2}{\theta^2}
+$$
+\end{frame}
+
+\begin{frame}[t]
+\frametitle{1.3 Non-inferiority Trial}
+A non-inferiority trial can be formulated as a one-sided test:
+$$
+H_0: \theta \le -\delta \mbox{ versus } H_1: \theta > -\delta
+$$
+where $\delta > 0$ is the noninferiority margin.
+
+$H_0$ is rejected when
+$$
+\frac{\bar{Y}_1 - \bar{Y}_2 + \delta}{\sigma \sqrt{1/n_1 + 1/n_2}} \ge z_{\alpha}
+$$
+and define
+$$
+Z = \frac{\bar{Y}_1 - \bar{Y}_2 - \theta}{\sigma \sqrt{1/n_1 + 1/n_2}}
+$$
+and the power is given by
+$$
+\begin{array}{lcl}
+1-\beta &=& Pr\left( \frac{\bar{Y}_1 - \bar{Y}_2 + \delta}{\sigma \sqrt{1/n_1 + 1/n_2}} \ge z_{\alpha} \big| H_1 \right)\\
+&=& Pr \left( Z \ge z_{\alpha} - \frac{\delta + \theta}{\sigma \sqrt{1/n_1 + 1/n_2}} \big| H_1 \right)
+\end{array}
+$$
+leading to
+$$
+\frac{\theta + \delta}{\sigma \sqrt{1/n_1 + 1/n_2}} = z_{\alpha} + z_{\beta} \Rightarrow n = \frac{2\sigma^2(z_{\alpha} + z_{\beta})^2}{(\theta + \delta)^2}
+$$
+\end{frame}
+
+
+\begin{frame}[t]
+\frametitle{1.4 Equivalence Trial}
+An equivalence trial can be formulated as
+$$
+H_0: | \theta | \ge \delta \mbox{ versus } H_1: |\theta| < \delta
+$$
+The rejection region can be written as
+$$
+z_{\alpha} - \frac{\delta}{\sigma \sqrt{1/n_1+1/n_2}} \le \frac{\bar{Y}_1 - \bar{Y}_2}{\sigma \sqrt{1/n_1+1/n_2}} \le -z_{\alpha} + \frac{\delta}{\sigma \sqrt{1/n_1+1/n_2}}
+$$
+Let
+$$
+Z = \frac{\bar{Y}_1 - \bar{Y}_2 - \theta}{\sigma \sqrt{1/n_1+1/n_2}} \sim N(0,1)
+$$
+And the power is given by
+$$
+\begin{array}{lcl}
+1-\beta &=& Pr \left( z_{\alpha} - \frac{\delta + \theta}{\sigma \sqrt{1/n_1+1/n_2}} \le Z \le - z_{\alpha} + \frac{\delta - \theta}{\sigma \sqrt{1/n_1+1/n_2}} \big| H_1 \right)\\
+&=& \Phi\left( -z_{\alpha} + \frac{\delta - \theta}{\theta \sqrt{1/n_1 + 1/n_2}}\right) - \Phi \left( z_{\alpha} - \frac{\delta+\theta}{\sigma \sqrt{1/n_1 + 1/n_2}}\right)  
+\end{array}
+$$
+\end{frame}
+
+\begin{frame}[t]
+\frametitle{1.4 Equivalence Trial}
+In a conservative derivation with no power inflation, we have
+$$
+1-\beta \approx 2 \Phi\left( -z_{\alpha} + \frac{\delta - |\theta|}{\sigma \sqrt{1/n_1 + 1/n_2}} \right) - 1
+$$
+which leads to
+$$
+\frac{\delta - |\theta|}{\sigma \sqrt{1/n_1 + 1/n_2}} = z_{\alpha} + z_{\beta/2}
+$$
+If $n_1 = n_2 = n$, then
+$$
+n = \frac{2\sigma^2(z_{\alpha} + z_{\beta/2})^2}{(\delta - |\theta|)^2}
+$$
+
+Note: $\theta$ is often set to zero in practice.
+\end{frame}
+
+
+\begin{frame}[t]
+\frametitle{1.4 Exercise: Bioequivalence trial sample size}
+In a clinical trial with cardiovascular disease, both the novel and 
+standard therapies target lowering the blood pressure. The study is to 
+establish equivalence of the two treatments in terms of therapeutic 
+effects with an equivalence margin $\delta=0.2$. The variance of the 
+medical measurements is estiamted to be 1.0 from previous study.
+
+In an equivalence trial often uses the $90\%$ rather than $95\%$ 
+confidence interval.
+
+Then to achieve a power of $90\%$, how many total sample size do we need?
+\end{frame}
+
+
+\begin{frame}[t]
+\frametitle{2. Comparing proportions for binary outcomes}
+Let $Y_{ik}$ be the binary outcome for subject $i=1,\dots,n_k$ in arm $k=1,2$:
+$$
+Y_{ik} = \begin{cases}
+1, & \mbox{ with probability } p_k,\\
+0, & \mbox{ with probability } 1-p_k,
+\end{cases}
+$$
+and the sum in each arm $k$ is
+$$
+\sum_{i=1}^{n_k} Y_{ik} \sim Bin(n_k, p_k)
+$$
+The sample proportion for arm $k$ is
+$$
+\begin{array}{lcl}
+\bar{Y}_k &=& \frac{1}{n_k} \sum_{i=1}^{n_k} Y_{ik}\\
+E(\bar{Y}_k) &=& p_k\\
+Var(\bar{Y}_k) &=& p_k(1-p_k)/n_k
+\end{array}
+$$
+The difference
+$$
+\theta = p_1 - p_2
+$$
+\end{frame}
+
+
+\begin{frame}[t]
+\frametitle{2.1 Test for the equation of two proportions}
+$$
+H_0: \theta = 0 \mbox{ versus } H_1: \theta \neq 0
+$$
+Under $H_0$, the test statistic
+$$
+T_n = \frac{\bar{Y}_1 - \bar{Y}_2}{\sqrt{\bar{Y}(1-\bar{Y})(1/n_1 + 1/n_2)}} \sim N(0, 1),
+$$
+where $\bar{Y}$ is the pooled-sample mean:
+$$
+\bar{Y} = \frac{n_1 \bar{Y}_1 + n_2 \bar{Y}_2}{n_1 + n_2}
+$$
+
+While under the alternative hypothesis,
+$$
+T_n \big| H_1 \sim N \left(\frac{\theta}{\sqrt{\bar{p}(1-\bar{p})(1/n_1 + 1/n_2)}}, \frac{p_1(1-p_1)/n_1 + p_2(1-p_2)/n_2}{\bar{p}(1-\bar{p})(1/n_1 + 1/n_2)}\right)
+$$
+\end{frame}
+
+
+\begin{frame}[t]
+\frametitle{2.1 Test for the equation of two proportions}
+Define the standard normal random variable
+$$
+Z = \frac{\bar{Y}_1 - \bar{Y}_2 - \theta}{\sqrt{p_1(1-p_1)/n_1 + p_2(1-p_2)/n_2}}
+$$
+where $\theta$ is the treatment difference to be detected.
+
+The power is therefore
+$$
+\begin{array}{lcl}
+1-\beta &=& Pr \left( \big| \frac{\bar{Y}_1 - \bar{Y}_2}{\sqrt{\bar{p} (1-\bar{p})(1/n_1+1/n_2)}}\big| \ge z_{\alpha/2} \big| H_1\right)\\
+&=& Pr \left( Z \ge \frac{z_{\alpha/2} \sqrt{\bar{p}(1-\bar{p})(1/n_1 + 1/n_2)} - \theta}{\sqrt{p_1(1-p_1)/n_1 + p_2(1-p_2)/n_2}} \big| H_1 \right)\\
+ & & + Pr \left( Z \le \frac{-z_{\alpha/2} \sqrt{\bar{p}(1-\bar{p})(1/n_1 + 1/n_2)} - \theta}{\sqrt{p_1(1-p_1)/n_1 + p_2(1-p_2)/n_2}} \big| H_1 \right)\\
+\end{array}
+$$
+\end{frame}
+
+\begin{frame}[t]
+\frametitle{2.1 Test for the equality of two proportions}
+Therefore
+$$
+\beta \approx \Phi \left( \frac{z_{\alpha/2}\sqrt{\bar{p}(1-\bar{p})(1/n_1 + 1/n_2)} - |\theta|}{\sqrt{p_1(1-p_1)/n_1 + p_2(1-p_2)/n_2}} \right),
+$$
+and the sample size can be obtained by solving
+$$
+|\theta| = z_{\alpha/2} \sqrt{\bar{p}(1-\bar{p})(1/n_1+1/n_2)} + z_{\beta} \sqrt{p_1(1-p_1)/n_1 + p_2(1-p_2)/n_2}
+$$
+If $n_1 = n_2 = n$, then the sample size
+$$
+n = \frac{\left( z_{\alpha/2}\sqrt{2\bar{p}(1-\bar{p})} + z_{\beta} \sqrt{p_1(1-p_1) + p_2(1-p_2)}\right)^2}{\theta^2}
+$$
+\end{frame}
+
+
+\begin{frame}[t]
+\frametitle{2.2 Sample size with unpooled variance}
+Under the two-sided hypothesis,
+$$
+T_n = \frac{\bar{Y}_1 - \bar{Y}_2}{\sqrt{\bar{Y}_1(1-\bar{Y}_1)/n_1 + \bar{Y}_2(1-\bar{Y}_2)/n_2}}
+$$
+which can be approximated by
+$$
+T_n \approx \frac{\bar{Y}_1 - \bar{Y}_2}{\sqrt{p_1(1-p_1)/n_1 + p_2(1-p_2)/n_2}}
+$$
+Under $H_0$,
+$$
+T_n \big| H_0 \sim N(0, 1)
+$$
+and under $H_1$,
+$$
+T_n \big| H_1 \sim N \left( \frac{\theta}{\sqrt{p_1(1-p_1)/n_1 + p_2(1-p_2)/n_2}},1 \right)
+$$
+\end{frame}
+
+
+\begin{frame}[t]
+\frametitle{2.2 Sample size with unpooled variance}
+The power can be calculated as
+$$
+\begin{array}{lcl}
+1-\beta &=& Pr \left( \big| \frac{\bar{Y}_1 - \bar{Y}_2}{\sqrt{p_1 (1-p_1)/n_1+ p_2(1-p_2)/n_2)}} \big| \ge z_{\alpha/2} \big| H_1 \right)\\
+&=& Pr \left( Z \ge z_{\alpha/2} - \frac{\theta}{\sqrt{p_1(1-p_1)/n_1 + p_2(1-p_2)/n_2}} \big| H_1 \right)\\
+ & & + Pr \left( Z \le -z_{\alpha/2} - \frac{\theta}{\sqrt{p_1(1-p_1)/n_1 + p_2(1-p_2)/n_2}} \big| H_1 \right)
+\end{array}
+$$
+Therefore,
+$$
+\beta \approx \Phi \left( z_{\alpha/2} - \frac{|\theta|}{\sqrt{p_1(1-p_1)/n_1 + p_2(1-p_2)/n_2}}\right)
+$$
+and the sample size can be obtained by solving
+$$
+\frac{|\theta|}{\sqrt{p_1(1-p_1)/n_1 + p_2(1-p_2)/n_2}} = z_{\alpha/2} + z_{\beta}
+$$
+If $n_1 = n_2 = n$, then
+$$
+n = \frac{(z_{\alpha/2}+z_{\beta})^2}{\theta^2}\left[ p_1(1-p_1) + p_2(1-p_2)\right]
+$$
+\end{frame}
+
+\begin{frame}[t]
+\frametitle{2.2 Exercise: Sample size estimation}
+Suppose that the standard treatment has a response rate of $30\%$ for metastatic breast cancer patients, and the new treatment is expected to 
+have an improvemment of $10\%$.
+
+We set type I error rate of $\alpha=0.05$ and power $90\%$. How many 
+patients do we need? Use both the pooled and unpooled variance 
+estimators.
+\end{frame}
+
+
+\begin{frame}[t]
+\frametitle{2.3 Superiority Trial}
+A superiority trial can be formulated as a one-sided hypothesis:
+$$
+H_0: \theta \le 0 \mbox{ versus } H_1: \theta > 0.
+$$
+Here the power is given by
+$$
+1-\beta = Pr \left( Z \ge \frac{z_{\alpha} \sqrt{\bar{p}(1-\bar{p})(1/n_1 + 1/n_2)} - \theta}{\sqrt{p_1(1-p_1)/n_1 + p_2(1-p_2)/n_2}} \big| H_1\right)
+$$
+where $Z$ is the standard normal variable defined as
+$$
+Z = \frac{\bar{Y}_1 - \bar{Y}_2 - \theta}{\sqrt{p_1(1-p_1)/n_1 + p_2(1-p_2)/n_2}}
+$$
+Therefore, the sample size can be obtained by solving
+$$
+\theta = z_{\alpha} \sqrt{\bar{p}(1-\bar{p})(1/n_1+1/n_2)} + z_{\beta} \sqrt{p_1(1-p_1)/n_1 + p_2(1-p_2)/n_2}
+$$
+If $n_1 = n_2 = n$, then
+$$
+n = \frac{\left[ z_{\alpha} \sqrt{2\bar{p}(1-\bar{p})} + z_{\beta} \sqrt{p_1(1-p_1) + p_2(1-p_2)}\right]^2}{\theta^2}
+$$
+\end{frame}
+
+
+\begin{frame}[t]
+\frametitle{2.3 Exercise: Unbalanced allocation for superiority trial for binary outcome}
+\begin{enumerate}[(1)]
+	\item If we do NOT pool two samples for estimating the variance, and the allocation 
+		ratio is $r$. Write down the required total sample size here for a set of 
+		given parameters $\{\alpha, \beta, \theta, p_1, p_2, r\}$.
+	\item The response rate of a standard chemotherapy for prostate cancer is $20\%$, and 
+		the experimental drug would double the response rate. In a one-sided test, we 
+		specify the type I error rate $\alpha=0.025$ and power $90\%$. How many samples 
+		do we need in such as superirority trial? Compute based on both balanced and 
+		unbalanced allocation of $r=3$ (i.e., $n_1 = 3n_2$).
+\end{enumerate}
+\end{frame}
+
+
+\begin{frame}[t]
+\frametitle{2.4 Noninferiority Trial}
+A noninferiority trial can be formulated as a one-sided hypothesis:
+$$
+H_0: \theta \le -\delta \mbox{ versus } H_1: \theta > \delta.
+$$
+$H_0$ is rejected at a significance level of $\alpha$, if
+$$
+\frac{\bar{Y}_1 - \bar{Y}_2 + \delta}{\sqrt{\bar{p}(1-\bar{p})(1/n_1+1/n_2)}} \ge z_{\alpha}.
+$$
+Here the power is given by
+$$
+1-\beta = Pr \left( Z \ge \frac{z_{\alpha} \sqrt{\bar{p}(1-\bar{p})(1/n_1 + 1/n_2)} - (\theta+\delta)}{\sqrt{p_1(1-p_1)/n_1 + p_2(1-p_2)/n_2}} \big| H_1\right)
+$$
+where $Z$ is the standard normal variable defined as
+$$
+Z = \frac{\bar{Y}_1 - \bar{Y}_2 - \theta}{\sqrt{p_1(1-p_1)/n_1 + p_2(1-p_2)/n_2}}
+$$
+Therefore, the sample size can be obtained by solving
+$$
+\theta + \delta = z_{\alpha} \sqrt{\bar{p}(1-\bar{p})(1/n_1+1/n_2)} + z_{\beta} \sqrt{p_1(1-p_1)/n_1 + p_2(1-p_2)/n_2}
+$$
+If $n_1 = n_2 = n$, then $
+n = \frac{\left[ z_{\alpha} \sqrt{2\bar{p}(1-\bar{p})} + z_{\beta} \sqrt{p_1(1-p_1) + p_2(1-p_2)}\right]^2}{(\theta + \delta)^2}
+$
+
+In practice, we often set $\theta = 0$.
+\end{frame}
+
+
+\begin{frame}[t]
+\frametitle{2.4 Exercise: Noninferiority trial}
+We are interested in testing whether a new treatment is noninferior to 
+the standard care, while less toxic and easier to administer. Suppose 
+that the estimated difference of the response rates between the active 
+control and placebo is $20\%$, with a $95\%$ confidence interval of 
+$[0.16, 0.24]$.
+
+We may set $\delta$ as a half of the minimal estimated difference 
+between the active control and placebo (the lower bound of $95\%CI$), 
+that is, $\delta=0.08$.
+
+For a one-sided test with $\alpha=0.025$ and power=$80\%$. How to 
+estimate the required sample size?
+\end{frame}
+
+
+\begin{frame}[t]
+\frametitle{2.5 Equivalence Trial}
+An equivalence trial can be formulated as one-sided trial:
+$$
+H_0: |\theta| \ge \delta \mbox{ versus } H1: |\theta| < \delta
+$$
+The null hypothesis is rejected at a significance level of $\alpha$, if
+$$
+z_{\alpha} - \frac{\delta}{\sqrt{\bar{p}(1-\bar{p})(1/n_1+1/n_2)}} \le T_n \le -z_{\alpha} + \frac{\delta}{\sqrt{\bar{p}(1-\bar{p})(1/n_1+1/n_2)}}
+$$
+Under $H_1$, the power is given by:
+$$
+1-\beta \approx 2\Phi\left( \frac{-z_{\alpha}\sqrt{\bar{p}(1-\bar{p})(1/n_1 + 1/n_2)} + \delta - |\theta|}{\sqrt{p_1(1-p_1)/n_1+p2(1-p_2)/n_2}}\right) - 1
+$$
+Therefore, the sample size can be obtained by solving
+$$
+\delta - |\theta| = z_{\alpha} \sqrt{\bar{p}(1-\bar{p})(1/n_1+1/n_2)} + z_{\beta/1} \sqrt{p_1(1-p_1)/n_1 + p_2(1-p_2)/n_2}
+$$
+If $n_1 = n_2 = n$, then
+$$
+n = \frac{\left[ z_{\alpha \sqrt{\bar{p}(1-\bar{p})}} + z_{\beta/2} \sqrt{p_1(1-p_1)+p_2(1-p_2)}\right]^2}{(\delta - |\theta|)^2}
+$$
+\end{frame}
+
+
+\begin{frame}[t]
+\frametitle{Power and sample size analysis in R: \texttt{pwr}}
+\begin{table}
+\begin{tabular}{ll}
+\textbf{function} & \textbf{power calculation for}\\
+\hline
+\texttt{pwr.2p.test} & two proportions (equal $n$)\\
+\texttt{pwr.2p2n.test} & two proportions (unequal $n$)\\
+\texttt{pwr.anova.test} & balanced one-way ANOVA\\
+\texttt{pwr.chisq.test} & chi-squared test\\
+\texttt{pwr.f2.test} & general linear model\\
+\texttt{pwr.p.test} & proportion (one-sample)\\
+\texttt{pwr.r.test} & correlation test\\
+\texttt{pwr.t.test} & t-tests (one-sample, two-sample, paired)\\
+\texttt{pwr.t2n.test} & t-tests (two-samples with unequal $n$)\\
+\hline
+\end{tabular}
+\end{table}
+\end{frame}
+
+
+\begin{frame}[t]
+\frametitle{Exercise: Fill in the sample size table below}
+Use $\alpha=0.025$ and two-sided test for calculations.
+\begin{table}
+\begin{tabular}{llcc}
+$p(y=1|exposed)$ & $p(y=1|nonexposed)$ & Power & Sample size\\
+\hline
+0.1 & 0.5 & 0.90 & ?\\
+0.3 & 0.5 & 0.90 & ?\\
+0.45 & 0.5 & 0.90 & ?\\
+0.2 & 0.8 & 0.80 & ?\\
+0.4 & 0.8 & 0.80 & ?\\
+0.6 & 0.8 & 0.80 & ?\\
+0.2 & 0.8 & 0.70 & ?\\
+0.4 & 0.8 & 0.70 & ?\\
+0.6 & 0.8 & 0.70 & ?\\
+\hline
+\end{tabular}
+\end{table}
+\end{frame}
+
+\begin{frame}[t]
+\frametitle{After-class Exercises}
+\begin{enumerate}[(1)]
+	\item In a superiority trial, suppose that the response rate of 
+		the standard treatment is $25\%$, and we expect that of 
+		the experimental treatment to be $40\%$. We set type I 
+		error rate $\alpha=0.025$ and a power of $90\%$. What is
+		the total sample size if th allocation ratio between the
+		experimental and standard arms is 2:1? Compare the 
+		sample size estimation based on the two different 
+		formulae (pooled or unpooled). How about the sample 
+		size using an allocation ratio of 1:1?
+	\item In a noninferiority trial, suppose that the noninferiority
+		margin $\delta=0.05$, and we take the response rates of 
+		both the standard and experimental treatments to be 
+		$30\%$. For a type I error rate of $\alpha=0.05$ and a 
+		power of $90\%$, what is the total sample size of the 
+		trial with an allocation ratio of 3:1?  
+\end{enumerate}
+\end{frame}
+
+
+\begin{frame}[t]
+\frametitle{Power and sample size: Summary}
+\begin{enumerate}[<+->]
+	\item Carefully consider and state the null hypothesis to be tested.
+	\item Select an appropriate statistical tests:
+	\begin{itemize}
+		\item e.g., paired t-test
+	\end{itemize}
+	\item Choose a clinically significant effect size.
+	\item Provide an estimate of the variability.
+	\begin{itemize}
+		\item according to previous studies or literature.
+	\end{itemize}
+ 	\item Select the type I error ($\alpha$) and required power ($1-\beta$) you 
+		are willing to accept.
+	\item Calcualte the sample size.
+	\item Adjust sample size estimate for dropout if necessary.
+\end{enumerate}
+\end{frame}
+
+\end{CJK*}
+\end{document}
