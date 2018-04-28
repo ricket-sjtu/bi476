@@ -1,0 +1,905 @@
+\documentclass[table,10pt]{beamer}
+
+\mode<presentation>{
+%\usetheme{Goettingen}
+\usetheme{Boadilla}
+\usecolortheme{default}
+}
+\usepackage{CJK}
+\usepackage{graphicx}
+\usepackage{amsmath, amsopn}
+\usepackage{xcolor}
+\usepackage[english]{babel}
+\usepackage[T1]{fontenc}
+\usepackage[latin1]{inputenc}
+\usepackage{enumerate}
+\usepackage{multirow}
+\usepackage{url}
+\ifx\hypersetup\undefined
+	\AtbBeginDocument{%
+		\hypersetup{unicode=true,pdfusetitle,
+bookmarks=true,bookmarksnumbered=false,bookmarksopen=false,
+breaklinks=false,pdfborder={0 0 0},pdfborderstyle={},backref=false,colorlinks=false}
+	}
+\else
+	\hypersetup{unicode=true,pdfusetitle,
+bookmarks=true,bookmarksnumbered=false,bookmarksopen=false,
+breaklinks=false,pdfborder={0 0 0},pdfborderstyle={},backref=false,colorlinks=false}
+\fi
+\usepackage{breakurl}
+\usepackage{color}
+\usepackage{times}
+\usepackage{xcolor}
+\usepackage{listings}
+\lstset{
+language=R,
+keywordstyle=\color{blue!70}\bfseries,
+basicstyle=\ttfamily,
+commentstyle=\ttfamily,
+showspaces=false,
+showtabs=false,
+frame=shadowbox,
+rulesepcolor=\color{red!20!green!20!blue!20},
+breaklines=true}
+
+
+
+\setlength{\parskip}{.5em}
+
+\title[BI476]{BI476: Biostatistics - Case Studies}
+\subtitle[anova]{Lec04: Clinical Trial Data Analysis}
+\author[Maoying Wu]{Maoying,Wu\\{\small ricket.woo@gmail.com}}
+\institute[CBB] % (optional, but mostly needed)
+{
+  \inst{}
+  Dept. of Bioinformatics \& Biostatistics\\
+  Shanghai Jiao Tong University
+}
+\date{Spring, 2018}
+
+\AtBeginSection[]
+{
+  \begin{frame}<beamer>{Next Section ...}
+    \tableofcontents[currentsection]
+  \end{frame}
+}
+
+\begin{document}
+\begin{CJK*}{UTF8}{gbsn}
+
+<<setup, include=FALSE>>=
+library(knitr)
+opts_chunk$set(fig.path='figure/beamer-', fig.align='center',
+fig.show='hold',size='footnotesize', out.width='0.60\\textwidth')
+@
+
+\begin{frame}
+  \titlepage
+\end{frame}
+
+\begin{frame}
+\frametitle{Outline}
+	\tableofcontents
+\end{frame}
+
+\begin{frame}[t,containsverbatim]
+\frametitle{A Clinical Trial on Diastolic Blood Pressure (DBP)}
+Here we present a data set of diastolic blood pressure measured in 
+small clinical trials in hypertension from the mid-to-late 1960s and 
+for approximately a decade thereafter. Diastolic blood pressure (DBP) 
+was measured (mmHg) in the supine position at baseline (i.e., ``DBP1'') 
+before randomization and monthly thereafter up to 4 months as indicated 
+by \texttt{DBP2}, \texttt{DBP3}, \texttt{DBP4} and \texttt{DBP5}. 
+Patients' age and sex were recorded at baseline and represent potential 
+covariates.
+
+The primary objective in the analysis of this dataset is to test 
+whether treatment A (new drug) may be effective in lowering DBP as 
+compared to B (placebo) and to describe changes in DBP across the times 
+at which it was measured.
+\end{frame}
+
+
+\begin{frame}[t,containsverbatim]
+\frametitle{Importing the dataset}
+<<eval=TRUE>>=
+dbp <- read.table("data/dbp.txt", header=T)
+dbp$diff <- dbp$DBP5 - dbp$DBP1
+head(dbp)
+table(dbp$TRT)
+@
+\end{frame}
+
+
+\begin{frame}[t,containsverbatim]
+\frametitle{Baseline Information}
+<<eval=TRUE>>=
+par(mfrow=c(1,2))
+boxplot(DBP1 ~ TRT, data=dbp)
+barplot(table(dbp$Sex, dbp$TRT))
+@
+\end{frame}
+
+\begin{frame}[t,containsverbatim]
+\frametitle{Pairwise plot}
+<<eval=TRUE>>=
+pairs(dbp)
+@
+\end{frame}
+
+
+\section{Parametric tests}
+
+\begin{frame}[t]
+\frametitle{Parametric tests}
+\begin{itemize}
+	\item 2-groups: t-test for continuous outcome in completely randomized 
+		parallel design.
+	\item 2-groups: Paired t-test for continuous outcome in crossover design.
+	\item 3+-groups: One-way ANOVA for continuous outcome in completely 
+		randomized parallel design.
+	\item 2+-groups: Two-way ANOVA for continuous outcome in factorial design.
+	\item 3+-groups: One-way repeated-measures ANOVA for continuous outcome 
+		in randomized block design.
+	\item 2-groups: Chisquare test or Fisher's exact test for binary outcome in 
+		completely randomized parallel design.
+	\item 2-groups: McNemar's test for binary outcome in crossover design.
+	\item 3+-groups: Cochrane's Q-test for binary outcome in crossover design.
+\end{itemize}
+\end{frame}
+
+\subsection{t-test}
+
+\begin{frame}[t, containsverbatim]
+\frametitle{Student's t-test for parallel design}
+\framesubtitle{Comparing two treament group means with equal variances}
+\begin{itemize}
+	\item \textbf{Assumption}: $Y_1$ and $Y_2$ are independent 
+		and normally distributed with common variance 
+		$\sigma^2$.
+	\item \textbf{Design}: Randomized parallel design
+	\item \textbf{Hypothesis}: $H_0: \mu_1 = \mu_2$ vs. $H_1: \mu_1 \neq \mu_2$
+	\item \textbf{Process}
+	\begin{itemize}	
+		\item Compute the test statistic: 
+		$$t = \frac{\bar{y}_1 - \bar{y}_2}{s\sqrt{1/n_1 + 1/n_2}}$$, 
+		where
+		$$
+		\bar{y}_i = \sum_{j=1}^{n_i} y_{ij}/n_i, s = \sqrt{\frac{(n_1-1)s_1^2 + (n_2-1)s_2^2}{n_1+n_2-2}}, 
+		s_i^2 = \sum_{j=1}^{n_i} (y_{ij} - \bar{y}_i)^2/(n_i - 1)$$.
+		\item Reject $H_0$ if $t > t_{\alpha/2,n_1+n_2-2}$
+	\end{itemize}
+\end{itemize}
+\begin{lstlisting}
+t.test(..., var.equal=TRUE)
+\end{lstlisting}
+\end{frame}
+
+\begin{frame}[t,containsverbatim]
+\frametitle{$t$-test with equal variances}
+<<eval=TRUE>>=
+t.test(diff ~ TRT, data=dbp, var.equal=TRUE)
+@
+\end{frame}
+
+
+\begin{frame}[t,containsverbatim]
+\frametitle{Welch's t-test for parallel design}
+\framesubtitle{Comparing two treatment group means with unequal variances}
+\begin{enumerate}
+	\item Compute the $t$ statistic
+	$$
+T = \frac{\bar{y}_1 - \bar{y}_2}{\sqrt{s_1^2/n_1 + s_2^2/n_2}}
+	$$
+	\item The degree of freedom
+	$$
+\nu = \left[ \frac{c}{n_1-1} + \frac{(1-c)^2}{n_2-1}\right]^{-1}
+	$$
+	where
+	$$
+c = \frac{s_1^2/n_1}{s_1^2/n_1 + s_2^2/n_2}
+	$$
+	\item Reject $H_0$ if $|T| > t_{\alpha/2, \nu}$
+\end{enumerate}
+\begin{lstlisting}
+t.test(..., var.equal=FALSE)
+\end{lstlisting}
+\end{frame}
+
+\begin{frame}[t,containsverbatim]
+\frametitle{$t$-test with unequal variances}
+<<eval=TRUE>>=
+t.test(diff ~ TRT, data=dbp, var.equal=FALSE)
+@
+\end{frame}
+
+
+\begin{frame}[t,containsverbatim]
+\frametitle{Wait...Are the two variances equal?}
+<<eval=TRUE>>=
+var.test(diff ~ TRT, data=dbp)
+@
+\end{frame}
+
+
+\begin{frame}[t, containsverbatim]
+\frametitle{One-sided t-test}
+Since ``B'' is a placebo, the one-sided t-test may be more appropriate 
+to test the treatment effect:
+<<eval=TRUE>>=
+# data from treatment A and B
+diff.A <- dbp$diff[dbp$TRT=='A']
+diff.B <- dbp$diff[dbp$TRT=='B']
+# call t.test for one-sided test
+t.test(diff.A, diff.B, alternative="less")
+@
+
+\end{frame}
+
+\subsection{ANOVA}
+
+\begin{frame}[t]
+\frametitle{One-way ANOVA}
+The single factor $A$ has $k$ levels: $A_1, A_2, \dots, A_r$, and $k$ patients are allocated to 
+each treatment group. We can obtain the samples:
+$$
+y_{i1}, \dots, y_{in}, i=1, \dots, k
+$$
+\uncover<2->{\begin{block}{\center Fundamental statistics}
+\footnotesize
+\begin{itemize}
+	\item<3-> Grand mean: $\bar{y}_{*} = \frac{1}{kn}\sum_{i=1}^k \sum_{j=1}^n y_{ij}$
+	\item<3-> Marginal mean: $\bar{y}_i = \frac{1}{n}\sum_{j=1}^n y_{ij}$;
+	\item<4-> Total sum of squares (SST): $\mathrm{SS}_T = \sum_{i=1}^k \sum_{j=1}^n (y_{ij} - \bar{y}_*)^2$;
+	\item<4-> Between-group sum of squares (SSB): $\mathrm{SS}_B = \sum_{i=1}^k (\bar{y}_i - \bar{y}_*)^2$;
+	\item<4-> Resitual sum of squares (SSE): $\mathrm{SS}_E = \sum_{i=1}^k \sum_{j=1}^n (y_{ij} - \bar{y}_i)^2$;	
+\end{itemize}
+\end{block}
+}
+\end{frame}
+
+
+\begin{frame}[t]
+\frametitle{One-way ANOVA Table}
+\begin{table}
+\caption{One-way ANOVA Table with $k$ groups and $n$ subjects}
+\begin{tabular}{lcccc}
+\hline
+Variance & $\textrm{SS}$ & $\textrm{DF}$ & $\textrm{MS}$ & $F$-value\\
+\hline
+Between-groups & $\textrm{SS}_b$ & $k-1$ & $\textrm{MS}_b$ & $F = \textrm{MS}_b/\textrm{MS}_w$\\
+Within-groups & $\textrm{SS}_w$ & $n-k$ & $\textrm{MS}_w$ & \\
+Total & $\textrm{SS}_T$ & $n-1$ & $\textrm{MS}_T$ & \\
+\hline
+\end{tabular}
+\end{table}
+\end{frame}
+
+\begin{frame}[t,containsverbatim]
+\frametitle{One-way ANOVA for Time Changes}
+Since the treatment period in the DBP trial was measured at months 1, 
+2, 3 and 4 post baseline. To see the mean changes over the periods:
+<<eval=TRUE>>=
+aggregate(dbp[,3:7], list(TRT=dbp$TRT), mean)
+@
+Now we can employ the one-way ANOVA to test the change over time. But the first thing is to ``reshape'' the data:
+<<eval=TRUE>>=
+Dbp <- reshape(dbp, direction="long",
+	varying=paste("DBP", 1:5, sep=""),
+	idvar = c("Subject", "TRT", "Age", "Sex", "diff"), sep="")
+colnames(Dbp) <- c("Subject", "TRT", "Age", "Sex", "diff", "Time", "DBP")
+rownames(Dbp) <- NULL
+Dbp$Time <- as.factor(Dbp$Time)
+head(Dbp, 3)
+@
+\end{frame}
+
+\begin{frame}[t,containsverbatim]
+\frametitle{One-way ANOVA for Two Treatments}
+<<eval=TRUE>>=
+# test for treatment A
+dbpA <- Dbp[Dbp$TRT=='A',]
+test.A <- aov(DBP ~ Time, dbpA)
+summary(test.A)
+@
+
+<<eval=TRUE>>=
+# test for treatment B
+dbpB <- Dbp[Dbp$TRT=='B', ]
+test.B <- aov(DBP ~ Time, dbpB)
+summary(test.B)
+@
+\end{frame}
+
+
+\begin{frame}[t,containsverbatim]
+\frametitle{Post-hoc Tests for ANOVA of treatment A}
+<<eval=TRUE>>=
+TukeyHSD(test.A)
+@
+\end{frame}
+
+
+\begin{frame}[t,containsverbatim]
+\frametitle{Post-hoc Tests for ANOVA of treatment B}
+<<eval=TRUE>>=
+TukeyHSD(test.B)
+@
+\end{frame}
+
+
+\begin{frame}[t,containsverbatim]
+\frametitle{Two-way ANOVA With Interaction}
+The DBP trial has two factors: treatment and Time. Under this 
+situation, one-way ANOVA (within treatment groups across Time) 
+cannot capture the interaction between these two factors.
+
+Therefore, a two-way or multi-way ANOVA is needed to analyze the 
+interaction before making statistical inferences about the main 
+effects.
+
+<<eval=TRUE>>=
+mod <- aov(DBP ~ TRT*Time, Dbp)
+summary(mod)
+@ 
+\end{frame}
+
+
+\begin{frame}[t,containsverbatim]
+\frametitle{Plot Interaction Between Time and Treatment}
+<<eval=TRUE>>=
+par(mfrow=c(2,1), mar=c(5,3,1,1))
+with(Dbp, interaction.plot(Time,TRT,DBP,las=1,legend=T))
+with(Dbp, interaction.plot(TRT,Time,DBP,las=1,legend=T))
+@
+\end{frame}
+
+
+\begin{frame}[t,containsverbatim]
+\frametitle{Post-Hoc Analysis}
+<<eval=TRUE>>=
+TukeyHSD(aov(DBP ~ TRT*Time, Dbp))
+@
+\end{frame}
+
+\subsection{ANCOVA}
+
+\begin{frame}[t]
+\frametitle{What is Analysis of Covariance (ANCOVA)?}
+\begin{itemize}[<+->]
+	\item One-way/two-way/Multi-way ANOVA with uncontrollable but measurable 
+		independent variable $X$;
+	\item The outcome $Y$ is continuous;
+	\item $Y$ and $X$ (covariate) has linear relationship;
+	\item Regression analysis is used to adjust for the effect of $X$ on $Y$.
+	\item Here we does not control for $X$ in the trials, but conduct a post-hoc 
+		analysis.
+\end{itemize}
+\uncover<6->{
+\begin{alertblock}{\center Example}
+\begin{itemize}
+	\item Initial blood pressure ($X$) for the BP reductions ($Y$) in comparing different 
+		blood pressure medications ($G$).
+	\item Parallel-group clinical trials with pre-treatment baselines.  
+\end{itemize}
+\end{alertblock}
+}
+\end{frame}
+
+
+\begin{frame}[t]
+\frametitle{One-way ANCOVA}
+The single factor $A$ has $r$ levels: $A_1, A_2, \dots, A_r$, and $s$ patients are allocated to 
+each treatment group. We can obtain the samples:
+$$
+(x_{i1}, y_{i1}), \dots, (x_{is}, y_{is}), i=1, \dots, r
+$$
+\uncover<2->{\begin{block}{\center Fundamental statistics}
+\footnotesize
+\begin{itemize}
+	\item<3-> $\bar{x}_{i*} = \frac{1}{s}\sum_{j=1}^s x_{ij}; \bar{x}_{**} = \frac{1}{rs}\sum_{i=1}^r \sum_{j=1}^s x_{ij}$
+	\item<3-> $\bar{y}_{i*} = \frac{1}{s}\sum_{j=1}^s y_{ij}; \bar{y}_{**} = \frac{1}{rs}\sum_{i=1}^r \sum_{j=1}^s y_{ij}$
+	\item<4-> $\mathrm{SST}(x) = \sum_{i=1}^r \sum_{j=1}^s (x_{ij} - x_{**})^2$;
+	\item<4-> $\mathrm{SSA}(x) = \sum_{i=1}^r (x_{i*} - x_{**})^2$;
+	\item<4-> $\mathrm{SSE}(x) = \sum_{i=1}^r \sum_{j=1}^s (x_{ij} - x_{i*})^2$;
+	\item<5-> $\mathrm{SST}(y) = \sum_{i=1}^r \sum_{j=1}^s (y_{ij} - y_{**})^2$;
+	\item<5-> $\mathrm{SSA}(y) = \sum_{i=1}^r (y_{i*} - y_{**})^2$;
+	\item<5-> $\mathrm{SSE}(y) = \sum_{i=1}^r \sum_{j=1}^s (y_{ij} - y_{i*})^2$;
+	\item<6-> $\mathrm{SPT} = \sum_{i=1}^r \sum_{j=1}^s (x_{ij}-x_{**})(y_{ij}-y_{**})^2$;
+	\item<6-> $\mathrm{SPA} = \sum_{i=1}^r (x_{i*} - x_{**})(y_{i*} - y_{**})$;
+	\item<6-> $\mathrm{SPE} = \sum_{i=1}^r \sum_{j=1}^s (x_{ij}-x_{i*})(y_{ij} - y_{i*})$.	
+\end{itemize}
+\end{block}
+}
+\end{frame}
+
+
+\begin{frame}[t]
+\frametitle{One-way ANCOVA: Procedure}
+\begin{enumerate}[<+->]
+	\item Compute the above statistics and group them into a table:
+\begin{table}
+\footnotesize
+\begin{tabular}{l|c|c|c|c}
+\hline
+Variance & $\textrm{SS}(x)$ & $\textrm{SS}(y)$ & $\textrm{SP}$ & $\textrm{DF}$\\
+\hline
+inter-group & $\textrm{SSA}(x)$ & $\textrm{SSA}(y)$ & $\textrm{SPA}$ & $r-1$\\
+intra-group & $\textrm{SSE}(x)$ & $\textrm{SSE}(y)$ & $\textrm{SPE}$ & $r(s-1)$\\
+Total & $\textrm{SST}(x)$ & $\textrm{SST}(y)$ & $\textrm{SPT}$ & $rs-1$\\
+\hline
+\end{tabular}
+\end{table}
+	\item Compute the intra-group regresson coefficient $\beta = \frac{\textrm{SPE}}{\textrm{SSE}(x)}$;
+	\item If significant, adjust for the linear regression:
+	$$
+\bar{y}_{i*}(x = \bar{x}_{**}) = \bar{y}_{i*} - \beta(\bar{x}_{i*} - \bar{x}_{**})
+	$$
+	\item $Q_E = \textrm{SSE}(y) - \frac{(\textrm{SPE})^2}{\textrm{SSE}(x)}$;
+	\item $Q_T = \textrm{SST}(y) - \frac{(\textrm{SPT})^2}{\textrm{SST}(x)}$;
+	\item $Q_A = Q_T - Q_E$;
+	\item $MQ_A = \frac{Q_A}{r-1}$; $MQ_E = \frac{Q_E}{r(s-1)}$
+	\item $F=\frac{MQ_A}{MQ_E} \sim F_{r-1, r(s-1)-1}$
+\end{enumerate}
+\end{frame}
+
+
+\begin{frame}[t]
+\frametitle{One-way ANCOVA: Procedure}
+\uncover<1->{\begin{table}
+\footnotesize
+\begin{tabular}{l|c|c|c|c}
+\hline
+Variance & $\textrm{SS}(x)$ & $\textrm{SS}(y)$ & $\textrm{SP}$ & $\textrm{DF}$\\
+\hline
+inter-group & $\textrm{SSA}(x)$ & $\textrm{SSA}(y)$ & $\textrm{SPA}$ & $r-1$\\
+intra-group & $\textrm{SSE}(x)$ & $\textrm{SSE}(y)$ & $\textrm{SPE}$ & $r(s-1)$\\
+Total & $\textrm{SST}(x)$ & $\textrm{SST}(y)$ & $\textrm{SPT}$ & $rs-1$\\
+\hline
+\end{tabular}
+\end{table}}
+
+\uncover<2->{
+\alert{\begin{center} $\Downarrow$ \end{center}}
+}
+
+\uncover<3->{\begin{table}
+\footnotesize
+\caption{Adjusted ANCOVA Table}
+\begin{tabular}{l|c|c|c|c|c}
+\hline
+Variance & $\textrm{SS}$ & $\textrm{DF}$ & $\textrm{MSS}$ & $\textrm{F}$ & Significance\\
+\hline
+inter-group & $Q_A$ & $r-1$ & $MQ_A$ & $F$ & \\
+intra-group & $Q_E$ & $r(s-1)-1$ & $MQ_E$ & & \\
+Total & $Q_T$ & $rs-2$ & & & \\
+\hline
+\end{tabular}
+\end{table}}
+
+\uncover<4->{\begin{alertblock}{\center Conclusion}
+
+\end{alertblock}}
+\end{frame}
+
+
+\begin{frame}[t]
+\frametitle{Two-way ANCOVA: No Interaction}
+\begin{itemize}[<+->]
+	\item Two factors $A: A_1, \dots, A_r$ and $B: B_1, \dots, B_s$;
+	\item Continuous covariate $X$;
+	\item Continuous outcome $Y$;
+\end{itemize}
+\uncover<4->{\begin{table}
+\footnotesize
+\caption{Adjusted ANCOVA Table Without Interaction}
+\begin{tabular}{l|c|c|c|c|c}
+\hline
+Variance & $\textrm{SS}$ & $\textrm{DF}$ & $\textrm{MSS}$ & $\textrm{F}$ & Significance\\
+\hline
+inter-A & $Q_A$ & $r-1$ & $MQ_A$ & $F_A$ & \\
+inter-B & $Q_B$ & $s-1$ & $MQ_B$ & $F_B$ & \\
+intra-group & $Q_E$ & $(r-1)(s-1)-1$ & $MQ_E$ & & \\
+Total & $Q_T$ & $rs-2$ & & & \\
+\hline
+\end{tabular}
+\end{table}}
+\end{frame}
+
+\begin{frame}[t]
+\frametitle{Two-way ANCOVA: With Interaction}
+\begin{itemize}[<+->]
+	\item Two factors $A: A_1, \dots, A_r$ and $B: B_1, \dots, B_s$;
+	\item Continuous covariate $X$;
+	\item Continuous outcome $Y$;
+	\item Each cell with $m$ observations.
+\end{itemize}
+\uncover<5->{\begin{table}
+\footnotesize
+\caption{Adjusted ANCOVA Table With Interaction}
+\begin{tabular}{l|c|c|c|c|c}
+\hline
+Variance & $\textrm{SS}$ & $\textrm{DF}$ & $\textrm{MSS}$ & $\textrm{F}$ & Significance\\
+\hline
+inter-A & $Q_A$ & $r-1$ & $MQ_A$ & $F_A$ & \\
+inter-B & $Q_B$ & $s-1$ & $MQ_B$ & $F_B$ & \\
+inter-AB & $Q_{AB}$ & $(r-1)(s-1)$ & $MQ_{AB}$ & $F_{AB}$ & \\
+intra-group & $Q_E$ & $rs(m-1)-1$ & $MQ_E$ & & \\
+Total & $Q_T$ & $rsm-2$ & & & \\
+\hline
+\end{tabular}
+\end{table}}
+\end{frame}
+
+
+\begin{frame}[t,containsverbatim]
+\frametitle{Analysis of DBP Change from Baseline with ANCOVA}
+\begin{itemize}
+	\item We now analyze the change from baseline in DBP at the 
+		end of trial which is defined as ``diff''.
+	\item We start from the full model containing all 
+		``covariates''.
+	\item Perform backward stepwise model selection to simplify 
+		the model:  
+\end{itemize}
+<<eval=TRUE>>=
+# start with the full model
+m0 <- lm(diff ~ TRT*Age*Sex, dbp)
+# stepwise model selection
+m1 = step(m0)
+@
+\end{frame}
+
+
+\begin{frame}[t,containsverbatim]
+\frametitle{ANCOVA Analysis of the Changes from Baseline}
+<<eval=TRUE>>=
+# fit the reduced model
+m2 <- lm(diff ~ TRT + Age, dbp)
+# output the anova result
+anova(m2)
+@
+\end{frame}
+
+\subsection{Repeated Measure ANOVA}
+
+\begin{frame}[t]
+\frametitle{What is repeated-measure ANOVA?}
+\begin{itemize}
+	\item<1-> The equivalent of the one-way ANOVA for correlated/non-independent groups
+	\begin{itemize}
+		\item Extension of paired $t$-test;
+		\item Within-subjects ANOVA;
+		\item ANOVA for correlated samples;
+	\end{itemize}
+	\item<2-> Here we only consider the one-way repeated measure ANOVA:
+	\begin{itemize}
+		\item One independent categorical variable (nominal or ordinal)
+		\item One continuous dependent variable (interval or ratio)
+	\end{itemize}
+\end{itemize}
+\only<2>{\begin{figure}
+\includegraphics[width=0.50\textwidth]{images/repanova-time.png}
+\end{figure}}
+\only<3>{\begin{figure}
+\includegraphics[width=0.50\textwidth]{images/repanova-treatment.png}
+\end{figure}}
+\uncover<4->{\begin{alertblock}{\center When to use repeated-measure ANOVA?}
+\begin{itemize}
+	\item Changes in mean scores over three or more time points;
+	\item Differences in mean scores under three or more different conditions.
+\end{itemize}
+\end{alertblock}}
+\end{frame}
+
+
+\begin{frame}[t]
+\frametitle{Logics of Repeated Measures ANOVA}
+\begin{itemize}
+	\item<1-> ANOVA partitions total variability ($\textrm{SS}_T$) into between-groups 
+		variability ($\textrm{SS}_b$) and within-groups variability ($\textrm{SS}_w$)
+	\item<2-> Within-group variability ($\textrm{SS}_w$) is defined as the error variability 
+		($\textrm{SS}_{error}$).
+	\item<3-> Mean sum of squares for between-groups ($\textrm{MS}_w$) and within-groups 
+		($\textrm{MS}_w$)
+	\item<4-> \alert{Independent ANOVA: $F = \frac{\textrm{MS}_b}{\textrm{MS}_w} = \frac{\textrm{MS}_b}{\textrm{MS}_{error}}$}
+	\item<5-> \alert{Repeated measures ANOVA: $F = \frac{\textrm{MS}_b}{\textrm{MS}_w} = \frac{\textrm{MS}_{condition}}{\textrm{MS}_{error}}$}
+	\item<6-> $\textrm{SS}_{error} = \textrm{SS}_w - \text{SS}_{subject} = \textrm{SS}_T - \textrm{SS}_{condition} - \textrm{SS}_{subject}$
+	\item<7-> $\textrm{MS}_{error} = \textrm{SS}_{error}/(k-1)(n-1)$, where $k$ is the numer of groups (time points or treatments), and $n$ is 
+		the number of subjects.
+	\item<8> $\textrm{SS}_{subject} = k \times \sum_{i=1}^n (\bar{x}_i - \bar{x})^2$, where $\bar{x}_i$ is the mean for subject $i$.
+\end{itemize}
+\only<4>{
+\begin{figure}
+\includegraphics[width=0.6\textwidth]{images/anova-partition-ss-ind.png}
+\end{figure}}
+\only<5>{
+\begin{figure}
+\includegraphics[width=0.6\textwidth]{images/repanova-partition-ss.png}
+\end{figure}}
+\end{frame}
+
+
+\begin{frame}[t,containsverbatim]
+\frametitle{Repeated-measures ANOVA for DBP Trial}
+<<eval=TRUE>>=
+Dbp2 <- reshape(dbp,direction="long",
+  varying=paste("DBP", 2:5, sep=""),
+  idvar = c("Subject", "TRT", "Age", "Sex", "DBP1"), sep="")
+rownames(Dbp2) <- NULL
+head(Dbp2)
+@
+\end{frame}
+
+
+\begin{frame}[t,containsverbatim]
+\frametitle{Repeated-measures ANOVA for DBP Trial}
+<<eval=TRUE>>=
+m2 <- aov(DBP ~ DBP1 + TRT + Error(Subject/time), data=Dbp2)
+summary(m2)
+@
+\end{frame}
+
+
+\begin{frame}[t,containsverbatim]
+\frametitle{\texttt{aov()} function}
+\begin{lstlisting}[language=R]
+aov(formula, data=data.frame)
+\end{lstlisting}
+
+\begin{table}
+\caption{Special Symbols}
+\small
+\begin{tabular}{p{0.2\textwidth}p{0.70\textwidth}}
+Symbol	&	Usage\\
+\hline
+\verb|~| & The delimiter between response variable and explanatory variables. \\
+\verb|+| & The delimiter between explanatory variables.\\
+\verb|:| & The interaction between explanatory variables.\\
+\verb|*| & All possible interaction terms.\\
+\verb|^| & The highest order of interaction.\\
+\verb|.| & All the independent variables.\\
+\hline
+\end{tabular}
+\end{table}
+\end{frame}
+
+
+\begin{frame}[t,containsverbatim]
+\frametitle{ANOVA Design Settings}
+\begin{table}
+\caption{ANOVA Design}
+\begin{tabular}{p{0.3\textwidth}p{0.60\textwidth}}
+\hline
+Expression	&	Meaning\\
+\hline
+\verb#y ~ A# & One-way ANOVA. \\
+\verb#y~x+A# & One-way ANCOVA with one covariate $x$.\\
+\verb#y~A*B# & Two-way ANOVA for factorial design.\\
+\verb#y~x1+x2+A*B# & Two-way ANOVA with two covariates in a factorial design.\\
+\verb#y~B+A# & Randomized block design ($B$ is the block factor).\\
+\verb#y ~ A + Error(Subject)# & Cross-over design.\\
+\hline
+\end{tabular}
+\end{table}
+\end{frame}
+
+
+\begin{frame}[t,containsverbatim]
+\frametitle{Pearson's Chi-square test}
+\framesubtitle{Comparing categorical outcomes across different treatment groups}
+\begin{itemize}
+	\item Setting: $m$ treatments, $n$ categories of outcomes
+ 	\item Compute the test statistic:
+	$$
+\chi^2 = \sum_{i} \frac{(O_i - E_i)^2}{E_i} \sim \chi^2(df=(m-1)(n-1))
+	$$
+	\item Use Yates' correction for lack of continuity When 
+		the expected frequencies are too low:
+	$$
+\chi_{yates}^2 = \sum_{i} \frac{(|O_i - E_i|-0.5)^2}{E_i} \sim \chi^2 (df=(m-1)(n-1))
+	$$
+	\item Reject $H_0$ if $\chi^2 > \chi^2(\alpha, df=(m-1)(n-1))$
+\end{itemize}
+\begin{lstlisting}
+prop.test(.., correct=FALSE)
+\end{lstlisting}
+\end{frame}
+
+
+\section{Nonparametric tests}
+
+\begin{frame}[t]
+\frametitle{Nonparametric tests}
+\begin{itemize}
+	\item 2-groups: Mann-Whitney rank-sum test for continuous outcome in completely randomized 
+		parallel design.
+	\item 2-groups: Wilcoxon signed rank test for continuous outcome in crossover design.
+	\item 3+-groups: Kruskal-Wallis rank-sum test for continuous outcome in completely 
+		randomized parallel design. 
+	\item 3+-groups: Friedman's rank sum test for continuous outcome in randomized 
+		block design.
+	\item 2-groups: McNemar's test for binary outcome in crossover design.
+	\item 3+-groups: Cochrane's Q-test for binary outcome in crossover design.
+\end{itemize}
+\end{frame}
+
+
+\begin{frame}[t,containsverbatim]
+\frametitle{Wilcoxon-Mann-Whitney test}
+\framesubtitle{Comaring two treatment group with non-normal data}
+\begin{itemize}
+	\item The $t$-test is usually quite robust against departures 
+		from normality.
+	\item However, when the departure is extreme, use 
+		Mann-Whitney-Wilcoxon U-test (a.k.a Wilcoxon 
+		rank-sum test)
+	\item Proposed by Wilcoxon (1945) for equal sample sizes
+	\item Extended to arbitrary sample sizes by Mann and Whitney 
+		(1947)
+	\item Virtually identical to performing ordinary parametric 
+		two-sample t-test on the combined ranks.
+\end{itemize}
+\begin{lstlisting}
+wilcox.test(...)
+\end{lstlisting}
+\end{frame}
+
+
+\begin{frame}[t,containsverbatim]
+\frametitle{Wilcoxon rank-sum test}
+\framesubtitle{Nonparametric version of t-test}
+When the assumption of normality and equal variances are violated, we 
+may use the nonparametric test - Wilcoxon rank-sum test.
+
+<<eval=TRUE>>=
+wilcox.test(diff ~ TRT, data=dbp)
+@
+\end{frame}
+
+\begin{frame}[t,containsverbatim]
+\frametitle{Kruskal-Wallis Test}
+\framesubtitle{3+-groups of continuous outcome in randomized parallel design}
+\begin{itemize}
+	\item Kruskal-Wallis H test; One-way ANOVA on ranks
+	\item Extension of Mann-Whitney U test
+\end{itemize}
+
+\begin{alertblock}{\center Method}
+\begin{enumerate}
+	\item Rank all data from all groups together
+	\item Compute the statistic:
+	$$
+H = (N-1)\frac{\sum_{i=1}^g n_i (\bar{r}_{i*} - \bar{r})^2}{\sum_{i=1}^g \sum_{j=1}^{n_i} (r_{ij} - \bar{r})^2} \sim \chi^2(df=g-1)
+	$$
+	where
+	\begin{itemize}
+		\item $n_i$: number of observations in group $i$;
+		\item $r_{ij}$: rank (among all) of observation $j$ from group $i$;
+		\item $N$: total number of observations across all groups;
+		\item $\bar{r}_{i*} = \frac{\sum_{j=1}^{n_i} r_{ij}}{n_i}$ is the average rank of all observations in group $i$;
+		\item $\bar{r} = \frac{N+1}{2}$ is the average of all $r_{ij}$ 
+	\end{itemize}
+\end{enumerate}
+\end{alertblock}
+\begin{lstlisting}
+kw.test(...)
+\end{lstlisting}
+\end{frame}
+
+\begin{frame}[t,containsverbatim]
+\frametitle{Friedman's Q test}
+\framesubtitle{3+-groups of continuous outcome in randomized block design}
+\begin{itemize}
+	\item randomized block design (随机区组设计)
+	\item not necessarily symmetric (不需要满足对称假设)
+	\item Two-way ANOVA by ranks?
+\end{itemize}
+\begin{block}{\center \small Method}
+\begin{itemize}
+\small
+	\item Given data $\{x_{ij}\}_{n \times k}$ with $n$ rows (blocks) and $k$ columns (treatments);
+	\item Replace the data with new matrix $\{r_{ij}\}$, where $r_{ij}$ is the rank of $x_{ij}$ within 
+		block $i$ ($r_{ij}=1,\dots,k$).
+	\item Calculate the values:
+	\begin{itemize}
+		\item $\bar{r}_{*j} = \frac{1}{n} \sum_{i=1}^n r_{ij}$
+		\item $\bar{r} = \frac{1}{nk}\sum_{i=1}^n \sum_{j=1}^k r_{ij}$
+		\item $\textrm{SS}_t = n \sum_{j=1}^k (\bar{r}_{*j} - \bar{r})^2$
+		\item $\textrm{SS}_e = \frac{1}{n(k-1)} \sum_{i=1}^n \sum_{j=1}^k (r_{ij} - \bar{r})^2$
+	\end{itemize}
+	\item Calculate the test statistic $Q = \frac{\textrm{SS}_t}{\textrm{SS}_e}$. $Q$ does not need 
+		to be adjusted for tied values in the data.
+	\item If $n>15$ or $k>4$, $Q \sim \chi^2_{df=k-1}$
+\end{itemize}
+\end{block}
+\begin{lstlisting}
+friedman.test(...)
+\end{lstlisting}
+\end{frame}
+
+
+\begin{frame}[t]
+\frametitle{Cochrane's Q test}
+\framesubtitle{2+ correlated groups of dichotomous outcomes}
+\begin{itemize}
+	\item Similar to Friedman's test, but with binary outcomes.
+	\item Randomized block design.
+	\item $H_0: $ The treatments are all equally effective.
+\end{itemize}
+\begin{block}{\center \small Method}
+The test statistic
+$$
+T = k(k-1) \frac{\sum_{j=1}^k (X_{*j} - \frac{N}{k})^2}{\sum_{i=1}^b X_{i*}(k - X_{i*})} \sim \chi^2_{df=k-1}
+$$
+where
+\begin{itemize}
+	\item $k$: number of treatments;
+	\item $X_{*j}$: total for $j^{th}$ treatment;
+	\item $b$: number of blocks;
+	\item $X_{i*}$: row total for the $i^{th}$ block;
+	\item $N$: grand total
+\end{itemize}
+\end{block}
+\end{frame}
+
+
+\section{Permutation or Resampling Approaches}
+
+\begin{frame}[t,containsverbatim]
+\frametitle{Permutation method}
+\begin{enumerate}
+	\item Iteratively permute the randomization (treatment assignment)
+	\item Compute the statistic of interest for each permuted sample
+	\item Generate the empirical distribution of the statistics
+	\item Compare the original statistic with the permuted ones to determine 
+		the empirical $p$-value
+	\item Reject or not reject the null hypothesis
+\end{enumerate}
+\begin{alertblock}{\center \small Exercise}
+Use \texttt{sample()} function to realize the permutation approach.
+\end{alertblock}
+\end{frame}
+
+
+\begin{frame}[t,containsverbatim]
+\frametitle{Bootstrapping method}
+Boostrapping is a resampling procedure extensively used in statistics 
+when any of the assumptions underlying the validity of the $t$-test 
+don't hold for the data under analysis.
+\begin{enumerate}
+	\item Iteratively drawing samples with replacement from 
+		the data.
+	\item Calculating the statistic of interest for each sample
+	\item Generating the empirical resampling distribution of 
+		the statistic
+	\item Percentile points corresponding to the Type-I error level 
+		and the sided-ness of the alternative hypothesis of the 
+		resampling distribution are then used in the assessment 
+		of statistical significance.
+\end{enumerate}
+\begin{lstlisting}
+bootstrap::bootstrap()
+\end{lstlisting}
+\end{frame}
+
+\begin{frame}[t,containsverbatim]
+\frametitle{Bootstrapping approach}
+<<eval=TRUE>>=
+library(bootstrap)
+mean.diff <- function(bn, dbp)
+	-diff(tapply(dbp$diff[bn], dbp$TRT[bn], mean))
+# number of bootstrap
+nboot <- 1000
+boot.mean <- bootstrap(1:dim(dbp)[1], nboot, mean.diff, dbp)
+# extract the mean difference
+x <- boot.mean$thetastar
+quantile(x, c(0.025, 0.975))
+@
+\begin{alertblock}{\center \small Conclusion}
+What conclusion can you make from the above result?
+\end{alertblock}
+\end{frame}
+
+\end{CJK*}
+\end{document}
