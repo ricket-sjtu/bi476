@@ -103,6 +103,7 @@ at which it was measured.
 \begin{frame}[t,containsverbatim]
 \frametitle{Importing the dataset}
 <<eval=TRUE>>=
+options(contrast=c("contr.sum", "contr.poly"))
 dbp <- read.table("data/dbp.txt", header=T)
 dbp$diff <- dbp$DBP5 - dbp$DBP1
 head(dbp)
@@ -240,7 +241,7 @@ t.test(diff.A, diff.B, alternative="less")
 
 \begin{frame}[t]
 \frametitle{One-way ANOVA}
-The single factor $A$ has $k$ levels: $A_1, A_2, \dots, A_r$, and $k$ patients are allocated to 
+The single factor $A$ has $k$ levels: $A_1, A_2, \dots, A_k$, and $n$ patients are allocated to 
 each treatment group. We can obtain the samples:
 $$
 y_{i1}, \dots, y_{in}, i=1, \dots, k
@@ -251,8 +252,8 @@ $$
 	\item<3-> Grand mean: $\bar{y}_{*} = \frac{1}{kn}\sum_{i=1}^k \sum_{j=1}^n y_{ij}$
 	\item<3-> Marginal mean: $\bar{y}_i = \frac{1}{n}\sum_{j=1}^n y_{ij}$;
 	\item<4-> Total sum of squares (SST): $\mathrm{SS}_T = \sum_{i=1}^k \sum_{j=1}^n (y_{ij} - \bar{y}_*)^2$;
-	\item<4-> Between-group sum of squares (SSB): $\mathrm{SS}_B = \sum_{i=1}^k (\bar{y}_i - \bar{y}_*)^2$;
-	\item<4-> Resitual sum of squares (SSE): $\mathrm{SS}_E = \sum_{i=1}^k \sum_{j=1}^n (y_{ij} - \bar{y}_i)^2$;	
+	\item<4-> Between-group sum of squares (SSB): $\mathrm{SS}_B = n\sum_{i=1}^k (\bar{y}_i - \bar{y}_*)^2$;
+	\item<4-> Within-group sum of squares (SSE): $\mathrm{SS}_E = \sum_{i=1}^k \sum_{j=1}^n (y_{ij} - \bar{y}_i)^2$;	
 \end{itemize}
 \end{block}
 }
@@ -295,7 +296,7 @@ head(Dbp, 3)
 \end{frame}
 
 \begin{frame}[t,containsverbatim]
-\frametitle{One-way ANOVA for Two Treatments}
+\frametitle{One-way ANOVA for Two Different Treatments}
 <<eval=TRUE>>=
 # test for treatment A
 dbpA <- Dbp[Dbp$TRT=='A',]
@@ -389,8 +390,6 @@ TukeyHSD(aov(DBP ~ TRT*Time, Dbp))
 
 \begin{frame}[t]
 \frametitle{One-way ANCOVA}
-The single factor $A$ has $r$ levels: $A_1, A_2, \dots, A_r$, and $s$ patients are allocated to 
-each treatment group. We can obtain the samples:
 $$
 (x_{i1}, y_{i1}), \dots, (x_{is}, y_{is}), i=1, \dots, r
 $$
@@ -400,13 +399,13 @@ $$
 	\item<3-> $\bar{x}_{i*} = \frac{1}{s}\sum_{j=1}^s x_{ij}; \bar{x}_{**} = \frac{1}{rs}\sum_{i=1}^r \sum_{j=1}^s x_{ij}$
 	\item<3-> $\bar{y}_{i*} = \frac{1}{s}\sum_{j=1}^s y_{ij}; \bar{y}_{**} = \frac{1}{rs}\sum_{i=1}^r \sum_{j=1}^s y_{ij}$
 	\item<4-> $\mathrm{SST}(x) = \sum_{i=1}^r \sum_{j=1}^s (x_{ij} - x_{**})^2$;
-	\item<4-> $\mathrm{SSA}(x) = \sum_{i=1}^r (x_{i*} - x_{**})^2$;
+	\item<4-> $\mathrm{SSA}(x) = s\sum_{i=1}^r (x_{i*} - x_{**})^2$;
 	\item<4-> $\mathrm{SSE}(x) = \sum_{i=1}^r \sum_{j=1}^s (x_{ij} - x_{i*})^2$;
 	\item<5-> $\mathrm{SST}(y) = \sum_{i=1}^r \sum_{j=1}^s (y_{ij} - y_{**})^2$;
-	\item<5-> $\mathrm{SSA}(y) = \sum_{i=1}^r (y_{i*} - y_{**})^2$;
+	\item<5-> $\mathrm{SSA}(y) = s\sum_{i=1}^r (y_{i*} - y_{**})^2$;
 	\item<5-> $\mathrm{SSE}(y) = \sum_{i=1}^r \sum_{j=1}^s (y_{ij} - y_{i*})^2$;
-	\item<6-> $\mathrm{SPT} = \sum_{i=1}^r \sum_{j=1}^s (x_{ij}-x_{**})(y_{ij}-y_{**})^2$;
-	\item<6-> $\mathrm{SPA} = \sum_{i=1}^r (x_{i*} - x_{**})(y_{i*} - y_{**})$;
+	\item<6-> $\mathrm{SPT} = \sum_{i=1}^r \sum_{j=1}^s (x_{ij}-x_{**})(y_{ij}-y_{**})$;
+	\item<6-> $\mathrm{SPA} = s\sum_{i=1}^r (x_{i*} - x_{**})(y_{i*} - y_{**})$;
 	\item<6-> $\mathrm{SPE} = \sum_{i=1}^r \sum_{j=1}^s (x_{ij}-x_{i*})(y_{ij} - y_{i*})$.	
 \end{itemize}
 \end{block}
@@ -635,9 +634,54 @@ head(Dbp2)
 \begin{frame}[t,containsverbatim]
 \frametitle{Repeated-measures ANOVA for DBP Trial}
 <<eval=TRUE>>=
-m2 <- aov(DBP ~ DBP1 + TRT + Error(Subject/time), data=Dbp2)
+m2 <- aov(DBP ~ DBP1 + TRT*time + Error(Subject/time), data=Dbp2)
 summary(m2)
 @
+\end{frame}
+
+\begin{frame}[t,containsverbatim]
+\frametitle{Repearted-meausures ANOVA: Pros}
+\begin{itemize}
+	\item Lower cost
+	\begin{itemize}
+		\item Fewer samples needed
+	\end{itemize}
+	\item Increased power
+	\begin{itemize}
+		\item Eliminating the cross-subject variation off the systematic error. 
+	\end{itemize}
+\end{itemize}
+\end{frame}
+
+
+\begin{frame}[t,containsverbatim]
+\frametitle{Repeated-measures ANOVA: Cons}
+\begin{itemize}
+	\item 
+\end{itemize}
+\end{frame}
+
+
+
+\begin{frame}[t,containsverbatim]
+\frametitle{Sphericity Assumption of Repeated-measures ANOVA}
+\begin{itemize}
+	\item The variances of the differences between all possible 
+		pairs of groups (i.e., levels of the independent 
+		variable) are equal.
+	\item Similar to homogeneity of variance assumption.
+	\item Concerned with different scores.
+\end{itemize}
+\begin{alertblock}{Testing for sphericity}
+Mauchly's test, similar to Levene's test.
+\begin{lstlisting}
+mauchly.test(anova.result)
+\end{lstlisting}
+The common solution of deviation is to adjust for degrees of freedom.
+\begin{itemize}
+	\item Greenhouse-Geisser correction.
+\end{itemize}
+\end{alertblock}
 \end{frame}
 
 
@@ -678,7 +722,7 @@ Expression	&	Meaning\\
 \verb#y~A*B# & Two-way ANOVA for factorial design.\\
 \verb#y~x1+x2+A*B# & Two-way ANOVA with two covariates in a factorial design.\\
 \verb#y~B+A# & Randomized block design ($B$ is the block factor).\\
-\verb#y ~ A + Error(Subject)# & Cross-over design.\\
+\verb#y ~ A + Error(Subject)# & Repeated measures ANOVA design.\\
 \hline
 \end{tabular}
 \end{table}
@@ -727,7 +771,7 @@ prop.test(.., correct=FALSE)
 
 \begin{frame}[t,containsverbatim]
 \frametitle{Wilcoxon-Mann-Whitney test}
-\framesubtitle{Comaring two treatment group with non-normal data}
+\framesubtitle{Comparing two treatment groups with non-normal data}
 \begin{itemize}
 	\item The $t$-test is usually quite robust against departures 
 		from normality.
