@@ -657,7 +657,9 @@ summary(m2)
 \begin{frame}[t,containsverbatim]
 \frametitle{Repeated-measures ANOVA: Cons}
 \begin{itemize}
-	\item 
+	\item Order effects
+	\item Missing data issues
+	\item Sphericity assumption
 \end{itemize}
 \end{frame}
 
