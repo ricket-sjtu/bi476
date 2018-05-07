@@ -1,0 +1,120 @@
+\documentclass[a4paper,11pt]{article}
+
+\usepackage{CJK}
+\usepackage{graphicx}
+\usepackage{amsmath,amssymb,amsopn}
+\usepackage[english]{babel}
+\usepackage[latin1]{inputenc}
+\usepackage{url}
+\usepackage{enumerate}
+\usepackage{multirow}
+\usepackage{color}
+\usepackage{times}
+\usepackage{xcolor}
+\usepackage{geometry}
+\usepackage{listings}
+\lstset{
+language=R,
+keywordstyle=\color{blue!70}\bfseries,
+basicstyle=\ttfamily,
+commentstyle=\ttfamily,
+showspaces=false,
+showtabs=false,
+frame=shadowbox,
+rulesepcolor=\color{red!20!green!20!blue!20},
+breaklines=true
+}
+
+\geometry{paperwidth=18.4cm,paperheight=26cm}
+\setlength{\parindent}{0em}
+\setlength{\parskip}{1.2\baselineskip}
+
+\title{\small{BI476: Biostatistics - Case Studies}\\
+	\Large{Exercise 04 - Family of Analysis of Variance}
+}
+\author{Spring, 2018}
+\date{}
+
+\begin{document}
+\begin{CJK*}{UTF8}{gbsn}
+\maketitle
+
+
+\section{Choices}
+Which of the following statements is true?
+\begin{enumerate}[A]
+	\item The independent t-test is analogous to repeated measures ANOVA and 
+		the paired-sample t-test is analogous to between-groups ANOVA.
+	\item The independent t-test is analogous to between-groups ANOVA and the 
+		paired-sample t-test is analogous to repeated measures ANOVA.
+	\item ANOVA is analogous to t-tests, only a t-test is used when two group 
+		means are compared and ANOVA is used when more than two group 
+		means are compared.
+	\item ANOVA and t-tests are totally different. There is no analogy
+\end{enumerate}
+
+\section{Answer the following questions}
+\begin{enumerate}[(1)]
+	\item What is the difference between a \textbf{between-groups} design (
+		i.e. traditional ANOVA) and a \textbf{within-subject} design (i.e. 
+		repeated measures ANOVA)?
+	\item Suppose that you want to test the effect of alcohol on test score of 
+		students. There are three conditions: no alcohol, two glasses of 
+		beer, or five glasses of beer. Alcohol tolerance and time spent 
+		studying should also be considered somehow. Which group design should 
+		you use, between-groups design or within-groups design?
+	\item Why is a repeated measures design statistically more powerful?
+	\item What is the denominator degree of a $3\times 4$ ANOVA with interaction and 
+		total sample size of 625? 
+	\item To compute the sample size for one-way three-group ANOVA with equal variance, 
+		what kinds of information do you need to pre-specify? Can you infer the 
+		formula, using the similar fashion as we discuss in lecture 5.
+	\item Now if the data are repeated measures, how do we change the formula to fit 
+		the requirement? 
+	\item How do we analyze the data from a factorial design with continous outcome?
+		Write down the ANOVA table.
+	\item If one of the two factors in a factorial design is ordinal, then how to 
+		analyze the data?
+\end{enumerate}
+
+\section{Case study}
+Use R to import the example data of the clinical trial in the lecture, and answer the 
+following questions:  
+\begin{enumerate}[(1)]
+	\item How many different treatments did each subject receive?
+	\item How many times was the diastolic blodd pressure for each subject measured?
+	\item Is it appropriate to use the one-way independent ANOVA to analyze the mean 
+		blood pressures across different time points? Why? How to correct it? 
+		Write down the procedure and the final result. 
+	\item How to assess the treatment effect of the drug $A, B$ on the blood pressure?
+\end{enumerate}
+
+
+
+\section{Case study}
+A physician wanted to determine the impact of smoking on the resting 
+heart rate. He randomly chose 7 individuals from each of the three 
+categories: non-smokers, light-smokers (<10 cigarettes/day) and heavy 
+smokers (>10 cigarettes/day) and obtained the following resting heart 
+rate data (in beats/min):
+\begin{table}
+\begin{tabular}{lccccccc}
+Nonsmoker & 56 & 53 & 53 & 65 & 70 & 58 & 51\\
+Lightsmoker & 78 & 62 & 70 & 73 & 67 & 75 & 65\\
+Heavysmoker & 77 & 86 & 65 & 83 & 79 & 80 & 77
+\end{tabular}
+\end{table}
+
+\begin{enumerate}[(1)]
+	\item Make a side-by-side boxplot showing the distribution of resting 
+		heart beat for the three different groups.
+	\item State the null and alternative hypotheses to test whether the mean 
+		heart beat rate differs between three groups.
+	\item Perform one-way ANOVA on the data. What can you conclude?
+	\item If ANOVA reached a significant result, perform a post-hoc test to 
+		determine which groups differ in terms of the average resting 
+		heart rate. 
+\end{enumerate}
+
+\end{CJK*}
+\end{document}
