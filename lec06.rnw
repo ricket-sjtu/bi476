@@ -1,0 +1,975 @@
+\documentclass[table,10pt]{beamer}
+
+\mode<presentation>{
+%\usetheme{Goettingen}
+	\usetheme{Boadilla}
+	\usefonttheme[onlymath]{serif}
+	\usecolortheme{whale}
+}
+\usepackage{CJK}
+\usepackage{graphicx}
+\usepackage{amsmath, amsopn}
+\usepackage{xcolor}
+\usepackage[english]{babel}
+\usepackage[T1]{fontenc}
+\usepackage[latin1]{inputenc}
+\usepackage{enumerate}
+\usepackage{multirow}
+\usepackage{url}
+\ifx\hypersetup\undefined
+	\AtbBeginDocument{%
+		\hypersetup{unicode=true,pdfusetitle,
+bookmarks=true,bookmarksnumbered=false,bookmarksopen=false,
+breaklinks=false,pdfborder={0 0 0},pdfborderstyle={},backref=false,colorlinks=false}
+	}
+\else
+	\hypersetup{unicode=true,pdfusetitle,
+bookmarks=true,bookmarksnumbered=false,bookmarksopen=false,
+breaklinks=false,pdfborder={0 0 0},pdfborderstyle={},backref=false,colorlinks=false}
+\fi
+\usepackage{breakurl}
+\usepackage{color}
+\usepackage{times}
+\usepackage{xcolor}
+\usepackage{listings}
+\lstset{
+language=R,
+keywordstyle=\color{blue!70}\bfseries,
+basicstyle=\ttfamily,
+commentstyle=\ttfamily,
+showspaces=false,
+showtabs=false,
+frame=shadowbox,
+rulesepcolor=\color{red!20!green!20!blue!20},
+breaklines=true}
+\usepackage{algorithm,algorithmic}
+\usepackage{float}
+
+\DeclareMathOperator*{\argmax}{arg\,max}
+
+%\newtheorem{theorem}{Theorem}
+%\newtheorem{example}{Example}
+%\newtheorem{definition}{Definition}
+%\newtheorem{property}{Property}
+
+\setlength{\parskip}{.5em}
+
+\title[BI476]{BI476: Biostatistics - Case Studies}
+\subtitle[anova]{Lec06: Linear Models and Generalizations}
+\author[Maoying Wu]{Maoying,Wu\\{\small ricket.woo@gmail.com}}
+\institute[CBB] % (optional, but mostly needed)
+{
+  \inst{}
+  Dept. of Bioinformatics \& Biostatistics\\
+  Shanghai Jiao Tong University
+}
+\date{Spring, 2018}
+
+\AtBeginSection[]
+{
+  \begin{frame}<beamer>{Next Section ...}
+    \tableofcontents[currentsection]
+  \end{frame}
+}
+
+\begin{document}
+\begin{CJK*}{UTF8}{gbsn}
+
+<<setup, include=FALSE>>=
+library(knitr)
+opts_chunk$set(fig.path='figure/beamer-', fig.align='center',
+fig.show='hold',size='footnotesize', out.width='0.60\\textwidth')
+@
+
+\begin{frame}
+  \titlepage
+\end{frame}
+
+\begin{frame}
+\frametitle{Outline}
+	\tableofcontents
+\end{frame}
+
+\section{General Likelihood Theory}
+
+\begin{frame}[t,containsverbatim]
+\frametitle{General Likelihood Theory}
+Consider a random variable $Y \sim f(Y;\theta)$ and $n$ i.i.d. observations $y=\{y_1, \dots, y_n\}$
+\begin{itemize}
+	\item The \textbf{likelihood function} 
+	$$
+L(y;\theta) = \prod_{i=1}^n f(y_i;\theta)
+	$$
+	\item The \textbf{log-likelihood function}
+	$$
+\ell(y;\theta) = \sum_{i=1}^n \log f(y_i;\theta)
+	$$
+	\item \textbf{Maximum likelihood estimator}
+	$$
+\widehat{\theta} = \argmax_{\theta} L(y;\theta) = \argmax_{\theta} \ell(y;\theta)
+	$$
+\end{itemize}
+\end{frame}
+
+
+\begin{frame}[t,containsverbatim]
+\frametitle{General Likelihood Theory}
+\begin{itemize}
+	\item \textbf{Fisher's score function}:
+	$$
+u(\theta) = \partial \ell(y;\theta)/\partial \theta
+	$$
+	\item $\hat{\theta}_{\text{MLE}}$ can be obtained by solving
+	$$
+u(\theta)=0
+	$$
+	\item \textbf{Fisher's information matrix}
+	$$
+I(\theta) = Var[u(\theta)] = E[u(\theta)u^T(\theta)] = -E\left[ \frac{\partial^2 \ell(y;\theta)}{\partial \theta \partial \theta^T}\right]
+	$$
+	\item \textbf{Asymptotic normal distribution}:
+	$$
+\sqrt{n} (\hat{\theta} - \theta) \sim N(0_p, I^{-1}(\theta))
+	$$
+\end{itemize}
+\end{frame}
+
+\begin{frame}[containsverbatim]
+\frametitle{Newton-Raphson Method for MLE}
+Generally MLE has no closed-form solution, numerical methods needed.
+\begin{itemize}
+	\item First-order Taylor's extension for $u(\theta)$:
+	$$
+u(\theta) \approx u(\theta^{(0)}) - I(\theta^{(0)})(\theta - \theta^{(0)})
+	$$
+\end{itemize}
+\begin{algorithm}[H]
+\caption{Newton's method for MLE}
+\begin{algorithmic}
+\STATE Initialize with $\theta^{(0)}$
+\WHILE {$\lVert \theta^{(k)} - \theta^{(k-1)} \rVert > \epsilon$}
+\STATE Solve for $\theta^{(k)}$
+$$
+I(\theta^{(k-1)})(\theta^{(k)} - \theta^{(k-1)}) = u(\theta^{(k-1)})
+$$
+\ENDWHILE
+\end{algorithmic}
+\end{algorithm}
+\end{frame}
+
+
+\begin{frame}[t,containsverbatim]
+\frametitle{Likelihood Theory: Hypothesis Testing}
+\framesubtitle{Wald Test}
+$$
+\sqrt{n}(\hat{\theta} - \theta) \sim N\left(0, I^{-1}(\theta)\right), \theta \in \mathbb{R}^p
+$$
+\begin{itemize}
+	\item $H_0: \theta = \theta_0$
+	\item \textbf{Test statistic}:
+	$$
+W = (\hat{\theta}-\theta_0)^T I^{-1}(\hat{\theta})(\hat{\theta} - \theta_0)
+	$$
+	\item Asymptotically $\chi^2$ distributed:
+	$$
+W \sim \chi_p^2
+	$$
+\end{itemize}
+\end{frame}
+
+
+\begin{frame}[t,containsverbatim]
+\frametitle{Likelihood Theory: Hypothesis Testing}
+\framesubtitle{Score Test}
+$$
+u(\theta) \sim N\left(0_p,I(\theta)\right), \theta \in \mathbb{R}^p
+$$
+\begin{itemize}
+	\item $H_0: \theta = \theta_0$
+	\item \textbf{Test statistic}:
+	$$
+Q = u^T(\theta_0) I^{-1}(\theta_0) u(\theta_0)
+	$$
+	\item Asymptotically $\chi^2$ distributed:
+	$$
+Q \sim \chi_p^2
+	$$
+\end{itemize}
+\end{frame}
+
+
+\begin{frame}[t,containsverbatim]
+\frametitle{Likelihood Theory: Hypothesis Testing}
+\framesubtitle{Likelihood Ratio Test (LRT) for Comparing Nested Models}
+Two models with $p_1$ and $p_2$ ($p1 > p2$) parameters:
+$$
+\begin{array}{lcl}
+\hat{\theta}_1 &=& \argmax_{\theta_1 \in \mathbb{R}^{p_1}} l(y;\theta_1)\\
+\hat{\theta}_2 &=& \argmax_{\theta_2 \in \mathbb{R}^{p_2}} l(y;\theta_2) 
+\end{array}
+$$
+\begin{itemize}
+	\item Two models have no significant difference.
+	\item \textbf{Test statistic}:
+	$$
+D = 2\left(l(y;\hat{\theta}_1) - l(y;\hat{\theta}_2)\right)
+	$$
+	\item Asymptotically $\chi^2$ distributed:
+	$$
+D \sim \chi_p^2, p = p_1 - p_2
+	$$
+\end{itemize}
+\end{frame}
+
+\section{Generalized Linear Models (GLMs)}
+
+\begin{frame}[t,containsverbatim]
+\frametitle{Generalized Linear Models (GLMs)}
+\begin{itemize}
+	\item Extension to linear models.
+	\item The response $Y$ follows a conditional exponential-\textbf{family} distribution.
+	\item No assumption on the predictors, $X$
+	\item $Y$ and $X$ are connected through a linear prediction model:
+	$$
+\eta = X\beta
+	$$
+	\begin{itemize}
+		\item $\eta = g(\mu)$, where $g(\cdot)$ is a \textbf{link function} of the 
+			conditional expected value of $Y$ given $X$.
+		\item $\mu = E(Y|X)$ is the expected value of $Y$ given $X$.
+	\end{itemize}
+\end{itemize}
+\begin{lstlisting}
+glm(formula = Y ~ X, family=gaussian(link="identity"))
+\end{lstlisting}
+\end{frame}
+
+
+\begin{frame}[t,containsverbatim]
+\frametitle{Three Components of GLMs}
+\framesubtitle{Exponential Family Distributions}
+An exponential family is a family of distributions with pdf of the form:
+$$
+f(Y;\theta,\phi) = \exp\left( \frac{Y\theta - b(\theta)}{a(\phi)} + c(\phi, Y)\right)g(Y)
+$$
+where
+\begin{itemize}
+	\item $g(Y)$ does not depend on $\theta$ or $\phi$;
+	\item $\theta$: canonical parameter; $\phi$: dispersion parameter;
+	\item $a(\cdot), b(\cdot), c(\cdot)$ are known functions.
+\end{itemize}
+
+\begin{example}[Gaussian Distribution]
+$$
+Y \sim \frac{1}{\sqrt{2\pi\sigma^2}} \exp\left(-\frac{(Y-\mu)^2}{2\sigma^2}\right)
+$$
+\begin{itemize}
+	\item $\theta = \mu$; $b(\theta) = \mu^2/2$
+	\item $\phi = \sigma; a(\phi) = \sigma^2$
+	\item $c(\phi,Y) = -Y^2/(2\sigma^2) - \log(2\pi)$
+\end{itemize}
+\end{example}
+
+\end{frame}
+
+
+\begin{frame}[t,containsverbatim]
+\frametitle{Three Components of GLMs}
+\framesubtitle{Exponential Families: Properties}
+\begin{itemize}
+	\item Canonical statistic $t(y) = y$;
+	\item Canonical parameter $\theta^* = \theta/a(\phi)$
+	\item The cumulant generating function
+	$$
+\kappa\{\theta^*\} = \kappa\{\theta/a(\phi)\} = b(\theta)/a(\phi)
+	$$
+	\item The expected value of $Y$:
+	$$
+E(Y) = \frac{\partial}{\partial \theta^*} \kappa\{\theta/a(\phi)\} = a(\phi) \frac{\partial}{\partial \theta} \kappa\{\theta/a(\phi)\} = b'(\theta)
+	$$
+	\item The variance of $Y$:
+	$$
+V(Y) = \frac{\partial^2}{\partial \theta^{*2}}\kappa\{\theta/a(\phi)\} = a(\phi)^2 \frac{\partial^2}{\partial \theta^2} \kappa\{\theta/a(\phi)\} = b''(\theta)a(\phi)
+	$$
+	\item If $Y_i \stackrel{\text{i.i.d}}{\sim} f(Y_i;\theta, \phi)$ for $i=1,\dots,n$, 
+		then the joint distribution of $Y_i$'s also follows an exponential-family distribution. And 
+		$\sum Y_i$ is the \textbf{sufficient and complete statistics} for the canonical parameter.
+\end{itemize}
+
+\end{frame}
+
+
+\begin{frame}[t,containsverbatim]
+\frametitle{Three Components of GLMs}
+\framesubtitle{Linear Predictors}
+$$
+\eta = X \beta = \beta_0 + X_1\beta_1 + \dots + X_p\beta_p
+$$
+is the dot product between the design matrix ($X = (\mathbf{1}, X_1, \dots, X_p)$) and the coefficient ($\beta = (\beta_0, \dots, \beta_p)^T$).
+\end{frame}
+
+
+\begin{frame}[t,containsverbatim]
+\frametitle{Three Components of GLMs}
+\framesubtitle{Link Function}
+$$
+\begin{aligned}
+E(Y) = \mu\\
+g(\mu) = \eta = \beta_0 + X_1\beta_1 + \dots + X_p\beta_p
+\end{aligned}
+$$
+\begin{itemize}
+	\item $\eta = g(\mu)$ must be 1-1 mapping.
+	\item Usually $g(\cdot)$ is chosen to be a simple, continuously differentiable 
+		function.
+	\item If possible, $g(\cdot)$ should be chosen based on data.
+\end{itemize}
+\begin{example}[Gaussian Distribution]
+Since $b(\theta) = \mu^2/2 = \theta^2/2$, $E(Y) = b'(\theta) = \theta = \mu$
+The canonical link function is
+$$
+\eta = E(Y) = \mu
+$$
+\end{example}
+\end{frame}
+
+
+\begin{frame}[t,containsverbatim]
+\frametitle{Iteratively Reweighted Least Square (IRWLS)}
+\framesubtitle{MLE Solution for GLMs}
+\begin{itemize}
+	\item $Y_i \sim \exp\left( \frac{y_i \theta_i - b(\theta_i)}{a(\phi)} + c(\phi,y_i)\right)$
+	\item $\theta_i = \theta(\mu_i) = \theta(h(\eta_i)) = \theta(h(x_i^T \beta)), h=g^{-1}$
+	\item The log-likelihood
+	$$
+\begin{array}{lcl}
+l(\beta) &=& \sum_{i=1}^n l_i(\beta)\\
+l_i(\beta) &=& \frac{1}{a(\phi)}\left[ y_i\theta(h(x_i^T \beta)) - b(\theta(h(x_i^T \beta)))\right]
+\end{array}
+	$$
+	\item $\beta$ can be obtained through Newton-Raphson's method with Fisher scoring
+\end{itemize}
+\end{frame}
+
+\begin{frame}[t,containsverbatim]
+\frametitle{Score function}
+$$
+u_r(\beta) = \frac{\partial l(\beta)}{\partial \beta_r} = 
+		\sum_{i=1}^n u_{ir} = \sum_{i=1}^n \frac{\partial l_i(\beta)}
+		{\partial \beta_r}
+$$
+We can Compute $u_{ir}$:
+$$
+\frac{\partial l_i(\beta)}{\partial \beta_r} = \frac{\partial l_i}{\partial \theta_i} 
+	\frac{\partial \theta_i}{\partial \mu_i} 
+	\frac{\partial \mu_i}{\partial \eta_i}
+	\frac{\partial \eta_i}{\partial \beta_r}
+$$
+where
+\begin{itemize}
+	\item $\frac{\partial l_i}{\partial \theta_i} = \frac{y_i - b'(\theta_i)}{a(\phi)} = \frac{y_i - \mu_i}{a(\phi)}$
+	\item $\frac{\partial \theta_i}{\partial \mu_i} = \left( \frac{\partial \mu_i}{\partial \theta_i}\right)^{-1} = v_i^{-1}$ since
+	\begin{itemize}
+		\item $\mu_i = b'(\theta_i)$
+		\item $\frac{\partial \mu_i}{\partial \theta_i} = b''(\theta_i) = Var(\mu_i) = v_i$
+	\end{itemize}
+	\item $\frac{\partial \eta_i}{\partial \beta_r} = x_{ir}$
+\end{itemize}
+$$
+\frac{\partial l_i}{\partial \beta_r} = \frac{1}{a(\phi)} x_{ir} w_i \frac{\partial \eta_i}{\partial \mu_i} (y_i - \mu_i)
+$$
+where $w_i = v_i^{-1}(\partial \eta_i / \partial \mu_i)^{-2}$
+\end{frame}
+
+
+\begin{frame}[t,containsverbatim]
+\frametitle{Score Function}
+$$
+\frac{\partial l}{\partial \beta} = \frac{1}{a(\phi)} X^T W \left[ \frac{\partial \eta}{\partial \mu} (Y - \mu)\right]
+$$
+where $W = \text{diag}(w_i)$.
+\end{frame}
+
+
+\begin{frame}[t,containsverbatim]
+\frametitle{Fisher's Information Matrix}
+Similarly, we can get
+$$
+A = \frac{1}{a(\phi)} X^T W X
+$$
+\end{frame}
+
+
+\begin{frame}[t,containsverbatim]
+\frametitle{Newton-Raphson Method for Fisher Scoring}
+$$
+X^T W(\beta^{(t-1)}) X (\beta^{(t)} - \beta^{(t-1)}) = X^T W(\beta^{(t-1)}) \left[ \frac{\partial \eta}{\partial \mu} (Y - \mu(\beta^{(t-1)}))\right]
+$$
+Then we can get:
+$$
+\begin{array}{lcl}
+X^T W(\beta^{(t-1)}) X \beta^{(t)} &=& X^T W(\beta^{(t-1)}) \left\{ X\beta^{(t-1)} \left[\frac{\partial \eta}{\partial \mu} (Y - \mu(\beta^{(t-1)}))\right] \right\}\\
+ &=& X^T W(\beta^{(t-1)})z(\beta^{(t-1)})
+\end{array}
+$$
+That is the reason why it is called \textbf{Iteratively Reweighted Least Squares}.
+\end{frame}
+
+
+\begin{frame}[t,containsverbatim]
+\frametitle{A Clinical Trial on Diastolic Blood Pressure (DBP)}
+Here we present a data set of diastolic blood pressure measured in 
+small clinical trials in hypertension from the mid-to-late 1960s and 
+for approximately a decade thereafter. Diastolic blood pressure (DBP) 
+was measured (mmHg) in the supine position at baseline (i.e., ``DBP1'') 
+before randomization and monthly thereafter up to 4 months as indicated 
+by \texttt{DBP2}, \texttt{DBP3}, \texttt{DBP4} and \texttt{DBP5}. 
+Patients' age and sex were recorded at baseline and represent potential 
+covariates.
+
+The primary objective in the analysis of this dataset is to test 
+whether treatment A (new drug) may be effective in lowering DBP as 
+compared to B (placebo) and to describe changes in DBP across the times 
+at which it was measured.
+\end{frame}
+
+
+\begin{frame}[t,containsverbatim]
+\frametitle{Importing the dataset}
+<<eval=TRUE>>=
+dbp <- read.table("data/dbp.txt", header=T)
+@
+\end{frame}
+
+
+\section{General Linear Regression}
+
+\begin{frame}[t,containsverbatim]
+\frametitle{Linear regression models}
+$$
+y = X\beta + \epsilon
+$$
+\begin{itemize}
+	\item The quantitative ``predictors'', $X$, contains the 
+		treatments in the clinical trials as well as other 
+		factors.
+	\item $X$ is the so-called design matrix with one column for 
+		treatment.
+	\item $y$ is the measured clinical endpoint (e.g., DBP)
+	\item $\beta$ is the vector of regression parameters
+	\item $\epsilon \sim N(0, \sigma^2)$ is the error term
+	\item Treatment can be incorporated into the regression using 
+		a \emph{dummy variable}, $X_1$ as
+	$$
+X_1 = \begin{cases}
+0 & TRT = A\\
+1 & TRT = B
+\end{cases}
+	$$
+	\item $X_2 = Age, X_3 = DBP1$
+\end{itemize}
+\end{frame}
+
+\begin{frame}[t,containsverbatim]
+\frametitle{Estimation of the Linear Models}
+\begin{itemize}
+	\item Least-squares estimation of $\beta$ by minimizing
+	$$
+\begin{array}{lcl}
+\sum_{i=1}^n \epsilon_i^2 & = &  (y-X\beta)^T (y-X\beta)\\
+& = & y^T y - 2\beta X^T y + \beta^T X^T X \beta
+\end{array}
+	$$
+	\item Taking the partial derivative of the error sum of squares 
+		with respect to the component of $\beta$ and setting to 
+		zero leads to
+	$$
+X^T X \beta = X^T \hat{\beta}
+	$$
+	\item When $X^T X$ is invertible
+	$$
+\hat{\beta} = (X^T X)^{-1} X^T y
+	$$
+\end{itemize}
+\end{frame}
+
+
+\begin{frame}[t,containsverbatim]
+\frametitle{Least-squares estimation}
+\begin{description}
+	\item[Predicted values]\hfill\\
+	$\hat{y} = X\hat{\beta} = X(X^T X)^{-1} X^T y = Hy$, 
+	where $H=X(X^T X)^{-1} X^T$ is called the \emph{hat matrix}
+	\item[Residuals for diagnostics]\hfill\\
+	$\hat{\epsilon} = y - \hat{y} = y - X\hat{\beta} = (I-H)y$
+	\item[Residual sum of squares]\hfill\\
+	$RSS = \hat{\epsilon}^T \hat{\epsilon} = y^T(I-H)^T(I-H)y = y^T (I-H) y$
+	\item[Unbiasedness]\hfill\\
+	$\hat{\beta}$ is unbiased with variance $var(\hat{\beta}) = (X^T X)^{-1} \sigma^2$ if $var(\epsilon) = \sigma^2 I$
+	\item[Variance estimate]\hfill\\
+	$\hat{\sigma}^2 = \frac{\hat{\epsilon}^T \hat{\epsilon}}{n-p} = \frac{RSS}{n-p}$, 
+	where $n-p$ is the \emph{degrees of freedom} of the model.
+	\item[Coefficient of determination]\hfill\\
+	$R^2 = \frac{(\hat{y} - y)^T (\hat{y} - y)}{(y-\bar{y})^T (y-\bar{y})}$
+\end{description}
+\end{frame}
+
+\section{Logistic Regression}
+
+\begin{frame}[t,containsverbatim]
+\frametitle{Clinical Trials for Beta Blockers}
+This is a multi-center clinical trials in 22 centers to evaluate the 
+efficacy of beta-blockers in reducing the mortality after myocardial 
+infarction.
+
+\begin{itemize}
+	\item \texttt{Deaths} is the number of deaths and \texttt
+		{Total} is the total number of patients enrolled at 
+		each clincal \texttt{Center}.
+	\item \texttt{Treatment} represents whether patients at each 
+		center were randomzied to \texttt{Control} or 
+		\texttt{Treated} (Beta-blocker)
+	\item The outcome (death or non-death) are binomial and are 
+		used to demonstrate the application of logistic 
+		regression as well as remedies for over-dispersion 
+		using a \texttt{quasi-likelihood} approach.  
+\end{itemize} 
+\end{frame}
+
+\begin{frame}[t,containsverbatim]
+\frametitle{Importing the data}
+<<eval=TRUE>>=
+betablocker <- read.table("data/betablocker.txt", header=TRUE)
+head(betablocker)
+@
+\end{frame}
+
+\begin{frame}[t,containsverbatim]
+\frametitle{Logistic regression for binary/binomial outcomes}
+\begin{itemize}
+	\item When the response is Bernoulli (e.g., death/alive or 
+		cured/uncured) or binomial (e.g. number of deaths among 
+		a fixed total number of patients)
+	\item Linear regression method may yield biased estimates of 
+		the covariate parameters.
+	\item $Y_i \sim \text{Bin}(n_i, p_i)$ can be written as
+	$$
+P(Y_i = y_i) = \binom{n_i}{y_i} p_i^{y_i} (1-p_i)^{n_i - y_i}	
+	$$
+	\item In the generalized linear model (GLM) framework, a \textbf
+		{linear predictor} is used to model the linear 
+		relationship and a \textbf{link function} to link the 
+		linear predictor to the binomial probability $p_i$
+	\begin{itemize}
+		\item Linear predictor
+		$$
+\eta_i = \beta_0 + \beta_1 x_{i1} + \dots + \beta_q x_{iq} = X_i \beta
+		$$
+		\item The most commonly used link function for binomial 
+			response is the \textbf{logit} function
+		$$
+\eta = \log\left( \frac{p}{1-p}\right)
+		$$
+		\item Other link functions: \textbf{probit} and \textbf{complementary log-log}
+	\end{itemize} 
+\end{itemize}
+\end{frame}
+
+
+\begin{frame}[t,containsverbatim]
+\frametitle{MLE for Binomial Data}
+\begin{itemize}
+	\item The likelihood function
+	$$
+L(\beta | y) = \prod_{i=1}^r \binom{n_i}{y_i} p_i^{y_i}(1-p_i)^{n_i - y_i} 
+	$$
+	\item The log-likelihood function
+	$$
+\ell(\beta | y) = \sum_{i=1}^r \left[ \binom{n_i}{y_i} + y_i \log(p_i) + (n_i - y_i) \log(1-p_i)\right]
+	$$
+	\item For \textbf{logit} link function, $\eta = \log(\frac{p}{1-p})$, then $p=\frac{e^{\eta}}{1+e^{\eta}}$. The loglikelihood function 
+becomes
+	$$
+\begin{array}{lcl}
+\ell(\beta | y) & = & \sum_{i=1}^r \left[ \log \binom{n_i}{y_i} + y_i \log(p_i) + (n_i - y_i) \log(1-p_i) \right]\\
+& = & \sum_{i=1}^r \left[ y_i \eta_i - n_i \log(1+e^{\eta_i}) + \log \binom{n_i}{y_i} \right]
+\end{array} 
+	$$
+	\item This can be solved using numerical iterative approach.
+\end{itemize}
+\end{frame}
+
+
+\begin{frame}[t,containsverbatim]
+\frametitle{Fitting a logistic regression model}
+<<eval=TRUE>>=
+# fit a logistic regression using glm
+beta.glm <- glm(cbind(Deaths, Total-Deaths) ~ Treatment + Center,
+		family=binomial(link="logit"), data=betablocker)
+# print the model fitting
+summary(beta.glm)
+@
+\end{frame}
+
+
+\begin{frame}[t,containsverbatim]
+\frametitle{Over-dispersion issues}
+\begin{itemize}
+	\item \textbf{Over-dispersion} is a common phenomenon in 
+		GLM including logistic and Poisson regression. 
+	\item Over-dispersion is evident if the deviance from the 
+		fitted model is too large.
+	\item In the MLE theory, redidual deviance is asymptotically 
+		distributed as $\chi^2$ with appropriate degrees of 
+		freedom.
+	\item For $\chi^2$ distributed deviance, its value should be 
+		close to its degrees of freedom.
+	\begin{itemize}
+		\item When the deviance is greater than the df, 
+			\textbf{over-dispersion} occurs.
+		\item When the deviance is smaller than the df, 
+			\textbf{under-dispersion} occurs.
+	\end{itemize}
+\end{itemize}
+\end{frame}
+
+
+\begin{frame}[t,containsverbatim]
+\frametitle{Estimate and Adjust the Dispersion parameter}
+Two-stage approach
+\begin{itemize}
+	\item Estimate the dispersion parameter using Pearson's 
+		$\chi^2$ as
+	$$
+\hat{\phi} = \frac{\chi^2}{n-p}
+	$$
+	\item Use the estimated dispersion parameter to adjust the 
+		model fit for further statistical inference.
+\end{itemize}
+\end{frame}
+
+\begin{frame}[t,containsverbatim]
+\frametitle{Estimating and fitting the dispersion parameter}
+<<eval=TRUE>>=
+est.dp <- sum(resid(beta.glm, type="pearson")^2)/beta.glm$df.res
+summary(beta.glm, dispersion=est.dp)
+@
+\end{frame}
+
+
+\begin{frame}[t,containsverbatim]
+\frametitle{Over-dispersion: Quasi-likelihood approach}
+Combined approach.
+\begin{itemize}
+	\item Permits estimating the dispersion parameter along with 
+		the model parameters simultaneously - without assuming 
+		an error distribution.
+	\item This approach requires only the mean and variance 
+		function to be specified. 
+\end{itemize}
+\end{frame}
+
+
+\begin{frame}[t,containsverbatim]
+\frametitle{Quasi-likelihood for binomial data}
+<<eval=TRUE>>=
+# fit a quasi-likelihood for binomial data
+beta.glm2 <- glm(cbind(Deaths, Total-Deaths)~Treatment + Center,
+	family=quasibinomial, data=betablocker)
+# print the model fitting
+summary(beta.glm2)
+@
+\end{frame}
+
+
+\section{Poisson Regression}
+
+
+\begin{frame}[t,containsverbatim]
+\frametitle{A Clinical Trial on Familial Andenomatous Polyposis}
+A placebo-controlled clinical trial of a non-sterioidal anti-
+inflammatory drug (NSAID) in treating FAP.
+
+A planned interim analysis of the number of polyps to reveal 
+significant evidence favoring NSAID treatment to warrant termination of 
+the trial.
+
+\begin{itemize}
+	\item \texttt{number}: Number of colonic polyps after 12 months 
+		of treatment
+	\item \texttt{age}: Age at the baseline for patient.
+	\item \texttt{treat}: Treatment assignment allocation, 
+		``drug'' or ``placebo''  
+\end{itemize}
+\end{frame}
+
+
+\begin{frame}[t,containsverbatim]
+\frametitle{Importing the data}
+<<eval=TRUE>>=
+polyps <- read.table("data/polyps.txt", header=TRUE)
+head(polyps)
+str(polyps)
+@
+\end{frame}
+
+
+\begin{frame}[t,containsverbatim]
+\frametitle{Poisson regression for clinical outcome with counts}
+If $Y$ is Poisson ditributed with mean $\lambda \ge 0$,
+$$
+P(Y = y) = \frac{e^{\mu} \mu^y}{y!}
+$$
+
+For a Poisson random variable $Y$, $E(Y) = Var(Y) = \mu$.
+
+Suppose $Y_i \sim Pois(\mu)$ represents count data and that we want to 
+model $Y_i$ as a function of a set of clinical covariates of $(x_1, 
+\dots, x_q)$.
+
+A link function is needed to link $\mu_i$ to $(x_1, \dots, x_q)$ with 
+the linear predictor $\eta_i = X_i \beta$. The natural canonical log 
+link function can be written as:
+$$
+\log(\mu_i) = \eta_i = X_i \beta
+$$
+\end{frame}
+
+\begin{frame}[t,containsverbatim]
+\frametitle{Poisson regression}
+The log-likelihood function is
+$$
+\begin{array}{lcl}
+\ell{\beta} & = & \sum_{i=1}^n \log P(Y = y) = \sum_{i=1}^n \log \left[ \frac{e^{\mu_i} \mu_i^{y_i}}{y_i!} \right]\\
+& = & \sum_{i=1}^n \left[ y_i x_i^T \beta - \exp(x_i^T \beta) - \log(y_i!)\right]
+\end{array}
+$$
+
+Differetiating with respect to $\beta$ gives the MLE for $\hat{\beta}$ as the solution to
+$$
+\sum_{i=1}^n \left[ y_i - \exp(x_i^T \hat{\beta})\right] = 0
+$$
+
+There is no closed-form analytic solution. Numerical search algorithms 
+are needed.
+\end{frame}
+
+
+\begin{frame}[t,containsverbatim]
+\frametitle{Fitting a Poisson Model to the count data}
+<<eval=TRUE>>=
+# Poisson regression
+m0.polyps <- glm(number ~ treat*age, polyps, 
+	family=poisson(link="log"))
+# print the model fit
+summary(m0.polyps)
+@
+\end{frame}
+
+
+\begin{frame}[t,containsverbatim]
+\frametitle{Estimating and applying the dispersion parameter}
+<<eval=TRUE>>=
+est.dp <- sum(resid(m0.polyps, type="pearson")^2)/m0.polyps$df.res
+summary(m0.polyps, dispersion=est.dp)
+@
+\end{frame}
+
+
+\begin{frame}[t,containsverbatim]
+\frametitle{Refitting Poisson model without interaction}
+<<eval=TRUE>>=
+# Poisson regression
+m1.polyps <- glm(number ~ treat + age, polyps, 
+	family=poisson(link="log"))
+# print the model fit
+summary(m1.polyps)
+est.dp <- sum(resid(m1.polyps, type="pearson")^2)/m1.polyps$df.res
+summary(m1.polyps, dispersion=est.dp)
+@
+\end{frame}
+
+
+\begin{frame}[t,containsverbatim]
+\frametitle{Quasi-Poisson Regression Model}
+<<eval=TRUE>>=
+# fit the quasi-Poisson
+m2.polyps <- glm(number ~ treat + age, polyps, 
+		family=quasipoisson())
+# print the model fit
+summary(m2.polyps)
+@
+\end{frame}
+
+\begin{frame}[t,containsverbatim]
+\frametitle{Negative Binomial Approach}
+Another remedy to overdispersion is to use a more general distribution 
+to relax the dependence of the mean and variance function, such as the 
+negative binomial (NB) or gamma distribution to model the over-
+dispersion.
+
+For a series of independent trials with $P(\text{success})=p$, the 
+random variable $N$ for the number of trials until the $k^{th}$ success 
+is observed has a \textbf{negative-binomial} distribution with mdf:
+$$
+P(N=n) = \binom{n-1}{k-1}p^k (1-p)^{n-k}
+$$
+
+The NB is an extension of the Poisson distribution from a Bayesian 
+perspective. It can be thought of as the Gamma-Poisson mixture. That 
+is, NB is a $\text{Poisson}(\lambda)$, where $\lambda \sim \Gamma(k, \frac{p}{1-p})$.
+
+Mathematically, the NB is reparameterized for convenience in model 
+fitting by defining $Y=N-k$ and $p=\frac{1}{1+\alpha}$ as
+$$
+P(Y=y) = \binom{y+k-1}{k-1}\frac{\alpha^k}{(1+\alpha)^{y+k}}
+$$
+\end{frame}
+
+\begin{frame}[t,containsverbatim]
+\frametitle{Negative Binomial Approach}
+Therefore, 
+$$
+\begin{aligned}
+E(Y) = \mu = k\alpha\\
+Var(Y) = k\alpha + k\alpha^2 = \mu + \mu^2/k
+\end{aligned}
+$$
+where an extra term $k\alpha^2$ can be used to model over-dispersion.
+
+The log-likelihood function can be written as
+$$
+\ell(\alpha, k) = \sum_{i=1}^n \left( y_i \log\frac{\alpha}{1+\alpha} - k\log(1+\alpha) + \sum_{j=0}^{y_j-1}\log(j+k) - \log(y!)\right)
+$$
+
+The \emph{link function} to link mean response $\mu$ to a linear 
+combination of the clinical covariates $X$ is
+$$
+\eta = X\beta = \log\frac{\alpha}{1+\alpha} = \log \frac{\mu}{\mu+k}
+$$
+\end{frame}
+
+
+
+\begin{frame}[t,containsverbatim]
+\frametitle{Fitting a negative-binomial regression model}
+<<eval=TRUE>>=
+library(MASS)
+# fit the negative binomial model
+m3.polyps <- glm.nb(number ~ treat + age, polyps)
+# print the model fit
+summary(m3.polyps)
+@
+\end{frame}
+
+
+\begin{frame}[t,containsverbatim]
+\frametitle{Gamma-Poisson Model}
+
+
+\end{frame}
+
+
+\begin{frame}[t,containsverbatim]
+\frametitle{Relationship of Exponential, Poisson and Gamma Distributions}
+Poisson and exponential distributions are very strongly related but they're fundamentally 
+different because the Poisson is discrete (a count variable) and the exponential is continuous 
+(a waiting time).
+\begin{itemize}
+	\item If the time between a certain type of event is exponentially distributed with 
+		rate $\lambda$, then the number of events in a given time period of length $t$ 
+		follows a Poisson distribution with parameter $\lambda t$.
+	\item The time to observe exacly $n$ events is a sum of independent exponentially 
+		distributed random variables, and it follows a $\text{Gamma}(\lambda,n)$ distribution 
+		(a.k.a \textbf{Erlang} distribution, to distinguish it from the general gamma 
+		distribution where $n$ is allowed to be a non-integer).
+\end{itemize}
+
+\end{frame}
+
+
+\begin{frame}[t,containsverbatim]
+\frametitle{Beta-Binomial Model - Priors}
+\begin{itemize}
+	\item If $X \sim \text{Bernoulli}(\theta)$, then for $D=\{X_1, X_2, \dots, X_n\}$, the likelihood
+	$$
+p(D \big| \theta) = \theta^{n_1}(1-\theta)^{n_0}
+	$$
+	where
+	\begin{itemize}
+		\item $n_1 = \sum_{i=1}^n I(X_i = 1)$
+		\item $n_0 = \sum_{i=1}^n I(X_i=0)$
+	\end{itemize}
+	\item $n_1 \sim \text{Bin}(n, \theta)$
+	\item For the sake of convenience, the prior for the parameter 
+		$\theta$ has the same form as the likelihood function 
+		(conjugate prior), then
+	$$
+p(\theta) = \theta^{\gamma_1}(1-\theta)^{\gamma_0}
+	$$
+	\item In a binomial model, the conjugate prior is a Beta 
+		distribution:
+	$$
+\text{Beta}(\theta|a,b) \propto \theta^{a-1}(1-\theta)^{b-1}
+	$$
+	where $a,b$ are the hyperparameters.
+\end{itemize}
+\end{frame}
+
+
+\begin{frame}[t,containsverbatim]
+\frametitle{Beta-Binomial Distribution}
+<<eval=FALSE>>=
+R <- 10000
+T <- 20000
+x <- matrix(NA, R+T, 2)
+
+n <- 10
+alpha <- 7
+beta <- 19
+
+x[1,] <- c(1, .5)
+
+for (i in 2:(R+T)) {
+	x[i,2] <- rbeta(1, alpha, beta)
+	x[i,1] <- rbinom(1, n, x[i,2])
+}
+x <- x[(R+1):(R+T), ]
+
+plot(table(x[,1])/T, col="sienna4", type="p", pch=20)
+betabinomialdensity <- function(x, n, alpha, beta)
+	choose(n, x)*beta(alpha+x, beta+n-x)/beta(alpha,beta)
+points(0:n, betabinomialdensity(0:n, n, alpha, beta), 
+	type="o", pch=22, lty=2, col="red")
+@
+\end{frame}
+
+\begin{frame}[t,containsverbatim]
+\frametitle{Beta-Binomial Distribution}
+<<eval=TRUE, echo=FALSE>>=
+R <- 10000
+T <- 20000
+x <- matrix(NA, R+T, 2)
+
+n <- 10
+alpha <- 7
+beta <- 19
+
+x[1,] <- c(1, .5)
+
+for (i in 2:(R+T)) {
+	x[i,2] <- rbeta(1, alpha, beta)
+	x[i,1] <- rbinom(1, n, x[i,2])
+}
+x <- x[(R+1):(R+T), ]
+
+plot(table(x[,1])/T, col="sienna4", type="p", pch=20)
+betabinomialdensity <- function(x, n, alpha, beta)
+	choose(n, x)*beta(alpha+x, beta+n-x)/beta(alpha,beta)
+points(0:n, betabinomialdensity(0:n, n, alpha, beta), 
+	type="o", pch=22, lty=2, col="red")
+@
+\end{frame}
+
+\end{CJK*}
+\end{document}

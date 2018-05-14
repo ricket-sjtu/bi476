@@ -1,0 +1,553 @@
+% Exam Template for SJTU Department of Bioinformatics and Biostatistics Courses
+%
+% Using Philip Hirschhorn's exam.cls: http://www-math.mit.edu/~psh/#ExamCls
+%
+% run pdflatex on a finished exam at least three times to do the grading table on front page.
+%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+% These lines can probably stay unchanged, although you can remove the last
+% two packages if you're not making pictures with tikz.
+%\documentclass[11pt,addpoints]{exam}
+\documentclass[11pt,addpoints]{exam}
+\RequirePackage{amssymb, amsfonts, amsmath, latexsym, verbatim, xspace, setspace}
+\RequirePackage{tikz, pgflibraryplotmarks, enumerate}
+\usepackage{color}
+\usepackage{xcolor}
+\usepackage{multirow}
+\usepackage{CJK}
+\usepackage{multicol}
+\usepackage{cite}
+\usepackage{listings}
+\lstset{
+language=R,
+keywordstyle=\color{blue!70}\bfseries,
+basicstyle=\ttfamily,
+commentstyle=\ttfamily,
+showspaces=false,
+showtabs=false,
+frame=shadowbox,
+rulesepcolor=\color{red!20!green!20!blue!20},
+breaklines=true}
+
+% By default LaTeX uses large margins.  This doesn't work well on exams; problems
+% end up in the "middle" of the page, reducing the amount of space for students
+% to work on them.
+\usepackage[margin=1in]{geometry}
+
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{example}{Example}
+\newtheorem{definition}{Definition}
+\newtheorem{property}{Property}
+
+% Here's where you edit the Class, Exam, Date, etc.
+\newcommand{\class}{BI476 Biostatistics - Case Study}
+\newcommand{\term}{Spring 2018}
+\newcommand{\examnum}{Exercise 6}
+\newcommand{\examdate}{04/20/2018}
+\newcommand{\timelimit}{60 Minutes}
+
+% For an exam, single spacing is most appropriate
+\singlespacing
+% \onehalfspacing
+% \doublespacing
+
+% For an exam, we generally want to turn off paragraph indentation
+\parindent 0ex
+
+\newcommand{\tf}[1][{}]{%
+\fillin[#1][0.25in]%
+}
+
+\begin{document} 
+\begin{CJK*}{UTF8}{gbsn}
+
+% These commands set up the running header on the top of the exam pages
+\pagestyle{head}
+\firstpageheader{}{}{}
+\runningheader{\class}{\examnum\ - Page \thepage\ of \numpages}{\examdate}
+\runningheadrule
+
+\begin{center}
+{\LARGE Exercise 6: Linear Models and Generalizations}\\
+{\Large 2018 Spring}
+\end{center}
+
+\rule[1ex]{\textwidth}{.1pt}
+
+\section{Background Knowledge}
+
+\subsection{Maximum Likelihood Estimator}
+
+
+\subsection{Exponential Families}
+A one-parameter exponential-family distribution has the probability density function (pdf) of the following form:
+$$
+f(y;\theta) = \exp \left( \frac{y\theta - b(\theta)}{a(\phi)} + c(\phi,y) \right)
+$$
+where
+\begin{itemize}
+	\item $\theta$ is the \textbf{canonical parameter}.
+	\item $\phi$ is the (optional) \textbf{dispersion parameter}.
+	\item The expected value of $Y$: $E(Y) = \mu = b'(\theta)$
+	\item The variance of $\mu$ is: $V(\mu) = b''(\theta)$
+	\item The variance of $Y$ is: $Var(Y) = V(\mu) a(\phi)$
+	\item The \textbf{link function} $g(\mu) = \eta = x^T \beta$
+	\item \textbf{Canonical link function} is obtained through $\eta = \theta$. 
+\end{itemize}
+
+Thus the log-likelihood function of the data is:
+$$
+l(\theta;y) = \frac{y\theta - b(\theta)}{a(\phi)}
+$$
+
+
+\subsection{Generalized Linear Models (GLMs) Fitting}
+
+With this we can obtain the \textbf{Fisher's score vector} $\mathbf{u} = (u_j)$ with
+$$
+u_j = \frac{\partial l}{\partial \beta_j} = \frac{\partial l}{\partial \theta} \frac{\partial \theta}{\partial \mu} \frac{\partial \mu}{\partial \eta} \frac{\partial \eta}{\partial \beta_j}
+$$
+
+Since
+$$
+\begin{array}{lcl}
+\frac{\partial l}{\partial \theta} &=& \frac{y - b'(\theta)}{a(\phi)}\\
+\frac{\partial \theta}{\partial \mu} &=& \frac{1}{b''(\theta)} = \frac{1}{V(\mu)} = \frac{a(\phi)}{Var(y)}\\
+\frac{\partial \eta}{\partial \beta_j} &=& x_{ij}
+\end{array}
+$$
+Therefore
+$$
+\frac{\partial l}{\partial \beta_j} = \frac{y-\mu}{Var(y)} \left( \frac{\partial \mu}{\partial \eta} \right)x_{ij}
+$$
+
+When we use the canonical link function
+$$
+\frac{\partial \mu}{\partial \eta} = \frac{\partial \mu}{\partial \theta} = b''(\theta)
+$$
+therefore
+$$
+\frac{\partial l}{\partial \beta_j} = \frac{y-\mu}{Var(y)}b''(\theta)x_{ij} = \frac{y-\mu}{a(\phi)} x_{ij}
+$$
+
+
+And \textbf{Fisher's information matrix} can be obtained by:
+$$
+\begin{array}{lcl}
+-E\left( \frac{\partial^2 l}{\partial \beta_j \partial \beta_k} \right) &=& E\left[ \frac{\partial l}{\partial \beta_j} \frac{\partial l}{\partial \beta_k}\right]\\
+&=& E\left( \frac{y-\mu}{Var(y)}\right)^2 \left( \frac{\partial \mu}{\partial \eta}\right)^2 x_{ij} x_{ik}\\
+&=& \frac{1}{Var(y)} \left( \frac{\partial \mu}{\partial \eta} \right)^2 x_{ij} x_{ik}
+\end{array}
+$$
+
+For general link function, the score function for only \textbf{1-observation} becomes
+$$
+\frac{\partial l}{\partial \beta_j} = \frac{y-\mu}{Var{y}} \left( \frac{\partial \mu}{\partial \eta}\right) x_{ij}
+$$
+
+And the score function for $n$-observation becomes:
+$$
+\frac{\partial l}{\partial \beta} = X^T A(y-\mu)
+$$
+
+Similarly the Fisher's information matrix can also be simplified as:
+$$
+-E\left( \frac{\partial^2 l}{\partial \beta_j \beta_k} \right) = \frac{1}{Var(y)} \left( \frac{\partial \mu}{\partial \eta}\right)^2 x_{ij} x_{ik}
+$$
+and also the matrix form:
+$$
+-E\left( \frac{\partial^2 l}{\partial \beta \partial \beta^T} \right) = X^T W X
+$$
+where
+$$
+W = \text{diag}(w_1, \dots, w_n)
+$$
+and 
+$$
+w_i = \frac{1}{Var(y_i)} \left( \frac{\partial \mu_i}{\partial \eta_i}\right)^2 = [b''(\theta_i)]^{-1} \left( \frac{\partial \eta_i}{\partial \mu_i}\right)^{-2}
+$$
+
+
+
+\subsection{Iteratively Reweighted Least Squares (IRWLS)}
+Fisher's scoring algorithm can iteratively compute the coefficient by:
+$$
+\beta^{(t+1)} = \beta^{(t)} + (X^T W X)^{-1} X^T A (y - \mu) 
+$$
+
+The score equation can be solved using the numerical method (Newton-Raphson), iteratively reweighted least squares (IRWLS)：
+$$
+\beta^{(t+1)} = \left( X^T W X \right)^{-1} \left[ X^T W X \beta^{(t)} + X^T A (y - \mu)\right]
+$$
+
+Since $X\beta = \eta$, we have
+$$
+A = W\left( \frac{\partial \eta}{\partial \mu}\right)
+$$
+
+Replace it into the equation:
+$$
+\beta^{(t+1)}  = \left( X^T W X \right)^{-1} X^T W z
+$$
+which is similar to the closed-form of least squares fitting, where
+$$
+z = \eta + \left( \frac{\partial \eta}{\partial \mu}\right) (y-\mu)
+$$
+is called the \textbf{adjusted dependent variable}.
+
+
+\begin{example}[Logistic Regression]
+
+Let $y_1, \dots, y_n$ where $y_i \sim \text{Bin}(n_i, p_i)$
+$$
+\begin{array}{lcl}
+f(y; p) = \binom{n}{y} p^y (1-p)^{n-y} &=& \exp \left( y\log p + (n-y)\log(1-p) + \log \binom{n}{y} \right) \\
+&=& \exp\left(y\log \frac{p}{1-p} + n\log(1-p) + \log \binom{n}{y} \right)
+\end{array}
+$$
+\begin{itemize}
+	\item $\theta = \log \frac{p}{1-p} \Rightarrow p = \frac{e^{\theta}}{1+e^{\theta}}$;
+	\item $b(\theta) = n \log \left(\frac{1}{1+e^{\theta}}\right)$
+	\item $\mu = b'(\theta) = n \frac{e^{\theta}}{1+e^{\theta}} = np$
+	\item $Var(\mu) = np(1-p)$
+\end{itemize}
+For the canonical link function:
+$$
+\eta = \theta = \log \frac{p}{1-p} = \log \frac{\mu}{n-\mu}
+$$
+\end{example}
+
+\section{Exercises}
+
+\begin{questions}
+
+\question[20]
+For a set of independent observations $(Y_1, \dots, Y_N), N=2n$; $Y_i \sim Bin(n_i, p_i), 
+i=1,\dots,N$ ($n_i$ known); We can fit a GLM:
+$$
+\log \frac{p_i}{1-p_i} = x_i^T \beta
+$$
+where the design matrix has the form
+$$
+X = \begin{bmatrix}
+a_1 & 0\\
+\vdots & \vdots\\
+a_n & 0\\
+0 & c_1\\
+\vdots & \vdots\\
+0 & c_n
+\end{bmatrix}
+$$
+and the parameter $\beta = (\beta_1, \beta_2)^T$.
+
+\begin{parts}
+\part[10]
+Find the score vector $u$ in terms of $Y_i, n_i, p_i, a_i, c_i$ and show 
+that $\hat{\beta}_1$ are independent of $Y_{n+1}, \dots, Y_N$ while 
+$\hat{\beta}_2$ are independent of $Y_1,\dots,Y_n$.
+\begin{solution}
+The log-likelihood function is
+$$
+\begin{array}{lcl}
+\ell(\beta;Y) &=& \sum_{i=1}^N \left( Y_i \log\frac{p_i}{1-p_i} + n_i \log(1-p_i) + \log \binom{n_i}{Y_i}\right)\\
+&=& \sum_{i=1}^N \left( Y_i x_i^T \beta - n_i \log(1+e^{x_i^T \beta}) + \log \binom{n_i}{Y_i}\right)
+\end{array}
+$$
+and the score vector:
+$$
+\begin{array}{lcl}
+u_1 &=& \partial \ell /\partial \beta_1\\
+&=& \sum_{i=1}^n (Y_i a_i - n_i \frac{e^{x_i^T\beta}}{1+e^{x_i^T\beta}}a_i)\\
+&=& \sum_{i=1}^n (Y_i - n_i p_i)a_i\\
+u_2 &=& \partial \ell / \partial \beta_2\\
+&=& \sum_{i=n+1}^N (Y_i c_{i-n} - n_i \frac{e^{x_i^T\beta}}{1+e^{x_i^T\beta}}c_{i-n})\\
+&=& \sum_{i=n+1}^N (Y_i - n_i p_i)c_{i-n}
+\end{array}
+$$
+thus we obtain
+$$
+u = (u_1, u_2)^T = \left( \sum_{i=1}^n (Y_i - n_i p_i)a_i， \sum_{i=n+1}^N (Y_i - n_i p_i)c_{i-n} \right)^T
+$$
+Since $p_1, \dots, p_n$ depend only on $\beta_1$ and $p_{n+1}, \dots, p_N$ depend only on 
+$\beta_2$, so do $u_1$ and $u_2$ respectively.
+
+Then we can obtain the maximum likelihood estimator $\hat{\beta}_1$ and $\hat{\beta}_2$ by 
+solving $u_1(\beta_1)=0$ and $u_2(\beta_2)$ separately.
+\end{solution}
+
+
+\part[10]
+Find the Fisher's information matrix and show that the method of scoring for $\hat{\beta}$ 
+has the form:
+$$
+\begin{array}{lcl}
+\hat{\beta_1}^{(k)} = \hat{\beta}_1^{(k-1)} + \frac{\sum_{i=1}^n (Y_i - n_ip_i^{(k-1)})a_i}{\sum_{i=1}^n n_ip_i^{(k-1)}(1-p_i^{(k-1)})a_i^2}\\
+\hat{\beta_2}^{(k)} = \hat{\beta}_2^{(k-1)} + \frac{\sum_{i=n+1}^N (Y_i - n_ip_i^{(k-1)})c_{i-n}}{\sum_{i=n+1}^N n_ip_i^{(k-1)}(1-p_i^{(k-1)})c_{i-n}^2}
+\end{array}
+$$
+\begin{solution}
+The Fisher's information matrix is
+$$
+I = \begin{bmatrix}
+\partial^2 \ell / \partial \beta_1^2 & \partial^2 \ell / \partial \beta_1 \partial \beta_2\\
+\partial^2 \ell / \partial \beta_1 \partial \beta_2 & \partial^2 \ell / \partial \beta_2^2 
+\end{bmatrix} = \begin{bmatrix}
+\sum_{i=1}^n n_i p_i(1-p_i)a_i^2 & 0\\
+0 & \sum_{i=n+1}^N n_p p_i(1-p_i)c_{i-n}^2
+\end{bmatrix}
+$$
+Thus we can get
+$$
+I^{-1} u = \left[ \frac{\sum_{i=1}^n (Y_i - n_ip_i)a_i}{\sum_{i=1}^n n_i p_i(1-p_i)a_i^2}, \frac{\sum_{i=n+1}^N (Y_i - n_ip_i)c_{i-n}}{\sum_{i=n+1}^N n_i p_i(1-p_i)c_{i-n}^2}\right]^T
+$$
+and we can easily get the above result.
+\end{solution}
+\end{parts}
+
+
+\question[30]
+We have n independent observations $Y_1, \dots, Y_n$ following normal distributions with 
+the same variance $\sigma^2$:
+$$
+\begin{aligned}
+EY_1 = \mu_1 = \beta_1 + \beta_2\\
+EY_2 = EY_3 = \dots = EY_n = \mu = \beta_1
+\end{aligned}
+$$
+where $\beta = (\beta_1, \beta_2)^T$ are parameters of interest.
+\begin{parts}
+
+\part[10]
+What is the design matrix $X$ in this model?
+\begin{solution}
+The design matrix is a $n \times 2$ matrix in this form:
+$$
+X = \begin{bmatrix}
+1 & 1\\
+1 & 0\\
+\vdots & \vdots\\
+1 & 0
+\end{bmatrix}
+$$
+\end{solution}
+
+
+\part[10]
+Show that only the first observation is highly influential, using the simple rule that 
+$h_{ii} > 2p/n$ where $H=[h_{ij}]$ is the hat matrix $H=X(X^TX)^{-1}X^T$, and $p$ is the 
+number of paramters, here we have $p=2$.
+\begin{solution}
+In this example, we have
+$$
+X^T X = \begin{bmatrix}
+n & 1\\
+1 & 1
+\end{bmatrix}, (X^T X)^{-1} = \frac{1}{n-1} \begin{bmatrix}
+1 & -1\\
+-1 & n
+\end{bmatrix}
+$$
+and therefore the hat matrix can be computed:
+$$
+H = X(X^T X)^{-1} X^T = \begin{bmatrix}
+1 & 0 & \dots & 0\\
+0 & 1/(n-1) & \dots & 1/(n-1)\\
+\vdots & \vdots & \ddots & \vdots\\
+0 & 1/(n-1) & \dots & 1/(n-1)
+\end{bmatrix}
+$$
+Thus we have:
+$$
+h_{11} = 1 > 2p/n
+$$
+while
+$$
+h_ii = 1/(n-1) < 2p/n, i=2,\dots,n
+$$
+\end{solution}
+
+\part[10]
+Find the maximum likelihood estimator of $\beta$.
+\begin{solution}
+In this situation the MLE estimator has the closed-form:
+$$
+\hat{\beta} = (X^T X)^{-1}X^T Y
+$$
+we can easily get
+$$
+(X^TX)^{-1}X^T = \frac{1}{n-1} \begin{bmatrix}
+0 & 1 & 1 & \dots & 1\\
+n-1 & -1 & -1 & \dots & -1
+\end{bmatrix}
+$$
+Thus
+$$
+\hat{\beta} = (X^TX)^{-1}X^T Y = \begin{bmatrix}
+\frac{1}{n-1} \sum_{i=2}^n Y_i\\
+Y_1 - \frac{1}{n-1}\sum_{i=2}^n Y_i
+\end{bmatrix}.
+$$
+\end{solution}
+
+
+\end{parts}
+
+
+\question[20]
+Table 3 from \cite{NEJM2007case} displays results from a case-control study of oropharyngeal cancer patients. 
+The investigators were looking for associations between HPV and oropharyngeal cancer. Use the table to answer 
+the following questions.
+
+\begin{parts}
+\part[5]
+Draw a conclusion on the association between the seropositive HPV-16 L1 serologic status and oropharyngeal cancer.
+\begin{solution}
+There is a 32.2-fold adjusted increase in the odds of oropharyngeal cancer for those with Seropositive HPV-16 L1 
+serologic status and it is statistically significant.
+\end{solution}
+
+\part[5]
+Can you calculate the unadjusted risk ratio for the risk of oropharyngeal cancer in patients who were positive 
+for oral HPV-16 infection, using only the information given in this table?
+\begin{solution}
+Cannot calculate from the information given in this table.
+\end{solution}
+
+\part[5]
+What statistical method was used to calculate the “adjusted odds ratios” given in the table? The unadjusted odds 
+ratio for HPV-16 L1 seropositivity is 17.6 but the adjusted odds ratio is 32.2.  How do you explain this difference?
+\begin{solution}
+Logistic regression. The unadjusted odds ratio was an underestimate—which could happen if some of the confounders 
+were inversely related to exposure or disease.
+\end{solution}
+
+\part[5]
+Which statistical test was used to compare the oral HPV infection prevalence in cases versus controls? Write down the 
+correct statistic for comparing.
+\begin{solution}
+
+\end{solution}
+
+\end{parts}
+
+\question[20]
+Table 2 from \cite{JNNP2009association} displays the beta coefficients from linear regression analysis. Refer to this table 
+to answer the following questions.
+
+\begin{parts}
+
+\part[5]
+What is your interpretation of the Beta coefficient relating BMI ($kg/m^2$) to vitamin D levels 
+[Beta coefficient (and 95\% CI) = -0.811 (-1.081, -0.541)]?
+\begin{solution}
+Every 1 $kg/m^2$ increase in BMI is associated with an average 0.811 nmol/L decrease in vitamin D 
+levels, after adjusting for age.
+\end{solution}
+
+\part[5]
+Specify the models used to generate the Beta coefficient relating BMI ($kg/m^2$) to vitamin D levels?
+\begin{solution}
+$$
+\text{Vitamin D} = \beta_0 + \beta_{\text{age}}\times \text{age} + \beta_{\text{BMI}} \times \text{BMI}
+$$
+\end{solution}
+
+\part[5]
+Which factor is associated with the greatest decrease in DSST score?
+\begin{solution}
+A 10-year increase in age.
+\end{solution}
+
+\part[5]
+What is another test that the authors could use to determine whether people in the different BDI 
+categories (normal, mild to borderline, moderate to extreme) have significantly different mean DSST 
+scores?
+\begin{solution}
+Analysis of variance (ANOVA).
+\end{solution}
+\end{parts}
+
+
+\question[10]
+A multiple regression model is fitted on a data set:
+$$
+Y_i = x_i^T \beta + \epsilon_i, \epsilon_i \stackrel{\text{i.i.d}}{\sim} \mathbf{N}(0,\sigma^2)
+$$
+where $x_i = (1,x_{i1}, \dots, x_{i4})^T, \beta=(\beta_0, \beta_1, \dots, \beta_4)^T$ 
+and we can obtain the result through R:
+\begin{lstlisting}
+
+Coefficients:
+              Estimate   Std. Error  t value  Pr(>|t|)
+(Intercept)        ???       0.1960    8.438  3.57e-13
+x1              5.3036       2.5316      ???  0.038834
+x2              4.0336       2.4796    1.627  0.107111
+x3             -9.3153       2.4657   -3.778  0.000276
+x4              0.5884       2.2852    0.257  0.797373
+
+Residual standard error: 1.892 on 95 degrees of freedom
+Multiple R-squared: 0.1948, Adjusted R-squared: ???
+F-statistic: 5.745 on 4 and 95 DF,  p-value: 0.0003483
+\end{lstlisting}
+
+\begin{parts}
+
+\part[2]
+What is the value of the $t$-statistics of $\hat{\beta}_1$?
+\begin{solution}
+2.095
+\end{solution}
+
+\part[2]
+How many observations are in the data set?
+\begin{solution}
+100
+\end{solution}
+
+\part[2]
+Has the null hypothesis $H_0: \beta_3 = 0$ to be rejected on $\alpha=0.05$?
+\begin{solution}
+Yes
+\end{solution}
+
+\part[2]
+What is the estimate of the intercept $\hat{\beta}_0$?
+\begin{solution}
+1.654
+\end{solution}
+
+\part[2]
+What is the estimate of $Var(\epsilon_i)$?
+\begin{solution}
+3.579
+\end{solution}
+
+\part[2]
+What is the 95\% confidence interval for $\beta_3$?
+\begin{solution}
+$$
+-9.315 \pm 1.99 \times 2.466
+$$
+\end{solution}
+\end{parts}
+
+
+\end{questions}
+
+% bibliographystyle{}
+% plain，按字母的顺序排列，比较次序为作者、年度和标题.
+% unsrt，样式同plain，只是按照引用的先后排序.
+% alpha，用作者名首字母+年份后两位作标号，以字母顺序排序.
+% abbrv，类似plain，将月份全拼改为缩写，更显紧凑.
+% ieeetr，国际电气电子工程师协会期刊样式.
+% acm，美国计算机学会期刊样式.
+% siam，美国工业和应用数学学会期刊样式.
+% apalike，美国心理学学会期刊样式.
+
+\bibliographystyle{plain}
+\bibliography{quiz6}
+
+\end{CJK*}
+\end{document}
