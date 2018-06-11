@@ -1,0 +1,673 @@
+% Exam Template for SJTU Department of Bioinformatics and Biostatistics Courses
+%
+% Using Philip Hirschhorn's exam.cls: http://www-math.mit.edu/~psh/#ExamCls
+%
+% run pdflatex on a finished exam at least three times to do the grading table on front page.
+%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+% These lines can probably stay unchanged, although you can remove the last
+% two packages if you're not making pictures with tikz.
+%\documentclass[11pt,addpoints]{exam}
+\documentclass[11pt,addpoints,answers]{exam}
+\RequirePackage{amssymb, amsfonts, amsmath, latexsym, verbatim, xspace, setspace}
+\RequirePackage{tikz, pgflibraryplotmarks, enumerate}
+\usepackage{color}
+\usepackage{xcolor}
+\usepackage{multirow}
+\usepackage{CJK}
+\usepackage[T1]{fontenc}
+\usepackage{multicol}
+\usepackage{cite}
+\usepackage{longtable}
+\usepackage{listings}
+\lstset{
+language=R,
+keywordstyle=\color{blue!70}\bfseries,
+basicstyle=\ttfamily,
+commentstyle=\ttfamily,
+showspaces=false,
+showstringspaces=false,
+showtabs=false,
+frame=shadowbox,
+rulesepcolor=\color{red!20!green!20!blue!20},
+breaklines=true}
+
+% By default LaTeX uses large margins.  This doesn't work well on exams; problems
+% end up in the "middle" of the page, reducing the amount of space for students
+% to work on them.
+\usepackage[margin=1in]{geometry}
+
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{example}{Example}
+\newtheorem{definition}{Definition}
+\newtheorem{property}{Property}
+
+% Here's where you edit the Class, Exam, Date, etc.
+\newcommand{\class}{BI476 Biostatistics - Case Study}
+\newcommand{\term}{Spring 2018}
+\newcommand{\examnum}{Exercise 8}
+\newcommand{\examdate}{06/15/2018}
+\newcommand{\timelimit}{60 Minutes}
+
+% For an exam, single spacing is most appropriate
+\singlespacing
+% \onehalfspacing
+% \doublespacing
+
+% For an exam, we generally want to turn off paragraph indentation
+\parindent 0ex
+
+\newcommand{\tf}[1][{}]{%
+\fillin[#1][0.25in]%
+}
+
+\begin{document} 
+\begin{CJK*}{UTF8}{gbsn}
+
+% These commands set up the running header on the top of the exam pages
+\pagestyle{head}
+\firstpageheader{}{}{}
+\runningheader{\class}{\examnum\ - Page \thepage\ of \numpages}{\examdate}
+\runningheadrule
+
+\begin{center}
+{\LARGE Exercise 8: Semiparametric Survival Analysis}\\
+{\Large 2018 Spring}
+\end{center}
+
+\rule[1ex]{\textwidth}{.1pt}
+
+\section{Cox proportional hazards model}
+A Cox proportional hazards model specifies the relationship between the hazards and 
+the covariates:
+$$
+h(t,\mathbf{X}) = h_0(t) \exp\left( \sum_{i=1}^p x_i \beta_i \right)
+$$
+\begin{itemize}
+	\item $h_0(t)$: \textbf{baseline hazard rate}, time-dependent.
+	\item $\mathbf{X}$: vector of explanatory variables, covariates.
+	\item $\exp(\beta_i)$: \textbf{hazard ratio} for the coefficient $\beta_i$.
+	\item The \textbf{ratio} between the predicted \textbf{hazard rate} of 
+		two individuals that differ by 1 unit of $x_i$. 
+	\item $\mathbf{X}\beta$: \textbf{Prognostic index (预后指数)} 
+\end{itemize}
+There is a parameter $\beta$, but no parametric form for $h_0(t)$ in the model. That's 
+the reason why we call it \textbf{semi-parametric model}.
+
+Thus:
+$$
+\begin{array}{lcl}
+\log h(t, \mathbf{X}) &=& \log h_0(t) + \mathbf{X}\beta\\
+\log \frac{h(t,X)}{h_0(t)} &=& \mathbf{X}\beta
+\end{array}
+$$
+
+\section{Accerlated Failure Time (AFT) Model}
+
+\section{Cox's Proportional Hazards Model}
+
+In this section we will introduce the Cox's proportional hazards model, give a heuristic 
+development of the \textbf{partial likelihood function}, and discuss adaptions to 
+accomodate \textbf{tied observations}. We then explore some specific tests that arise 
+from likelihood-based inferences based on the partial likelihood. Asymptotic properties 
+of the resulting estimators and tests will also be covered.
+
+\subsection{PH Model}
+For $n$ subjects with covariate vector $Z$ and the survival outcome $(U, \delta)$ 
+representing noninformatively right-censored values of a survival time $T$. That is, 
+for subject $i$,
+\begin{itemize}
+	\item $Z_i$: the covariate vector;
+	\item $T_i$: the underlying survival time;
+	\item $C_i$: the potential censoring time;
+	\item $U_i = \min(T_i, C_i)$;
+	\item $\delta_i = I(T_i \le C_i)$;
+	\item $T_i \perp C_i | Z_i$
+\end{itemize}
+
+One way to model a relationship between $Z$ and $T$ is by assuming \textbf{$h(\cdot)$ 
+is functionally related to $Z$}:
+$$
+T \sim \exp(\lambda_Z)
+$$
+where $h(t) = \lambda_Z = \exp(\alpha + \beta Z) = \lambda_0 \exp(\beta Z)$ ($\lambda_0 = \exp(\alpha)$).
+
+Thus, we might assume that $T_i \sim \exp(\lambda_0 \exp(\beta Z_i))$. Therefore, 
+$\beta=0$ means that $\lambda_Z$ does not depend on $Z$, and also $Z$ is not assocated 
+with $T$.
+
+\subsubsection{Generalization}
+Let $h(t|Z)$ denote the hazard function for a subject with covariate $Z$. Suppose that
+$$
+h(t | Z) = h_0(t) \times g(Z)
+$$
+where $h_0(t)$ is a function of $t$ without $Z$, and $g(Z)$ is a function of $Z$ without 
+$t$.
+
+This can be called \textbf{multiplicative hazards model} or \textbf{proportional hazards 
+model}. This factorization implies that
+$$
+\frac{h(t|Z=Z_1)}{h(t|Z=Z_2)} = \frac{g(Z_1)}{g(Z_2)}
+$$
+which is independent of $t$. That is the reason why it is called the \textbf{proportional 
+hazards (PH) model}.
+
+\begin{example}{({\bf Cox's proportional hazards (Cox's PH) model})}
+$$
+g(Z) = \exp(\beta Z) \Rightarrow h(t|Z) = h_0(t) \times \exp(\beta Z)
+$$
+where
+$$
+\frac{h(t|Z=Z_1)}{h(t|Z=Z_2)} = \exp(\beta(Z_1 - Z_2))
+$$
+For a scalar $Z$, $\exp(\beta) = \mbox{hazard ratio corresponding to a unit change in }Z$.
+\end{example}
+
+\begin{example}{({\bf Categorical $Z$})}
+$$
+Z = \begin{pmatrix}
+Z_1\\
+Z_2
+\end{pmatrix}, Z_1 = \begin{cases}
+0 & R_x (\mbox{treatment}) = 0\\
+1 & R_x (\mbox{treatment}) = 1
+\end{cases}, Z_2 = \begin{cases}
+0 & \mbox{female}\\
+1 & \mbox{male}
+\end{cases}
+$$
+and $\beta = (\beta_1, \beta_2)$, 
+then
+$$
+h(t|Z) = \begin{cases}
+h_0(t) & R_x = 0, \mbox{female}\\
+h_0(t)\exp(\beta_1) & R_x = 1, \mbox{female}\\
+h_0(t)\exp(\beta_2) & R_x = 0, \mbox{male}\\
+h_0(t)\exp(\beta_1+\beta_2) & R_x=1, \mbox{male}
+\end{cases}
+$$
+\end{example}
+
+\subsection{Inference}
+
+Our inferential problems include：
+\begin{itemize}
+	\item Estimate $\beta$ and derives its statistical properties,
+	\item Testing hypothesis $H_0: \beta=0$ or for part of $\beta$,
+	\item Diagnostics of the assumptions
+\end{itemize}
+
+
+\subsubsection{Estimation}
+How can we infer the coefficients $\beta$?
+\begin{itemize}
+	\item Assumption 1: parametric form of $h_0(t)$, conduct parametric analysis 
+		(e.g., $h_0(t) = \lambda_0$)
+	\item Assumption 2: arbitrary $h_0(t)$
+\end{itemize}
+
+The survival function:
+$$
+S(u|Z) = (S_0(u))^{\exp(\beta Z)}
+$$
+where 
+$$
+\begin{array}{lcl}
+S_0(u) &=& \exp(-\int_0^u h_0(t) dt)\\
+&=& \mbox{survival function for someone with }Z=0\\  
+&=& S(u|0)
+\end{array}
+$$
+Also, we have $f(u|Z) = h(u|Z) S(u|Z)$.
+
+Therefore , for $n$ independent observations $(u_i, \delta_i, z_i), i=1,\dots, n$, the 
+likelihood function is
+$$
+\begin{array}{lcl}
+L(\beta, h_0(\cdot)) &=& \prod_{i=1}^n f(u_i|z_i)^{\delta_i} S(u_i | z_i)^{1-\delta_i}\\
+&=& \prod_{i=1}^n h(u_i|z_i)^{\delta_i} S(u_i|z_i)\\
+&=& \prod (h_0(u_i)e^{\beta z_i})^{\delta_i} (e^{-\int_0^{u_i} h_0(t)dt})^{e^{\beta z_i}}\\
+&=& f(\mbox{data}, \beta, h_0(\cdot))
+\end{array}
+$$
+
+If we allow arbitrary $h_0(\cdot)$, then the \textbf{parameter space} is
+$$
+\mathcal{H} \times \mathbb{R}^p = \left\{ (h_0(\cdot), \beta): h_0(u) \ge 0 \mbox{ for all }u, \int_0^{\infty} h_0(u) = \infty \mbox{ and } \beta \in \mathbb{R}^p \right\}
+$$
+where $p$ is the dimension of the vector $\beta$. The condition
+$$
+\int_0^{\infty} h_0(u) du = \infty
+$$
+ensures that $S_0(\infty) = 0$.
+
+In many application, the main goal is to make an inference about $\beta$ and the 
+underlying hazard $h_0(\cdot)$ is a nuisance function. Inference in such a settings 
+are commonly called \textbf{semi-parametric}. Therefore, the standard likelihood 
+theory, based on Euclidean parameter spaces, does not apply here.
+
+\subsubsection{Cox's partial likelihood estimator}
+
+Try to factorize $L(\beta, h_0(\cdot))$ into
+$$
+L(\beta, h_0(\cdot)) = L_1(\beta) \times L_2(\beta, h_0)
+$$
+where
+\begin{itemize}
+	\item $L_1(\beta)$ is a function of $\beta$, whose maximum estimate $\hat{\beta}$ enjoys 
+		nice properties $(\hat{\beta} \stackrel{P}{\to} \beta)$ and $(\sqrt{n} 
+		(\hat{\beta} - \beta) \stackrel{\mathcal{L}}{\to} N)$ although perhaps 
+		inefficient.
+	\item $L_2(\beta,h_0(\cdot))$ is a function of $h_0(\cdot)$ and $\beta$ which 
+		contains relatively little information about $\beta$.
+\end{itemize}
+
+Then, Cox recommends to infer $\beta$ on the partial likelihood function $L_1(\beta)$.
+
+
+\subsection{Partial Likelihood Function, $L_p$}
+
+$$
+\begin{array}{lcl}
+L_p = \prod_{i=1}^d q_i &=& \prod_{i=1}^d \frac{h_0(t_i) \exp(\mathbf{X}_i \beta)}{\sum_{j \in R_i} h_0(t_i) \exp(\mathbf{X}_j \beta)}\\
+&=& \prod_{i=1}^d \frac{\exp(\mathbf{X}_i \beta)}{\sum_{j \in R_i} \exp(\mathbf{X}_j \beta)}
+\end{array}
+$$
+where
+\begin{itemize}
+	\item $d$: number of non-censored time points.
+	\item $R_i$: risket set at time $t_i$.
+	\item $q_i = \frac{h_i(t)}{\sum_{j \in R_i} h_j(t)}$ is the probability of failure at time $t_i$ 
+	\item Only the non-censored subjects are included in the analysis for numerator.
+	\item In the denominator term, all the subject in risk (including the censored) are 
+		included into the computation.
+\end{itemize}
+
+This function can also be rewritten as (for computational convenience):
+$$
+L_p = \prod_{i=1}^n \left( \frac{\exp(\mathbf{X}_i \beta)}{\sum_{j \in R_i} \exp(\mathbf{X}_j \beta)} \right)^{\delta_i}
+$$
+where
+$$
+\delta_i = \begin{cases}
+1 & \mbox{subject }i \mbox{failed}\\
+0 & \mbox{otherwise}
+\end{cases}
+$$
+
+\subsubsection{Log partial likelihood function}
+$$
+\begin{array}{lcl}
+l(\beta) &=& \log L_p\\
+&=& \sum_{i=1}^d \mathbf{X}_i \beta - \sum_{i=1}^d \log \left( \sum_{j \in R_i} \mathbf{X}_j\beta \right)
+\end{array}
+$$
+Let $\frac{\partial l}{\partial \beta} = 0$, we can obtain the regression coefficients $\mathbf{\beta}$ 
+through \textbf{Newton-Raphson} iterative approach.
+
+
+\subsection{Estimate of Coefficients and Hypothesis Tests}
+\begin{example}{({\bf Survival analysis of nasal lymphoma patients})}
+Here is the follow-up data of 16 nasal lymphoma patients in a hospital:
+
+\begin{tabular}{lcccccccc}
+\hline
+id & gender & age & stage & bleed & rdx & chmx & days & status\\
+\hline
+1 & 1 & 45 & 2 & 2 & 0 & 1 & 578 & 1\\
+2 & 0 & 36 & 2 & 2 & 0 & 1 & 1549 & 1\\
+3 & 1 & 57 & 2 & 2 & 1 & 0 & 938 & 1\\
+4 & 0 & 45 & 2 & 0 & 1 & 0 & 4717 & 0\\
+5 & 0 & 42 & 2 & 0 & 1 & 1 & 4111 & 1\\
+6 & 0 & 39 & 2 & 1 & 0 & 1 & 1245 & 1\\
+7 & 1 & 38 & 2 & 1 & 1 & 1 & 4435 & 1\\
+8 & 1 & 45 & 2 & 2 & 1 & 0 & 3750 & 1\\
+9 & 1 & 30 & 2 & 0 & 1 & 0 & 3958 & 1\\
+10 & 0 & 45 & 2 & 1 & 0 & 1 & 2581 & 1\\
+11 & 0 & 45 & 3 & 1 & 0 & 1 & 3572 & 1\\
+12 & 1 & 57 & 2 & 1 & 1 & 0 & 2938 & 1\\
+13 & 0 & 57 & 2 & 2 & 0 & 1 & 1932 & 1\\
+14 & 1 & 49 & 2 & 2 & 1 & 1 & 3205 & 1\\
+15 & 1 & 33 & 2 & 1 & 0 & 1 & 3451 & 1\\
+16 & 0 & 51 & 2 & 2 & 1 & 0 & 2363 & 1\\
+\hline
+\end{tabular}
+
+Analyze the data using the Cox's proportional hazards model, using the other six metrics as 
+covariates:
+\begin{lstlisting}
+library(survival)
+lympho <- read.table("data/nasallym.dat", header=T)
+for (i in c(2,4:7)){
+	lympho[,i] <- factor(lympho[,i])
+}
+cox.mod <- coxph(Surv(days, status) ~ gender + age + stage + bleed + rdx + chmx, 
+		data = lympho)
+summary(cox.mod)
+\end{lstlisting}
+\end{example}
+
+
+\subsection{Cox's PH Models with Time-dependent Covariates}
+
+Since survival data is a time-series data, some covariates may also change over time, 
+which we refer to as \textbf{time-dependent covariates}.
+
+Here are some examples:
+\begin{itemize}
+	\item Cumulative exposure to some risk factor,
+	\item Smoking status,
+	\item Heart (kidney) transplant status,
+	\item Blood pressure
+\end{itemize}
+
+We might have more than one such covariate. For the $i$-th participants, we denote such 
+covariates as:
+$$
+Z_i(t) = (Z_{i1}(t), \dots, Z_{iq}(t))^T
+$$
+If the $j$-th covariate is time-independent, then $Z_{ij}(t)$ is constant over time.
+
+Let $Z_i^H(t)$ denote the history of the time-dependent covariates up to time $t$,
+$$
+Z_i^H(t) = \{Z_i(u), 0 \le u \le t\},
+$$
+then we can define the hazard rate at time $t$ conditional on this history:
+$$
+\lambda(t|Z_i^H(t)) = \lim_{\Delta t \to 0} \frac{P[t \le T_i \le t+\Delta t | T_i \ge t, Z_i^H(t)]}{\Delta t}
+$$
+This is the instantaneous rate of failure at time $t$, given that the individual was at 
+risk at time $t$ with a history of $Z_i^H(t)$. For such a conditional hazard rate, we 
+may consider a proportional hazards model:
+$$
+\lambda(t|Z_i^H(t)) = \lambda_0(t) \exp(\beta^T g(Z_i^H(t))),
+$$
+More often we will choose $g(\cdot)$ as $g(Z_i^H(t)) = z_i(t)$, then
+$$
+\lambda(t|Z_i^H(t)) = \lambda_0(t) \exp(\beta^T Z_i(t))
+$$
+if we implicitly assume that the hazard rate at time $t$ given the entire history of 
+the covariates up to time $t$ is only affected by the current values of the covariates 
+at time $t$.
+
+
+\begin{example}{({\bf The effect of exposure to asbestos over time on mortality})}
+A sample of workers in a factory where asbestos is made were monitored for a period of 
+time and data were collected on survival and asbestos exposure.
+
+For the $i$-th individuals, the data could be summarized as
+$$
+(X_i, \delta_i, Z_i^H(X_i))
+$$
+where
+\begin{itemize}
+	\item $X_i = \min(T_i, C_i)$ is the observed survival time or censoring time,
+	\item $\delta_i = I(T_i \le C_i)$ is the failure indicator,
+	\item $Z_i^H(X_i)$ is the history of asbestos exposure up to time $X_i$
+\end{itemize}
+
+\end{example}
+
+Suppose we wish to use the above proportional hazards model with time-dependent covariates,
+then what should we use for the function $g(Z_i^H(t))$?
+\begin{itemize}
+	\item Use the cumulative exposure (need extrapolation), i.e.
+	$$
+g(Z_i^H(t)) = \sum_j Z_i(u_{ij})(u_{ij} - u_{i(j-1)}),
+	$$
+	\item Use average exposure up to time $t$
+	$$
+g(Z_i^H(t)) = \frac{\sum_{u_{ij} < t}Z_i(u_{ij})}{\mbox{\# of measurements up to }t}
+	$$
+	\item Use maximum exposure up to time $t$
+	$$
+g(Z_i^H(t)) = \max\{Z_i(u_{ij}): u_{ij} < t\}
+	$$
+	\item Use the compound exposure term.
+\end{itemize}
+
+If we consider the model
+$$
+\lambda(t|Z^H(t)) = \lambda_0(t) \exp(\beta^T Z(t))
+$$
+then the partial likelihood function of $\beta$ for this model is given by
+$$
+PL(\beta) = \prod_u \left[ \frac{\exp(\beta^T Z_{I(u)}(u))}{\sum_{l=1}^n \exp(\beta^T Z_l(u))Y_(u)}\right]^{dN(u)}
+$$
+where $I(u)$ is the indicator variable that identifies the individual label for the 
+individuals who fail at time $u$.
+
+
+
+
+\subsection{Write a report on survival analysis}
+
+\begin{itemize}
+	\item Describe the event of interest (e.g., failure time)
+	\item The start time and end time for the follow-up
+	\item Type of censoring and the possible reasons for censoring
+	\item The method for computing survival rate (Kaplan-Meier, or life table)
+	\begin{itemize}
+		\item median survival time, or 5-year surval rate (estimate and confidence interval)
+		\item The statistical methods for comparing the survival rates (Logrank or Breslow) and 
+			also the p-value.
+	\end{itemize}
+	\item Cox proportional hazards model for the relation between explantory variables and hazard:
+	\begin{itemize}
+		\item hazard ratios and the corresponding confidence interval
+		\item hypothesis testing of the assumption of proportional hazards
+	\end{itemize} 
+\end{itemize}
+
+\subsection{Competing Risk Model}
+
+\section{Frailty model}
+
+\section*{Exercises}
+
+\begin{questions}
+
+\question[40]
+A clinical trial is intended to test a new treatment for malignant melanoma vs. current standard care. The
+main outcome is disease-free survival. Each patient has a time $t$ in days after start of therapy that 
+represents either the time of recurrence or death (if \texttt{status = 1}) or the end of the study (if \texttt{status 
+= 0}). Each patient has two covariates we can use: \texttt{Tx = 1} if they are on the new therapy or \texttt{Tx 
+= 0} if they are on standard of care. There are four subtypes of malignant melanoma, which we will characterize as 
+\texttt{Type = A, B, C, or D}. The effect of the new therapy may differ among the four subtypes.
+
+\begin{parts}
+	\part We can estimate the survival curve for patients on the new and standard therapy including all four
+		subtypes using the \texttt{Kaplan-Meier product limit estimator}. Suppose at a given time $t$ (in days after
+		starting therapy), and for a particular subset of the patients, that there are 194 patients whose survival
+		or censoring time is at least $t$. Suppose that 3 patients died or relapsed on day $t$ and 2 patients
+		had a censoring time of $t$. By what fraction does the estimated survival curve drop at time $t$? How
+		many patients are in the risk set just before $t$ and just after $t$?
+
+	\part Write down the Cox model for predicting survival from \texttt{Tx, Type, and the Tx by Type interaction} 
+		including a definition of the coefficients and their relationship to survival. State the important
+		assumptions.
+
+	\part If there are 20 patients at risk at a given time and 1 of them fails, write down the contribution (factor)
+		to the partial likelihood from that failure time in terms of the model specification. Does it depend on
+		the base hazard?
+
+	\part Which will generate more accurate coefficient estimates, a study with 1000 patients of whom 900 survive 
+		to the end of the study without recurrence, or a study with 500 patients 300 of whom survive? Why?
+
+	\part Describe the most appropriate hypothesis test for whether the interaction term is required in the
+		model. How the test statistic be calculated? To what specific statistical distribution would the test
+		statistic be compared?
+
+	\part Suppose that the reference levels of the covariates are \texttt{Tx = 0} and \texttt{Type = A}. List all 
+		the coefficients in the model (symbolically). In terms of those coefficients, what would be the estimated 
+		log hazard ratio of a patient with \texttt{Type B} melanoma on \texttt{Tx = 1} to a patient with \texttt{Type 
+		C} melanoma on \texttt{Tx = 0}? What would be the estimated hazard ratio?
+
+	\part How would you examine the proportionality assumption, graphically and/or with a statistical test?
+
+	\part If it appears that the different subtypes have non-proportional hazards, how would you change the model 
+		so that this could be accommodated?\\
+	\textcolor{red}{Solution}\\
+	One way would be to use a strata term for a grouping variable that was non-
+		proportional. The alternative way is to include the time-dependent covariate.
+\end{parts}
+
+
+\question[55]
+Consider the data from Prevention of Events with Angiotensin Converting Enzyme Inhibition
+(PEACE) Trial. The goal of the study was to test whether ACE-inhibitor therapy,
+when added to modern conventional therapy, would reduce the rate of nonfatal myocardial
+infarction, death from cardiovascular causes, or revascularization in low-risk patients with
+stable coronary artery disease and normal or slightly reduced left ventricular function. Patients
+underwent randomization from November 1996 to June 2000 and were followed up for
+as long as 7 years (median, 4.8 years), until December 31, 2003. The study was conducted
+after approval from the institutional review boards at 187 sites in the United States (including
+Puerto Rico), Canada, and Italy. Patients gave their written informed consent to
+participate. An independent data and safety monitoring board reviewed patient safety data
+and interim results. A morbidity and mortality review committee reviewed and classified all
+outcomes. The data consist of the following variables
+\begin{itemize}
+	\item \texttt{t2death}: time to death (months)
+	\item \texttt{death}: censoring status (1=death; 0=censored)
+	\item \texttt{tx}: 0=standard 1=treatment
+	\item \texttt{age}: age(years) at baseline
+	\item \texttt{sysbp}: systolic blood pressure at baseline
+	\item \texttt{gender}: 1=female; 0=male
+	\item \texttt{hidiabet}: history of diabetes (1=yes; 0=no) at baseline
+	\item \texttt{hihypert}: history of hypertension (1=yes; 0=no) at baseline
+\end{itemize}
+
+Load the dataset into R using
+\begin{lstlisting}
+peace=read.csv("data/peacedata.csv", head=T)
+\end{lstlisting}
+
+\begin{parts}
+
+\part[5]
+Conduct the logrank test to test the treatment effect of ACE-inhibitor therapy in
+reducing mortality.
+
+\part[10]
+Estimate the hazard ratio of the ACE-inhibitor versus the standard care only and
+construct the associated confidence interval based on the Cox regression model. Report
+your findings. Compare the p-value of the treatment effect with that from the logrank
+test. Why are they almost identical?
+
+\part[10]
+It is known that age, systolic blood pressure, gender, history of diabetes and history of
+hypertension are associated with the survival time. Estimate the hazard ratio of the
+the ACE-inhibitor versus the standard care only but adjusting for the aforementioned
+factors, using the multivariate Cox regression model. Report your findings.
+
+\part[10]
+Estimate the hazard ratio of the ACE-inhibitor versus the standard care only and
+construct the associated confidence interval based on the Cox regression model in male
+and female patients, separately. Test if these two hazard ratios are identical. Report
+and interpret your findings.
+
+\part[20]
+The clinical investigator decides to develop prognostic regression models using the
+baseline age, systolic blood pressure, gender, history of diabetes and history of hypertension
+to predict the survival time for patients receiving the conventional therapy
+only and for patients receiving the ACE-inhibitor plus the conventional therapy. To
+this end, one may build two separate Cox regression models in patient receiving the
+conventional therapy only (tx=0) and in patient receiving the ACE-inhibitor plus the
+conventional therapy (\texttt{tx=1}).
+
+\begin{enumerate}[(a)]
+	\item Plot the estimated survival functions for following four patients:
+	\begin{itemize}
+		\item patient A receiving the conventional therapy only 
+			(age=60, sysbp=140, gender=1, hidiabet=0, hihypert=1)
+		\item patient B receiving the ACE-inhibitor plus conventional therapy 
+			(age=140, sysbp=60, gender=1, hidiabet=0, hihypert=1)
+		\item patient C receiving the conventional therapy only 
+			(age=60, sysbp=140, gender=0, hidiabet=0, hihypert=1)
+		\item patient D receiving the ACE-inhibitor plus conventional therapy 
+			(age=140, sysbp=60, gender=0, hidiabet=0, hihypert=1)
+	\end{itemize}
+	Would you give different treatment recommendations for a 60-year old male 
+		patient, who has a systolic blood pressure of 140 and history of 
+		hypertension but has no diabetes, and a female patient with the same 
+		characteristics? Why?
+	\item The researcher decides to use the restricted mean survival time (up to 
+		80 months) to summarize the survival curve. What are the RMST for patients 
+		A and B based on your estimated survival curves.
+	\item You may use the resampling method to construct the 95\% confidence interval 
+		for these two RMSTs. The basic idea is to replace $d M_i(t)$ by $d N_i(t)G_i$, 
+		where $G_i \sim N(0, 1)$ generated by the users. Describe your procedure and 
+		construct the corresponding 95\% confidence intervals.
+\end{enumerate}
+
+\end{parts}
+
+
+\question[30]
+(\textbf{Survival Analysis: Model Checking}) A subset of the Mayo PBC data is on the web as 
+\texttt{mayo\_sub.dat}. This contains the 5 variables that were used in the final Mayo model as 
+well as the survival time and status (also included is stage, but this doesn't appear to add 
+to the prognostic potential – you can check this if you wish). Our question is: Do these 
+data appear to satisfy the PH assumption? Note that formal methods (tests) were not fully 
+developed until 1994, and the reported analysis using the Cox model appeared in 1989.
+
+\begin{parts}
+\part Fit the Mayo model and then assess whether the variables appear to satisfy the PH
+assumption. Specifically, test the PH assumption for each variable. Interpret these tests.
+
+\part For the variable (or variables) that are suggested to poorly satisfy the PH assumption
+divide them into 3 groups and plot $log(− log(\hat{S}(t)))$ versus time. Interpret what this
+plot suggests about whether the PH assumption is satisfied for the variable. Turn this plot in.
+
+\part Fit the Cox model with the 5 Mayo model variables and plot the Schoenfeld residual
+versus time for each variable. Use the smooth curve to help visualize trends. Interpret these
+plots with respect to whether the PH assumption appears to be violated. Turn these plots in.
+
+\part PBC legend has it that there is an observation which is an entry error (ie. the
+value is wrong!), and that it has a large influence on one coefficient estimate. Create deltabeta’s
+and plot these influence statistics against either time and/or the predictor variable
+that they correspond to. Interpret these plots. Can you identify the error? (Note: see the
+web page to obtain code to calculate the delta-beta’s).
+\end{parts}
+
+\question[20]
+
+The file \texttt{addicts.dat} contains data regarding the time that heroin addicts remain in 
+methadone treatment. In the lecture notes we found that the variable clinic did not satisfy 
+the PH assumption and we were able to make inference on other predictor variables by using 
+clinic as a stratifying variable.
+
+These data were analyzed by Caplehorn and Bell (1991) who were interested in factors
+associated with retaining subjects: "As methadone maintenance is of proven benefit only
+to those in treatment, retention in treatment is an important measure of the effectiveness
+of treatment programmes." and "To elucidate the reasons that programmes fail to retain
+patients, we have studied the relationship between the maximum daily dose and retention
+in a cohort of addicts." Scientific interest is in whether factors other than dose can be 
+used to identify subjects at high risk for failing to be retained.
+
+\begin{parts}
+\part Calculate bivariate summaries for each of the predictor variables and their association
+with time retained in treatment. Summarize these by creating a table of hazard ratios and
+95\% CI’s for each variable when it is the single predictor in a Cox regression that uses clinic
+as a stratifying variable.
+
+\part Calculate a Cox regression model using all of the predictors. Summarize the results
+by creating a single table of regression parameters (or hazard ratios) – use the computer
+output as directly as possible in order to create this table. (again stratify on clinic)
+
+\part Describe the assumptions in your Cox regression model, in particular what it means
+to use clinic as a stratifying variable.
+
+\part Are there other variables besides dose that appear to be predictive of retention failure?
+Summarize the results of your analysis.
+
+\part Do the other covariates appear to satisfy the PH assumption? Justify your conclusion
+
+\end{parts}
+
+\end{questions}
+
+\end{CJK*}
+\end{document}

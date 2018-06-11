@@ -1,0 +1,579 @@
+\documentclass[table,10pt]{beamer}
+
+\mode<presentation>{
+%\usetheme{Goettingen}
+\usetheme{Boadilla}
+\usecolortheme{default}
+}
+\usepackage{CJK}
+\usepackage{graphicx}
+\usepackage{amsmath, amsopn}
+\usepackage{xcolor}
+\usepackage[english]{babel}
+\usepackage[T1]{fontenc}
+\usepackage[latin1]{inputenc}
+\usepackage{enumerate}
+\usepackage{multirow}
+\usepackage{url}
+\ifx\hypersetup\undefined
+	\AtbBeginDocument{%
+		\hypersetup{unicode=true,pdfusetitle,
+bookmarks=true,bookmarksnumbered=false,bookmarksopen=false,
+breaklinks=false,pdfborder={0 0 0},pdfborderstyle={},backref=false,colorlinks=false}
+	}
+\else
+	\hypersetup{unicode=true,pdfusetitle,
+bookmarks=true,bookmarksnumbered=false,bookmarksopen=false,
+breaklinks=false,pdfborder={0 0 0},pdfborderstyle={},backref=false,colorlinks=false}
+\fi
+\usepackage{breakurl}
+\usepackage{color}
+\usepackage{times}
+\usepackage{xcolor}
+\usepackage{listings}
+\lstset{
+language=R,
+keywordstyle=\color{blue!70}\bfseries,
+basicstyle=\ttfamily,
+commentstyle=\ttfamily,
+showspaces=false,
+showtabs=false,
+frame=shadowbox,
+rulesepcolor=\color{red!20!green!20!blue!20},
+breaklines=true}
+
+
+
+\setlength{\parskip}{.5em}
+
+\title[BI476]{BI476: Biostatistics - Case Studies}
+\subtitle[survival]{Lec08: Semiparametric Survival Data Analysis}
+\author[Maoying Wu]{Maoying,Wu\\{\small ricket.woo@gmail.com}}
+\institute[CBB] % (optional, but mostly needed)
+{
+  \inst{}
+  Dept. of Bioinformatics \& Biostatistics\\
+  Shanghai Jiao Tong University
+}
+\date{Spring, 2018}
+
+\AtBeginSection[]
+{
+  \begin{frame}<beamer>{Next Section ...}
+    \tableofcontents[currentsection]
+  \end{frame}
+}
+
+\begin{document}
+\begin{CJK*}{UTF8}{gbsn}
+
+<<setup, include=FALSE>>=
+library(knitr)
+opts_chunk$set(fig.path='figure/beamer-', fig.align='center',
+fig.show='hold',size='footnotesize', out.width='0.60\\textwidth')
+carcinoma <- read.table("data/carcinoma-ct-it.txt", header=T)
+@
+
+\begin{frame}
+  \titlepage
+\end{frame}
+
+\begin{frame}
+\frametitle{Outline}
+	\tableofcontents
+\end{frame}
+
+\section{Semiparametric: Cox proportional hazard regression}
+
+\begin{frame}[t,containsverbatim]
+\frametitle{Semiparametric modeling}
+\begin{itemize}
+	\item A semiparametric model contains two portions:
+	\begin{itemize}
+		\item Nonparametric portion: The underlying survival 
+			distribution.
+		\item Parametric portion: The way in which covariates 
+			affect that underlying distribution.
+	\end{itemize}
+	\item Two popular semiparametric models for survival data 
+		regression
+	\begin{itemize}
+		\item Proportional hazard (PH) framework
+		\item Accelerated failure time (AFT) framework
+	\end{itemize}
+\end{itemize}
+\end{frame}
+
+
+\begin{frame}[t,containsverbatim]
+\frametitle{Semiparametric Models: Introduction}
+\begin{itemize}
+	\item For the AFT model:
+	$$
+Y_i = x_i^T \beta + W_i, \mbox{ where } Y_i = \log T_i
+	$$
+	\item The parametric aspect of the model lies in the $x_i^T 
+		\beta$ portion, while the nonparametric aspect 
+		involves assuming that $W_i \stackrel{\text{i.i.d}}{\sim} F$, 
+		where $F$ is some generic, unspecified distribution.
+	\item That is, $\beta$ should be inferred without depending 
+		on a specific distribution $F$.	
+\end{itemize}
+\end{frame}
+
+\begin{frame}[t,containsverbatim]
+\frametitle{Cox proportional hazard regression}
+\begin{itemize}
+	\item Proposed by David Cox (1972)
+	\item The model is specified in terms of the hazard function 
+		instead of the survival function
+	\item Assumption of changes in the concomitant variable 
+		corresponding to multiplicative changes in the hazard 
+		function.
+	\item Additive changes in the log of hazard function.
+\end{itemize}
+$$
+h(t | X) = \exp(X\beta) h_0(t)
+$$
+where
+\begin{itemize}
+	\item $X$ is a vector of concomitant, covariate or regressor 
+		information $X = (x_1, x_2, \dots, x_p)$
+	\item $\beta$ is the column vector of parameters
+	\item $\exp(X\beta)$ is the \textbf{parametric portion}.
+	\item $h_0(t)$ (\textbf{nonparametric portion}) is the 
+		time-specific baseline hazard function, referred to 
+		as a homogeneous or baseline hazard function.
+\end{itemize}
+$$
+\frac{h(t|X_1)}{h(t|X_2)} = \frac{\exp(X_1\beta)}{\exp(X_2\beta)}
+$$
+\end{frame}
+
+\begin{frame}[t,containsverbatim]
+\frametitle{Special case: Two observations}
+\begin{itemize}
+	\item Assume that we have only two observations, $T_1$ and 
+		$T_2$, with hazard functions $\lambda_1(t)$ and 
+		$\lambda_2(t)$
+	\item Suppose that the first failure occurs at time $t$, how 
+		likely is the failure subject 1?
+	\item \textbf{Proposition}
+	$$
+\mathbb{P}(T_1=t | T_{(1)} = t) = \frac{\lambda_1(t)}{\lambda_1(t)+\lambda_2(t)}
+	$$
+	\item Under the PH assumption, we have
+	$$
+\mathbb{P}(T_1 < T_2) = \frac{\exp(x_1^T \beta)}{\exp(x_1^T \beta) + \exp(x_2^T \beta)}
+	$$
+	Now the baseline hazard, $\lambda_0(t)$, is canceled out.
+	\item This can be extended to multiple subjects \textbf{without censoring}:
+	$$
+\mathbb{P}(T_1 < T_2 < \dots < T_J) = \prod_{j=1}^J \frac{\exp{x_j^T \beta}}{\sum_{k=j}^J \exp(x_k^T \beta)}
+	$$
+\end{itemize}
+\end{frame}
+
+
+\begin{frame}[t,containsverbatim]
+\frametitle{PH model with censoring}
+\begin{itemize}
+	\item The probability that subject $j$ fails at time $t$ given 
+		that one of the subjects from the risk set $R(t)$ 
+		failed at time $t$ is
+	$$
+\frac{\exp(x_j^T \beta)}{\sum_{k \in R(t)} \exp(x_k^T \beta)}
+	$$
+	\item Therefore, the full likelihood is
+	$$
+L(\beta) = \prod_j \frac{\exp(x_j^T \beta)}{\sum_{k \in R(t)} \exp(x_k^T \beta)}
+	$$
+	\item This is not exactly a likelihood, but a \textbf{partial 
+		likelihood}.
+	\item But the partial likelihood, \textbf{Cox partial 
+		likelihood} still yields a score with mean 
+		zero and a variance given by the negative Hessian 
+		matrix.
+\end{itemize}
+\end{frame}
+
+\begin{frame}[t,containsverbatim]
+\frametitle{Cox proportional hazard regression estimator}
+The estimation is based on the principle of \textbf{maximum partial 
+likelihood} through working out the score vector and Hessian matrix and 
+then applying an \textbf{iterative Newton-Raphson procedure}.
+$$
+L(\beta) = \prod_j \frac{\exp(x_j^T \beta)}{\sum_{k \in R(t_j)} \exp(x_k^T \beta)}
+$$
+\begin{itemize}
+	\item The denominator can be written as
+	$$
+\sum_{k=1}^n Y_k(t_j) \exp(x_k^T \beta)
+	$$
+	where
+	$$
+Y_i(t) = \begin{cases}
+1 & \mbox{subject } i \mbox{ is at risk at time } t\\
+0 & \mbox{otherwise}
+\end{cases}
+	$$
+\end{itemize}
+\end{frame}
+
+
+\begin{frame}[t,containsverbatim]
+\frametitle{Cox's PH Model Inference}
+Let
+$$
+w_j = \exp(\mathbf{x}^T \beta), W_i = \sum_{j \in R_i} w_j
+$$
+then
+$$
+L(\beta) = \prod_i \left\{ \frac{w_i}{\sum_{R_i} w_j}\right\}^{d_i}
+$$
+where $w_i$ is the relative probability of failure for subject $i$.
+
+With these, we can compute the absolute probability of failure for subject $i$ at time $t_j$:
+$$
+\pi_{ij} = Y_i(t_j) \frac{w_i}{W_j}
+$$
+\end{frame}
+
+
+\begin{frame}[t,containsverbatim]
+\frametitle{Score function}
+The partial log-likelihood is:
+$$
+\begin{array}{lcl}
+l &=& \sum_i d_i \log w_i - \sum_i d_i \log W_i\\
+&=& \sum_i d_i \eta_i - \sum_i d_i \log W_i
+\end{array}
+$$
+Note that $W_i$ contains many $\eta$ terms in addition to $\eta_i$.
+
+Then the score equation is obtained by maximizing the log-likelihood function:
+$$
+\frac{\partial l}{\partial \beta} = 0
+$$
+
+we start by
+$$
+\frac{\partial l}{\partial \eta_k} = d_k - \sum_i \pi_{ki} d_i
+$$
+which can be written as the matrix-form:
+$$
+\mathbf{u(\eta) = d - Pd}
+$$
+where $\mathbf{P} \in \mathbb{R}^{n \times n} = (\pi_{ij})_{n \times n}$
+
+Then we can write:
+$$
+\frac{\partial l}{\partial \beta} = \frac{\partial l}{\partial \eta} \frac{\partial \eta}{\partial \beta} = \mathbf{X^T (d - Pd)}
+$$
+\end{frame}
+
+
+\begin{frame}[t,containsverbatim]
+\frametitle{Hessian function}
+The hessian function can be obtained by:
+$$
+\begin{array}{lcl}
+\frac{\partial^2 l}{\partial \eta_k^2} &=& - \sum_i d_i \pi_{ki} (1-\pi_{ki})\\
+\frac{\partial^2 l}{\partial \eta_k \partial \eta_j} &=& \sum_i d_i \pi_{ki} \pi_{ji}
+\end{array}
+$$
+
+and the Hessian matrix can be computed as
+$$
+\begin{array}{lcl}
+H(\beta) &=& -\mathbf{X^T W X}\\
+&=& - \sum_j \sum_k  \pi_{kj} (x_k - E_j x) (x_k - E_j x)^T
+\end{array}
+$$
+\end{frame}
+
+\begin{frame}[t,containsverbatim]
+\frametitle{Newton-Raphson Updates}
+$$
+\hat{\beta}^{(m+1)} = \mathbf{(X^T W X)^{-1} X^T (d - Pd)} + \hat{\beta}^{(m)}
+$$
+\begin{lstlisting}
+for (i in 1:m){
+	eta <- X %*% b
+	haz <- as.numeric(exp(eta)) # w[i]
+	rsk <- rev(cumsum(rev(haz))) # W[i]
+	P <- outer(haz, rsk, '/')
+	P[upper.tri(P)] <- 0
+	W <- - P %*% diag(d) %*% t(1-P)
+	diag(W) <- diag(P %*% diag(P) %*% t(1-P))
+	b <- solve(t(X) %*% W %*% X) %*% t(X) %*% (d - P%*%d) + b
+}
+\end{lstlisting}
+
+The above R code assumes that the data has been sorted by time on study, and 
+assumes that no ties are present. 
+\end{frame}
+
+
+\begin{frame}[t,containsverbatim]
+\frametitle{Fit Cox Regression Model}
+<<eval=TRUE>>=
+# fit Cox
+fit.Cox <- coxph(Surv(Time, Status==0) ~ TRT, data=carcinoma)
+summary(fit.Cox)
+@
+\end{frame}
+
+
+\begin{frame}[t,containsverbatim]
+\frametitle{Fit Cox Regression Model with Covariate}
+<<eval=TRUE>>=
+# fit Cox
+fit.Cox.age <- coxph(Surv(Time, Status==0) ~ TRT + Age, data=carcinoma)
+summary(fit.Cox.age)
+@
+\end{frame}
+
+\subsection{Cox Model inference}
+
+\begin{frame}[t,containsverbatim]
+\frametitle{Cox model inference}
+\begin{itemize}
+	\item Wald test
+	\item Score test
+	\item Likelihood ratio test (LRT)
+\end{itemize}
+\end{frame}
+
+
+\begin{frame}[t,containsverbatim]
+\frametitle{Wald test}
+\begin{itemize}
+	\item Wald inference is based on the asymptotic result:
+	$$
+\hat{\beta} \stackrel{\cdot}{\sim} N(\beta, (X^T W X)^{-1}),
+	$$
+	\item The confidence interval are constructed using $\hat{\beta} \pm z_{\alpha/2} \sqrt{I_{jj}^{-1}}$
+\end{itemize}
+\end{frame}
+
+
+\begin{frame}[t,containsverbatim]
+\frametitle{Likelihood ratio test}
+Let $\hat{\beta}_0$ denote the fit of the first model and $\hat{\beta}_1$ denote the fit 
+of the second model, the likelihood ratio test (which is only requires fitting two nested 
+models) is based on
+$$
+2 (l(\hat{\beta}_1) - l(\hat{\beta}_0)) \stackrel{\cdot}{\sim} \chi_k^2
+$$
+where $k$ is the difference of number of parameters for the two models.
+
+\end{frame}
+
+
+\begin{frame}[t,containsverbatim]
+\frametitle{Score test}
+The score test statistic for testing $H_0: \beta = 0$ is
+$$
+\begin{array}{lcl}
+u(0) &=& \sum_j (x_j - E_j x)\\
+&=& \sum_j \left(d_{1j} - d_j \frac{n_{1j}}{n_j} \right)
+\end{array}
+$$
+The score test is in some sense equivalent to the log-rank test, although the variances 
+are calculated differently and therefore do not produce the exact same $p$-value.
+
+\end{frame}
+
+
+\begin{frame}[t,containsverbatim]
+\frametitle{coxph function}
+\begin{itemize}
+	\item The function for fitting Cox proportional hazards models in 
+ 		\texttt{survival} package.
+	\item The syntax is similar to other model-fitting functions in R:
+	\begin{lstlisting}
+fit <- coxph(Surv(time, status) ~ treatment + stage + hepato, pbc)
+	\end{lstlisting}
+	\item Several functions on the \texttt{coxph} object:
+	\begin{itemize}
+		\item \texttt{coef(fit)}: return the MLE of the coefficient vector.
+		\item \texttt{vcov(fit)}: return the inverse of the information matrix 
+			$\mathbf{(X^T W X)^{-1}}$
+		\item \texttt{model.matrix(fit)}: return $X$.
+		\item The Wald, score, LRT tests are testing the global hypotheses $H_0: 
+			\mathbf{\beta} = 0$
+		\item \texttt{anova(fit0, fit1)}
+		\item \texttt{loglik(fit), AIC(fit), BIC(fit)}
+		\item \texttt{predict(fit)}
+	\end{itemize}
+\end{itemize}
+\end{frame}
+
+
+\section{Cox PH Model Assessment}
+
+\begin{frame}[t,containsverbatim]
+\frametitle{Assesssment of the Cox Model}
+The Cox (PH) model:
+$$
+\lambda(t| Z(t)) = \lambda_0(t) \exp(Z(t)\beta)
+$$
+Assumption of this model:
+\begin{enumerate}[(1)]
+	\item the regression effect of $\beta$ is constant over time (PH assumption)
+	\item linear combination of the covariates (including possibly higher order 
+		terms, interactions)
+	\item the link function is exponential 
+\end{enumerate}
+\end{frame}
+
+\begin{frame}[t,containsverbatim]
+\frametitle{Using residuals for checking assumptions}
+In the regression analysis, the residuals are often used to check the assumptions. 
+However, residuals for survival data are somewhat different from those for the other 
+type of data models, mainly due to the existence of censoring:
+
+\begin{itemize} 
+	\item Generalized (Cox-Snell) residuals
+	\item \textbf{Schoenfeld residuals}
+	\item Martingale residuals
+\end{itemize}
+\end{frame}
+
+\begin{frame}[t,containsverbatim]
+\frametitle{\texttt{cox.zph} function}
+<<eval=TRUE,echo=TRUE>>=
+check <- cox.zph(fit.Cox, transform="log", global=TRUE)
+print(check)
+plot(check)
+@
+\end{frame}
+
+
+\begin{frame}[t,containsverbatim]
+\frametitle{Summary}
+Test of proportionality. The \texttt{cox.zph} function will test proportionality of 
+all the predictors in the model by creating interactions with time using the 
+transformation of time specified in the transform option. In this example we are 
+testing proportionality by looking at the interactions with \textbf{log(time)}. The 
+column \textbf{rho} is the Pearson product-moment correlation between the scaled 
+Schoenfeld residuals and \textbf{log(time)} for each covariate. The last row contains 
+the global test for all the interactions tested at once. A $p$-value less than 0.05 
+indicates a violation of the proportionality assumption.
+\end{frame}
+
+
+\section{Competing Risk}
+
+\begin{frame}[t,containsverbatim]
+\frametitle{Stem cell transplant for acute leukemia}
+In this clinical trial, 117 acute leukemia patients received stem cell 
+transplant. The aim of the analysis was to estimate the cumulative 
+incidence of relapse in the presence of transplant-related death, which 
+deals with competing events. The effect on relapse of predictive 
+factors and covariates such as Sex, Disease (lymphoblastic or 
+myeloblastic leukemia), Phase at transplant (Relapse, CR1, CR2, CR3), 
+Source of stem cells (bone marrow and peripheral blood (BM+PB), or 
+peripheral blood (PB), and Age will be evaluated.
+\end{frame}
+
+
+\begin{frame}[t,containsverbatim]
+\frametitle{Importing the data}
+<<eval=TRUE>>=
+bmt <- read.csv("data/bmtcrr.csv", header=TRUE)
+head(bmt)
+@
+\end{frame}
+
+\begin{frame}[t,containsverbatim]
+\frametitle{Type-specific hazard}
+\begin{itemize}
+	\item Assume that we have multiple failure types
+	\item Let $T$ denote the time until failure, and $J$ indicate 
+		the type of failure
+	\item The type-specific hazard is then defined as
+	$$
+\lambda_j(t) = \lim_{h \to 0} \frac{\mathcal{P}(t \le T < t + h, J=j|T \ge t)}{h}
+	$$
+	\item Then the overall hazard is
+	$$
+\lambda(t) = \sum_j \lambda_j(t)
+	$$
+	\item Therefore the overall survival becomes
+	$$
+S(t) = \exp\left\{ -\int_0^t \lambda(s) ds \right\}
+	$$  
+\end{itemize}
+\end{frame}
+
+
+\begin{frame}[t,containsverbatim]
+\frametitle{Recoding the covariates}
+<<eval=TRUE>>=
+attach(bmt)
+source("code/crr-addson.R")
+x <- cbind(Age, factor2ind(Sex, "M"), factor2ind(D, "ALL"),
+	factor2ind(Phase, "Relapse"), factor2ind(Source))
+head(x)
+@
+\end{frame}
+
+
+\begin{frame}[t,containsverbatim]
+\frametitle{Competing risk modeling}
+The main function to fit regression models for competing risks data is 
+\texttt{crr()}, which is contained in the \texttt{cmprsk} package. In the simplest 
+form it requires
+\begin{itemize}
+	\item a vector of follow-up times, 
+	\item a vector of status with a code for each failure type or censoring, 
+	\item a matrix of fixed covariates. 
+\end{itemize}
+
+By default, the censoring code for status is set by the optional argument \texttt{cencode=0}, 
+and the code that denotes the failure type of interest is set by the optional argument 
+\texttt{failcode=1}. 
+
+In our example, transplant-related death, which is the competing event, is coded with 2.
+\end{frame}
+
+\begin{frame}[t,containsverbatim]
+\frametitle{Regresison model for relapse}
+<<eval=TRUE>>=
+mod1 <- crr(ftime, Status, x)
+summary(mod1)
+@
+\end{frame}
+
+
+\begin{frame}[t,containsverbatim]
+\frametitle{Analysis of Results}
+\begin{itemize}
+	\item The first part of the output shows for each term in the 
+		design matrix
+	\begin{itemize}
+		\item the estimated coefficient $\hat{\beta}_j$
+		\item the relative risk $\exp(\hat{\beta}_j)$
+		\item the standard error
+		\item the $z$-value
+		\item the corresponding $P$-value
+	\end{itemize}
+	\item For Sex,
+	\begin{itemize}
+		\item $\hat{\beta}_{female} = -0.0352$
+		\item relative risk $0.965$ is the ratio of risk for 
+			female w.r.t. the male, with all other 
+			covariates equal.
+		\item $p$-value of 0.9000 indicates no significant 
+			effect.
+		\item for age, the relative risk of 0.982 is the 
+			relative risk for a 1 year increase in age. 
+	\end{itemize}
+\end{itemize}
+\end{frame}
+
+
+\end{CJK*}
+\end{document}
